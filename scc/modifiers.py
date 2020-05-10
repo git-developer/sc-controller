@@ -610,7 +610,7 @@ class DeadzoneModifier(Modifier):
 	
 	def _mod_init(self, *params):
 		if len(params) < 1: raise TypeError("Not enough parameters")
-		if type(params[0]) in (str, unicode):
+		if type(params[0]) is str:
 			self.mode = params[0]
 			if hasattr(self, "mode_" + self.mode):
 				self._convert = getattr(self, "mode_" + self.mode)
