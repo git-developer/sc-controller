@@ -313,14 +313,17 @@ class Monitor:
 			# udev_monitor_receive_device is _supposed_ to be blocking.
 			# It doesn't looks that way
 			return None
-		
+
+		devnode = self._eudev._lib.udev_device_get_devnode(dev)
+		devnode_str = str(devnode, "utf-8") if devnode else None
+
 		event = Monitor.DeviceEvent(
-			str(self._eudev._lib.udev_device_get_action(dev)),
-			str(self._eudev._lib.udev_device_get_devnode(dev)),
+			str(self._eudev._lib.udev_device_get_action(dev), "utf-8"),
+			devnode_str,
 			self._eudev._lib.udev_device_get_is_initialized(dev) == 1,
-			str(self._eudev._lib.udev_device_get_subsystem(dev)),
-			str(self._eudev._lib.udev_device_get_devtype(dev)),
-			str(self._eudev._lib.udev_device_get_syspath(dev)),
+			str(self._eudev._lib.udev_device_get_subsystem(dev), "utf-8"),
+			str(self._eudev._lib.udev_device_get_devtype(dev), "utf-8"),
+			str(self._eudev._lib.udev_device_get_syspath(dev), "utf-8"),
 			self._eudev._lib.udev_device_get_devnum(dev),
 		)
 		
