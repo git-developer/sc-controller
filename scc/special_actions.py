@@ -67,9 +67,9 @@ class ShellCommandAction(Action, SpecialAction):
 	SA = COMMAND = "shell"
 	
 	def __init__(self, command):
-		if type(command) == str:
-			command = command.decode("unicode_escape")
-		assert type(command) == unicode
+		#if type(command) == str:
+		#	command = command.decode("unicode_escape")
+		#assert type(command) == unicode
 		Action.__init__(self, command)
 		self.command = command
 	

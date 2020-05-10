@@ -107,9 +107,9 @@ class MenuEditor(Editor):
 		""" Handler for Save button """
 		self._remove_original()
 		if self.builder.get_object("rbInProfile").get_active():
-			self._save_to_profile(self.builder.get_object("entName").get_text().decode("utf-8"))
+			self._save_to_profile(self.builder.get_object("entName").get_text())
 		else:
-			self._save_to_file(self.builder.get_object("entName").get_text().decode("utf-8"))
+			self._save_to_file(self.builder.get_object("entName").get_text())
 		self.close()
 	
 	

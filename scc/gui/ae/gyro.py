@@ -65,7 +65,7 @@ class GyroComponent(AEComponent):
 			for a in actions:
 				if isinstance(a, GyroAction):
 					pars = ensure_size(3, a.parameters)
-					for i in xrange(0, 3):
+					for i in range(0, 3):
 						if pars[i] is not None:
 							self.axes[i] = pars[i]
 							self.cbs[i].set_active(isinstance(a, GyroAbsAction))
@@ -150,7 +150,7 @@ class GyroComponent(AEComponent):
 	
 	
 	def update(self, *a):
-		for i in xrange(0, 3):
+		for i in range(0, 3):
 			self.labels[i].set_label(describe_action(Action.AC_STICK, AxisAction, self.axes[i]))
 	
 	
@@ -167,7 +167,7 @@ class GyroComponent(AEComponent):
 		normal, n_set    = [ None, None, None ], False
 		absolute, a_set  = [ None, None, None ], False
 		
-		for i in xrange(0, 3):
+		for i in range(0, 3):
 			if self.axes[i]:
 				if self.cbs[i].get_active():
 					absolute[i] = self.axes[i]

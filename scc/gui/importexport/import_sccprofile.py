@@ -9,7 +9,7 @@ from scc.special_actions import ShellCommandAction
 from scc.profile import Profile, Encoder
 from scc.menu_data import MenuData
 from scc.gui.parser import GuiActionParser
-from export import Export
+from .export import Export
 
 import sys, os, json, tarfile, tempfile, logging
 log = logging.getLogger("IE.ImportSSCC")
@@ -55,7 +55,7 @@ class ImportSccprofile(object):
 		profile = Profile(GuiActionParser())
 		try:
 			profile.load(filename)
-		except Exception, e:
+		except Exception as e:
 			# Profile cannot be parsed. Display error message and let user to quit
 			# Error message reuses page from VDF import, because they are
 			# basically the same
@@ -101,7 +101,7 @@ class ImportSccprofile(object):
 					o = GObject.GObject()
 					o.obj = MenuData.from_fileobj(tar.extractfile(x), parser)
 					files.append(( True, name, name, _("(menu)"), o ))
-		except Exception, e:
+		except Exception as e:
 			# Either entire tar or some profile cannot be parsed.
 			# Display error message and let user to quit
 			# Error message reuses same page as above.
@@ -179,7 +179,7 @@ class ImportSccprofile(object):
 		rvAdvanced =		self.builder.get_object("rvImportPackageAdvanced")
 		btNext.set_label('Apply')
 		btNext.set_use_stock(True)
-		main_name = txName2.get_text().decode("utf-8")
+		main_name = txName2.get_text()
 		if self.check_name(main_name):
 			btNext.set_sensitive(True)
 		else:

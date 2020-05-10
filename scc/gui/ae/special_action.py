@@ -184,7 +184,7 @@ class SpecialActionComponent(AEComponent, MenuActionCofC):
 	def on_enCommand_changed(self, *a):
 		if self._recursing : return
 		enCommand = self.builder.get_object("enCommand")
-		self.editor.set_action(ShellCommandAction(enCommand.get_text().decode("utf-8")))
+		self.editor.set_action(ShellCommandAction(enCommand.get_text()))
 	
 	
 	def on_osd_settings_changed(self, *a):
@@ -197,8 +197,8 @@ class SpecialActionComponent(AEComponent, MenuActionCofC):
 		self.editor.set_action(OSDAction(
 			0 if timeout > 60.0 else timeout,
 			size,
-			enOSDText.get_text().decode("utf-8"
-		)))
+			enOSDText.get_text()
+		))
 	
 	
 	def on_exMenuControl_activate(self, ex, *a):

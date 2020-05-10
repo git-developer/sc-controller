@@ -48,7 +48,7 @@ def py_encode_basestring_ascii(s):
 
 	"""
 	if isinstance(s, str) and HAS_UTF8.search(s) is not None:
-		s = s.decode('utf-8')
+		s = s
 	def replace(match):
 		s = match.group(0)
 		try:
@@ -199,7 +199,8 @@ class JSONEncoder(object):
 			_encoding = self.encoding
 			if (_encoding is not None
 					and not (_encoding == 'utf-8')):
-				o = o.decode(_encoding)
+				#o = o.decode(_encoding)
+				o = o
 
 			if self.ensure_ascii:
 				return encode_basestring_ascii(o)
@@ -233,8 +234,8 @@ class JSONEncoder(object):
 			_encoder = encode_basestring
 		if self.encoding != 'utf-8':
 			def _encoder(o, _orig_encoder=_encoder, _encoding=self.encoding):
-				if isinstance(o, str):
-					o = o.decode(_encoding)
+				#if isinstance(o, str):
+				#	o = o.decode(_encoding)
 				return _orig_encoder(o)
 
 		def floatstr(o, allow_nan=self.allow_nan,

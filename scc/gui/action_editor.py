@@ -324,7 +324,7 @@ class ActionEditor(Editor):
 	def get_name(self):
 		""" Returns action name as set in editor entry """
 		entName = self.builder.get_object("entName")
-		return entName.get_text().decode("utf-8").strip(" \t")
+		return entName.get_text().strip(" \t")
 	
 	
 	def get_current_page(self):
