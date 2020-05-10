@@ -38,7 +38,7 @@ class GestureDisplay(OSDWindow):
    3  - erorr, failed to lock input
 	"""
 	__gsignals__ = {
-		b"gesture-updated"                    : (GObject.SignalFlags.RUN_FIRST, None, (str,)),
+		"gesture-updated"                    : (GObject.SignalFlags.RUN_FIRST, None, (str,)),
 	}
 
 	SIZE = 128	# times two horizontaly + borders
@@ -198,7 +198,7 @@ def main():
 		sys.exit(1)
 	gd.run()
 	if gd.get_exit_code() == 0:
-		print gd.get_gesture()
+		print(gd.get_gesture())
 	else:
 		sys.exit(gd.get_exit_code())
 

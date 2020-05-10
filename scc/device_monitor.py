@@ -85,7 +85,7 @@ class DeviceMonitor(Monitor):
 			try:
 				if cb(syspath, vendor, product) is None:
 					del self.known_devs[syspath]
-			except Exception, e:
+			except Exception as e:
 				log.exception(e)
 				del self.known_devs[syspath]
 	

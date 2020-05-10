@@ -336,7 +336,7 @@ class SCController(Controller):
 			SCPacketType.CONFIGURE,
 			SCPacketLength.LED,
 			SCConfigType.LED,
-			self._led_level
+			int(self._led_level)
 		))
 	
 	

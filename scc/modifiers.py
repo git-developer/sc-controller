@@ -921,7 +921,7 @@ class ModeModifier(Modifier):
 			for check in self.mods:
 				a_str = NameModifier.unstrip(self.mods[check]).to_string(True).split("\n")
 				a_str[0] = (" " * pad) + "  " + (nameof(check) + ",").ljust(11) + a_str[0]	# Key has to be one of SCButtons
-				for i in xrange(1, len(a_str)):
+				for i in range(1, len(a_str)):
 					a_str[i] = (" " * pad) + "  " + a_str[i]
 				a_str[-1] = a_str[-1] + ","
 				rv += a_str
@@ -1483,7 +1483,7 @@ class SmoothModifier(Modifier):
 		self.filter = filter
 		self._deq_x = deque([ 0.0 ] * level, maxlen=level)
 		self._deq_y = deque([ 0.0 ] * level, maxlen=level)
-		self._range = list(xrange(level))
+		self._range = list(range(level))
 		self._weights = [ multiplier ** x for x in reversed(self._range) ]
 		self._w_sum = sum(self._weights)
 		self._last_pos = None

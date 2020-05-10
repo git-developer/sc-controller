@@ -8,6 +8,6 @@ Used by OSD keyboard
 from __future__ import unicode_literals
 
 from scc.uinput import Keys
-from gdk_to_key import KEYCODE_TO_KEY
+from .gdk_to_key import KEYCODE_TO_KEY
 
 KEY_TO_KEYCODE = { KEYCODE_TO_KEY[a] : a for a in KEYCODE_TO_KEY }

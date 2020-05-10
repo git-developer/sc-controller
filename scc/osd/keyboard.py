@@ -110,10 +110,11 @@ class KeyboardImage(Gtk.DrawingArea):
 	def set_labels(self, labels):
 		for b in self.buttons:
 			label = labels.get(b)
-			if type(label) in (long, int):
+			if type(label) in (int,):
 				pass
 			elif label:
-				b.label = label.encode("utf-8")
+				#b.label = label.encode("utf-8")
+				b.label = label
 		self.queue_draw()
 	
 	
@@ -134,17 +135,17 @@ class KeyboardImage(Gtk.DrawingArea):
 		into "symbolic" image by inverting colors of pixels where opacity is
 		greater than threshold.
 		"""
-		pixels = [ ord(x) for x in buf.get_pixels() ]
+		pixels = [ x for x in buf.get_pixels() ]
 		bpp = 4 if buf.get_has_alpha() else 3
 		w, h = buf.get_width(), buf.get_height()
 		stride = buf.get_rowstride()
-		for i in xrange(0, len(pixels), bpp):
+		for i in range(0, len(pixels), bpp):
 			if pixels[i + 3] > 64:
 				pixels[i + 0] = 255 - pixels[i + 0]
 				pixels[i + 1] = 255 - pixels[i + 1]
 				pixels[i + 2] = 255 - pixels[i + 2]
 		
-		pixels = b"".join([ chr(x) for x in pixels])
+		pixels = b"".join([ chr(x).encode('latin-1') for x in pixels])
 		rv = GdkPixbuf.Pixbuf.new_from_data(
 			pixels,
 			buf.get_colorspace(),
@@ -459,7 +460,7 @@ class Keyboard(OSDWindow, TimerManager):
 				else:
 					code = Gdk.keyval_to_unicode(translation[1])
 				if code >= 33:			 		# Printable chars, w/out space
-					labels[button] = unichr(code).strip()
+					labels[button] = chr(code).strip()
 				else:
 					labels[button] = SPECIAL_KEYS.get(code)
 		self.background.set_labels(labels)

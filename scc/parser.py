@@ -106,7 +106,7 @@ class ActionParser(object):
 			self.tokens = [
 				ActionParser.Token(type, string)
 				for (type, string, trash, trash, trash)
-				in generate_tokens( iter([string]).next )
+				in generate_tokens( iter([string]).__next__ )
 				if type != TokenType.ENDMARKER
 			]
 		except TokenError:
@@ -193,7 +193,8 @@ class ActionParser(object):
 			return self._parse_number()
 		
 		if t.type == TokenType.STRING:
-			return t.value[1:-1].decode('string_escape')
+			#return t.value[1:-1].decode('string_escape')
+			return t.value[1:-1]
 		
 		raise ParseError("Expected parameter, got '%s'" % (t.value,))
 
@@ -253,9 +254,9 @@ class ActionParser(object):
 	def _create_action(self, cls, *pars):
 		try:
 			return cls(*pars)
-		except ValueError, e:
+		except ValueError as e:
 			raise ParseError(unicode(e))
-		except TypeError, e:
+		except TypeError as e:
 			print >>sys.stderr, e
 			raise ParseError("Invalid number of parameters for '%s'" % (cls.COMMAND))
 	
@@ -367,5 +368,5 @@ class TalkingActionParser(ActionParser):
 		"""
 		try:
 			return ActionParser.parse(self)
-		except ParseError, e:
+		except ParseError as e:
 			print >>sys.stderr, "Warning: Failed to parse '%s':" % (self.string,), e

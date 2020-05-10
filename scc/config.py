@@ -135,7 +135,7 @@ class Config(object):
 		""" (Re)loads configuration. Works as load(), but handles exceptions """
 		try:
 			self.load()
-		except Exception, e:
+		except Exception as e:
 			log.warning("Failed to load configuration; Creating new one.")
 			log.warning("Reason: %s", (e,))
 			self.create()
@@ -221,7 +221,7 @@ class Config(object):
 		# Save
 		data = { k:self.values[k] for k in self.values }
 		jstr = Encoder(sort_keys=True, indent=4).encode(data)
-		file(self.filename, "w").write(jstr)
+		open(self.filename, "w").write(jstr)
 		log.debug("Configuration saved")
 	
 	

@@ -256,7 +256,7 @@ class GestureGrabber(object):
 				'A', 'Y'
 			)
 			self._signals = [ (c, c.connect('event', self.on_event)) ]
-		except IndexError, e:
+		except IndexError as e:
 			# No controllers
 			self.fail()
 	

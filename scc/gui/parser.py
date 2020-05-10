@@ -46,7 +46,7 @@ class GuiActionParser(ActionParser):
 			a = ActionParser.parse(self)
 			a.string = self.string
 			return a
-		except ParseError, e:
+		except ParseError as e:
 			log.error("Failed to parse '%s'", self.string)
 			log.error(e)
 			return InvalidAction(self.string, e)

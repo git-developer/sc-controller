@@ -38,7 +38,7 @@ class ControllerWidget:
 	def __init__(self, app, id, use_icon, widget):
 		self.app = app
 		self.id = id
-		self.name = id if type(id) in (str, unicode) else id.name
+		self.name = id if type(id) in (str,) else id.name
 		self.widget = widget
 		
 		self.label = Gtk.Label()

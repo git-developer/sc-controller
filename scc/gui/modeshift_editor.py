@@ -98,7 +98,7 @@ class ModeshiftEditor(Editor):
 			if any([ x[0] == item for x in self.actions[self.current_page] ]):
 				# Skip already added buttons
 				continue
-			if type(item) in (str, unicode):
+			if type(item) is str:
 				# Special case for soft pull items
 				button = getattr(SCButtons, item.split(" ")[-1])
 				if any([ (isinstance(x, RangeOP) and x.what == button)

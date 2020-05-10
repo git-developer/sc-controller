@@ -60,15 +60,15 @@ class DaemonManager(GObject.GObject):
 	"""
 	
 	__gsignals__ = {
-			b"alive"					: (GObject.SignalFlags.RUN_FIRST, None, ()),
-			b"controller-count-changed"	: (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-			b"dead"						: (GObject.SignalFlags.RUN_FIRST, None, ()),
-			b"error"					: (GObject.SignalFlags.RUN_FIRST, None, (object,)),
-			b"event"					: (GObject.SignalFlags.RUN_FIRST, None, (object,object,object)),
-			b"profile-changed"			: (GObject.SignalFlags.RUN_FIRST, None, (object,)),
-			b"reconfigured"				: (GObject.SignalFlags.RUN_FIRST, None, ()),
-			b"unknown-msg"				: (GObject.SignalFlags.RUN_FIRST, None, (object,)),
-			b"version"					: (GObject.SignalFlags.RUN_FIRST, None, (object,)),
+			"alive"					: (GObject.SignalFlags.RUN_FIRST, None, ()),
+			"controller-count-changed"	: (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+			"dead"						: (GObject.SignalFlags.RUN_FIRST, None, ()),
+			"error"					: (GObject.SignalFlags.RUN_FIRST, None, (object,)),
+			"event"					: (GObject.SignalFlags.RUN_FIRST, None, (object,object,object)),
+			"profile-changed"			: (GObject.SignalFlags.RUN_FIRST, None, (object,)),
+			"reconfigured"				: (GObject.SignalFlags.RUN_FIRST, None, ()),
+			"unknown-msg"				: (GObject.SignalFlags.RUN_FIRST, None, (object,)),
+			"version"					: (GObject.SignalFlags.RUN_FIRST, None, (object,)),
 	}
 	
 	RECONNECT_INTERVAL = 5
@@ -146,7 +146,7 @@ class DaemonManager(GObject.GObject):
 			self.connection = sc.connect_finish(results)
 			if self.connection == None:
 				raise Exception("Unknown error")
-		except Exception, e:
+		except Exception as e:
 			self._on_daemon_died()
 			return
 		self.buffer = ""
@@ -160,7 +160,7 @@ class DaemonManager(GObject.GObject):
 			response = sc.read_bytes_finish(results)
 			if response == None:
 				raise Exception("No data recieved")
-		except Exception, e:
+		except Exception as e:
 			# Broken sonnection, daemon was probbaly terminated
 			self._on_daemon_died()
 			return
@@ -195,7 +195,7 @@ class DaemonManager(GObject.GObject):
 				c = self.get_controller(controller_id)
 				c._connected = True
 				c._type = type
-				c._flags = long(flags)
+				c._flags = int(flags)
 				c._config_file = None if config_file in ("", "None") else config_file
 				while c in self._controllers:
 					self._controllers.remove(c)
@@ -252,9 +252,10 @@ class DaemonManager(GObject.GObject):
 		Creates request and remembers callback for next 'Ok' or 'Fail' message.
 		"""
 		if self.alive and self.connection is not None:
+			tmp = message if type(message) == bytes else bytes(message, "utf-8")
 			self._requests.append(( success_cb, error_cb ))
 			(self.connection.get_output_stream()
-				.write_all(message.encode('utf-8') + b'\n', None))
+				.write_all(tmp + b'\n', None))
 		else:
 			# Instant failure
 			error_cb("Not connected.")
@@ -336,9 +337,9 @@ class ControllerManager(GObject.GObject):
 	"""
 	
 	__gsignals__ = {
-			b"event"			: (GObject.SignalFlags.RUN_FIRST, None, (object,object)),
-			b"lost"				: (GObject.SignalFlags.RUN_FIRST, None, ()),
-			b"profile-changed"	: (GObject.SignalFlags.RUN_FIRST, None, (object,)),
+			"event"			: (GObject.SignalFlags.RUN_FIRST, None, (object,object)),
+			"lost"				: (GObject.SignalFlags.RUN_FIRST, None, ()),
+			"profile-changed"	: (GObject.SignalFlags.RUN_FIRST, None, (object,)),
 	}
 	
 	DEFAULT_ICONS = [ "A", "B", "X", "Y", "BACK", "C", "START",
@@ -425,7 +426,7 @@ class ControllerManager(GObject.GObject):
 			try:
 				data = json.loads(open(filename, "r").read()) or None
 				return data
-			except Exception, e:
+			except Exception as e:
 				log.exception(e)
 		return None
 	

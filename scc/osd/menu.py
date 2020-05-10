@@ -228,7 +228,7 @@ class Menu(OSDWindow):
 			max_id_len = max(*[ len(x.id) for x in self.items ])
 			row_format ="{:>%s}:\t{}" % (max_id_len,)
 			for item in self.items:
-				print row_format.format(item.id, item.label)
+				print(row_format.format(item.id, item.label))
 		return True
 	
 	

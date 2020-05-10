@@ -52,7 +52,7 @@ class AutoSwitcher(object):
 					astr = astr["action"]
 				action = parser.restart(astr).parse()
 				conds[Condition.parse(c['condition'])] = action
-			except Exception, e:
+			except Exception as e:
 				# Failure here is not fatal
 				log.error("Failed to parse autoswitcher condition '%s'", c)
 				log.error(e)
@@ -132,11 +132,11 @@ class AutoSwitcher(object):
 		log.debug("Window switched: %s", w)
 		pars = X.get_window_title(self.dpy, w), X.get_window_class(self.dpy, w)
 
-                if pars[0] is None:
-                        pars = ("",pars[1])
+		if pars[0] is None:
+			pars = ("",pars[1])
 
-                if pars[1] is None:
-                        pars = (pars[0], ("",""))
+		if pars[1] is None:
+			pars = (pars[0], ("",""))
 
 		for c in self.conds:
 			if c.matches(*pars):

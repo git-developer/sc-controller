@@ -9,10 +9,15 @@ from __future__ import unicode_literals
 from scc.tools import _
 
 from gi.repository import Gtk, Gdk, GObject, GdkPixbuf, Rsvg
-from xml.etree import ElementTree as ET
+#from xml.etree import ElementTree as ET
 from math import sin, cos, pi as PI
 from collections import OrderedDict
 import os, sys, re, logging
+import importlib
+
+sys.modules.pop('xml.etree.ElementTree', None)
+sys.modules['_elementtree'] = None
+ET = importlib.import_module('xml.etree.ElementTree')
 
 log = logging.getLogger("Background")
 ET.register_namespace('', "http://www.w3.org/2000/svg")
@@ -24,11 +29,11 @@ class SVGWidget(Gtk.EventBox):
 	
 	__gsignals__ = {
 			# Raised when mouse is over defined area
-			b"hover"	: (GObject.SignalFlags.RUN_FIRST, None, (object,)),
+			"hover"	: (GObject.SignalFlags.RUN_FIRST, None, (object,)),
 			# Raised when mouse leaves all defined areas
-			b"leave"	: (GObject.SignalFlags.RUN_FIRST, None, ()),
+			"leave"	: (GObject.SignalFlags.RUN_FIRST, None, ()),
 			# Raised user clicks on defined area
-			b"click"	: (GObject.SignalFlags.RUN_FIRST, None, (object,)),
+			"click"	: (GObject.SignalFlags.RUN_FIRST, None, (object,)),
 	}
 	
 	
@@ -53,7 +58,7 @@ class SVGWidget(Gtk.EventBox):
 	
 	
 	def set_image(self, filename):
-		self.current_svg = open(filename, "r").read().decode("utf-8")
+		self.current_svg = open(filename, "r").read()
 		self.cache = OrderedDict()
 		self.areas = []
 		self.parse_image()
@@ -197,10 +202,11 @@ class SVGWidget(Gtk.EventBox):
 			# 200 images by hand;
 			if len(buttons) == 0:
 				# Quick way out - changes are not needed
-				svg = Rsvg.Handle.new_from_data(self.current_svg.encode("utf-8"))
+				tmp = self.current_svg.encode('utf-8') if type(self.current_svg) == str else self.current_svg
+				svg = Rsvg.Handle.new_from_data(tmp)
 			else:
 				# 1st, parse source as XML
-				tree = ET.fromstring(self.current_svg.encode("utf-8"))
+				tree = ET.fromstring(self.current_svg)
 				# 2nd, change colors of some elements
 				for button in buttons:
 					el = SVGEditor.find_by_id(tree, button)
@@ -211,7 +217,7 @@ class SVGWidget(Gtk.EventBox):
 				xml = ET.tostring(tree)
 				
 				# ... and now, parse that as XML again......
-				svg = Rsvg.Handle.new_from_data(xml.encode("utf-8"))
+				svg = Rsvg.Handle.new_from_data(xml)
 			while len(self.cache) >= self.CACHE_SIZE:
 				self.cache.popitem(False)
 			if self.size_override:
@@ -272,9 +278,9 @@ class SVGEditor(object):
 		if type(svgw) == str:
 			self._svgw = None
 			self._tree = ET.fromstring(svgw)
-		elif type(svgw) == unicode:
-			self._svgw = None
-			self._tree = ET.fromstring(svgw.encode("utf-8"))
+		#elif type(svgw) == unicode:
+		#	self._svgw = None
+		#	self._tree = ET.fromstring(svgw.encode("utf-8"))
 		else:
 			self._svgw = svgw
 			self._tree = ET.fromstring(svgw.current_svg.encode("utf-8"))

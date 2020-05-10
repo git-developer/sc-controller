@@ -105,7 +105,7 @@ class JSONEncoder(object):
 	def __init__(self, skipkeys=False, ensure_ascii=True,
 			check_circular=True, allow_nan=True, sort_keys=False,
 			indent=None, separators=None, encoding='utf-8', default=None):
-		"""Constructor for JSONEncoder, with sensible defaults.
+		r"""Constructor for JSONEncoder, with sensible defaults.
 
 		If skipkeys is false, then it is a TypeError to attempt
 		encoding of keys that are not str, int, long, float or None.  If
@@ -195,12 +195,12 @@ class JSONEncoder(object):
 
 		"""
 		# This is for extremely simple cases and benchmarks.
-		if isinstance(o, basestring):
-			if isinstance(o, str):
-				_encoding = self.encoding
-				if (_encoding is not None
-						and not (_encoding == 'utf-8')):
-					o = o.decode(_encoding)
+		if isinstance(o, str):
+			_encoding = self.encoding
+			if (_encoding is not None
+					and not (_encoding == 'utf-8')):
+				o = o.decode(_encoding)
+
 			if self.ensure_ascii:
 				return encode_basestring_ascii(o)
 			else:
@@ -277,14 +277,14 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
 		_key_separator, _item_separator, _sort_keys, _skipkeys, _one_shot,
 		## HACK: hand-optimized bytecode; turn globals into locals
 		ValueError=ValueError,
-		basestring=basestring,
+		basestring=str,
 		dict=dict,
 		float=float,
 		id=id,
 		int=int,
 		isinstance=isinstance,
 		list=list,
-		long=long,
+		long=int,
 		str=str,
 		tuple=tuple,
 	):

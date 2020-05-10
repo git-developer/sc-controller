@@ -115,9 +115,10 @@ class OSDDaemon(object):
 		if m.get_exit_code() == 0:
 			# 0 means that user selected item and confirmed selection
 			self.daemon.request(
-				'Selected: %s' % ( shjoin([
-					m.get_menuid(), m.get_selected_item_id()
-				])),
+				'Selected: {} {}'.format(m.get_menuid(), m.get_selected_item_id()),
+				#'Selected: %s' % ( shjoin([
+				#	m.get_menuid(), m.get_selected_item_id()
+				#])),
 				lambda *a : False, lambda *a : False)
 	
 	
@@ -173,9 +174,10 @@ class OSDDaemon(object):
 				# TODO: Do this only for default position once changing
 				# TODO: is allowed
 				if len(self._visible_messages):
-					height = self._visible_messages.values()[0].get_size().height
+					tmp = list(self._visible_messages.values())
+					height = tmp[0].get_size().height
 					x, y = m.position
-					while y in [ i.position[1] for i in self._visible_messages.values() ]:
+					while y in [ i.position[1] for i in tmp ]:
 						y -= height + 5
 					m.position = x, y
 				m.show()
@@ -264,7 +266,7 @@ class OSDDaemon(object):
 		If only_long_lasting is True, which is default behaviour on profile
 		change, only messages set to last more than 10s are hidden.
 		"""
-		to_destroy = [] + self._visible_messages.values()
+		to_destroy = [] + list(self._visible_messages.values())
 		for m in to_destroy:
 			if not only_long_lasting or m.timeout <= 0 or m.timeout > OSDAction.DEFAULT_TIMEOUT * 2:
 				m.destroy()

@@ -70,7 +70,7 @@ class OSDWindow(Gtk.Window):
 		colors = OSDCssMagic(colors)
 		try:
 			css_file = os.path.join(get_share_path(), "osd-styles", config["osd_style"])
-			css = file(css_file, "r").read()
+			css = open(css_file, "r").read()
 			if ((Gtk.get_major_version(), Gtk.get_minor_version()) > (3, 20)):
 				css += OSDWindow.CSS_3_20
 			OSDWindow.css_provider = Gtk.CssProvider()
@@ -79,7 +79,7 @@ class OSDWindow(Gtk.Window):
 					Gdk.Screen.get_default(),
 					OSDWindow.css_provider,
 					Gtk.STYLE_PROVIDER_PRIORITY_USER)
-		except GLib.Error, e:
+		except GLib.Error as e:
 			log.error("Failed to apply css with user settings:")
 			log.error(e)
 			log.error("Retrying with default values")
@@ -133,7 +133,7 @@ class OSDWindow(Gtk.Window):
 			self.args = self.argparser.parse_args(argv[1:])
 		except SystemExit:
 			return False
-		except BaseException, e:	# Includes SystemExit
+		except BaseException as e:	# Includes SystemExit
 			log.error(traceback.format_exc())
 			return False
 		del self.argparser
@@ -290,7 +290,7 @@ class StickController(GObject.GObject, TimerManager):
 	  Both values are one of -1, 0, 1 for left/none/right.
 	"""
 	__gsignals__ = {
-			b"direction"			: (GObject.SignalFlags.RUN_FIRST, None, (int, int)),
+			"direction"			: (GObject.SignalFlags.RUN_FIRST, None, (int, int)),
 	}
 	REPEAT_DELAY = 0.2
 	DIRECTION_TO_XY = {

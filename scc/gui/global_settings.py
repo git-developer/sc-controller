@@ -633,7 +633,7 @@ class GlobalSettings(Editor, UserDataManager, ComboSetter):
 			# in field and don't allow user to save unless expression is valid
 			try:
 				re.compile(ent.get_text().decode("utf-8"))
-			except Exception, e:
+			except Exception as e:
 				log.error(e)
 				btSave.set_sensitive(False)
 				return
@@ -713,7 +713,7 @@ class GlobalSettings(Editor, UserDataManager, ComboSetter):
 				GuiActionParser())
 			index = int(widget.get_name().split("_")[-1])
 			instance = GlobalSettings._make_mi_instance(index)
-		except Exception, e:
+		except Exception as e:
 			log.error(traceback.format_exc())
 			self._recursing = True
 			widget.set_active(not widget.get_active())
@@ -765,13 +765,13 @@ class GlobalSettings(Editor, UserDataManager, ComboSetter):
 		"""
 		try:
 			data = MenuData.from_fileobj(open(find_menu("Default.menu"), "r"))
-		except Exception, e:
+		except Exception as e:
 			# Shouldn't really happen
 			log.error(traceback.format_exc())
 			return
 		self._recursing = True
 		
-		for index in xrange(0, len(GlobalSettings.DEFAULT_MENU_OPTIONS)):
+		for index in range(0, len(GlobalSettings.DEFAULT_MENU_OPTIONS)):
 			id = "cbMI_%s" % (index,)
 			instance = GlobalSettings._make_mi_instance(index)
 			present = ( instance.describe().strip(" >")
@@ -812,7 +812,7 @@ class GlobalSettings(Editor, UserDataManager, ComboSetter):
 			path = model[iter][0]
 			try:
 				os.unlink(path)
-			except Exception, e:
+			except Exception as e:
 				log.exception(e)
 			self._needs_restart()
 			self.load_controllers()

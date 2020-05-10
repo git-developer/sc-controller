@@ -205,7 +205,7 @@ class MenuActionCofC(UserDataManager):
 				fname = os.path.join(get_menus_path(), id)
 				try:
 					os.unlink(fname)
-				except Exception, e:
+				except Exception as e:
 					log.error("Failed to remove %s: %s", fname, e)
 			else:
 				del self.app.current.menus[id]

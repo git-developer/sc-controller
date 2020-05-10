@@ -50,10 +50,10 @@ def init_logging(prefix="", suffix=""):
 	old_log = logging.Logger._log
 	def _log(self, level, msg, args, exc_info=None, extra=None):
 		args = tuple([
-			(str(c).decode("utf-8") if type(c) is str else c)
+			(c.decode("utf-8") if type(c) is bytes else c)
 			for c in args
 		])
-		msg = msg if type(msg) is unicode else str(msg).decode("utf-8")
+		#msg = msg if type(msg) is str else msg.decode("utf-8")
 		old_log(self, level, msg, args, exc_info, extra)
 	logging.Logger._log = _log
 
@@ -123,7 +123,7 @@ def nameof(e):
 
 def shjoin(lst):
 	""" Joins list into shell-escaped, utf-8 encoded string """
-	s = [ unicode(x).encode("utf-8") for x in lst ]
+	s = [ x.encode("utf-8") for x in lst ]
 	#   - escape quotes
 	s = [ x.encode('string_escape') if (b'"' in x or b"'" in x) else x for x in s ]
 	#   - quote strings with spaces
@@ -134,9 +134,9 @@ def shjoin(lst):
 def shsplit(s):
 	""" Returs original list from what shjoin returned """
 	lex = shlex.shlex(s, posix=True)
-	lex.escapedquotes = b'"\''
+	lex.escapedquotes = '"\''
 	lex.whitespace_split = True
-	return [ x.decode('utf-8') for x in list(lex) ]
+	return [ x for x in list(lex) ]
 
 
 def static_vars(**kwargs):
