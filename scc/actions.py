@@ -2481,8 +2481,10 @@ class NoAction(Action):
 		return cls._singleton
 	
 	
-	def __nonzero__(self):
+	def __bool__(self):
 		return False
+
+	__nonzero__ = __bool__
 	
 	
 	def encode(self):
