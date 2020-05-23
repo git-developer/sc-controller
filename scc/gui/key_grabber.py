@@ -38,7 +38,7 @@ class KeyGrabber(object):
 	
 	def __new__(cls, *a):
 		if cls._singleton is None:
-			cls._singleton = object.__new__(cls, *a)
+			cls._singleton = object.__new__(cls)
 		return cls._singleton
 	
 	
