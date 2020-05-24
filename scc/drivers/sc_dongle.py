@@ -73,7 +73,7 @@ class Dongle(USBDevice):
 		self.claim_by(klass=3, subclass=0, protocol=0)
 		self._controllers = {}
 		self._no_serial = []
-		for i in xrange(0, Dongle.MAX_ENDPOINTS):
+		for i in range(0, Dongle.MAX_ENDPOINTS):
 			# Steam dongle apparently can do only 4 controllers at once
 			self.set_input_interrupt(FIRST_ENDPOINT + i, 64, self._on_input)
 	
@@ -102,7 +102,7 @@ class Dongle(USBDevice):
 		tup = ControllerInput._make(struct.unpack(TUP_FORMAT, data))
 		if tup.status == SCStatus.HOTPLUG:
 			# Most of INPUT_FORMAT doesn't apply here
-			if ord(data[4]) == 2:
+			if ord(str(data[4])) == 2:
 				# Controller connected
 				if endpoint not in self._controllers:
 					self._add_controller(endpoint)
