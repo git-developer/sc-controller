@@ -221,7 +221,7 @@ class UInput(object):
 		self._ff_events = None
 		if rumble:
 			self._ff_events = (POINTER(FeedbackEvent) * MAX_FEEDBACK_EFFECTS)()
-			for i in xrange(MAX_FEEDBACK_EFFECTS):
+			for i in range(MAX_FEEDBACK_EFFECTS):
 				self._ff_events[i].contents = FeedbackEvent()
 		
 		try:

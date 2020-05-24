@@ -57,7 +57,7 @@ import collections
 import functools
 import contextlib
 import inspect
-import libusb1
+from scc.lib import libusb1
 if sys.version_info[:2] >= (2, 6):
 # pylint: disable=wrong-import-order,ungrouped-imports
     if sys.platform == 'win32':
