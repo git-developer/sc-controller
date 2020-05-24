@@ -299,7 +299,7 @@ def is_gyro_enable(modemod):
 	if isinstance(modemod, ModeModifier):
 		if len(modemod.mods) != 1:
 			return False
-		action = modemod.mods.values()[0]
+		action = list(modemod.mods.values())[0]
 		if modemod.default:
 			if not action:
 				# Possibly, default action is gyro and mode is NoAction.
