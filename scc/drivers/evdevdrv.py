@@ -137,7 +137,7 @@ class EvdevController(Controller):
 		magic_number = 0
 		id = None
 		while id is None or id in self.daemon.get_active_ids():
-			crc32 = binascii.crc32("%s%s" % (self.device.name, magic_number))
+			crc32 = binascii.crc32(b"%s%d" % (bytes(self.device.name, 'utf-8'), magic_number))
 			id = "ev%s" % (hex(crc32).upper().strip("-0X"),)
 			magic_number += 1
 		return id
@@ -148,7 +148,7 @@ class EvdevController(Controller):
 
 
 	def __repr__(self):
-		return "<Evdev %s>" % (self.device.name.decode("utf-8"),)
+		return "<Evdev %s>" % self.device.name
 
 
 	def input(self, *a):
@@ -408,7 +408,7 @@ class EvdevDriver(object):
 				log.exception(e)
 				return False
 			try:
-				controller = EvdevController(self.daemon, dev, config_file.decode("utf-8"), config)
+				controller = EvdevController(self.daemon, dev, config_file, config)
 			except Exception as e:
 				log.debug("Failed to add evdev device: %s", e)
 				log.exception(e)
