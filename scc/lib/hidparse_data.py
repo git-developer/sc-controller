@@ -413,7 +413,7 @@ class KeyboardKeypadPage(IntEnum):
 	LockingCapsLock = 0x82
 	LockingNumLock = 0x83
 	LockingScrollLock = 0x84
-	Comma = 0x85
+	CommaSign = 0x85
 	EqualSign = 0x86
 	KeyboardInternational1 = 0x87
 	KeyboardInternational2 = 0x88

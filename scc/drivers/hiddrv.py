@@ -32,7 +32,7 @@ SYS_DEVICES = "/sys/devices"
 BLACKLIST = [
 	# List of devices known to pretend to be HID compatible but breaking horribly with HID
 	# vendor, product
-	(0x045e, 0x0719),	# Xbox controller	
+	(0x045e, 0x0719),	# Xbox controller
 	(0x045e, 0x028e),	# Xbox wireless adapter
 	(0x0738, 0x4716),	# Mad Catz, Inc controller
 ]
@@ -140,7 +140,7 @@ class AxisData(ctypes.Structure):
 		('byte_offset', ctypes.c_size_t),
 		('bit_offset', ctypes.c_uint8),
 		('size', ctypes.c_uint8),	# TODO: Currently unused
-		
+
 		('data', AxisDataUnion),
 	]
 
@@ -161,7 +161,7 @@ class HIDDecoder(ctypes.Structure):
 		('axes', AxisData * AXIS_COUNT),
 		('buttons', ButtonData),
 		('packet_size', ctypes.c_size_t),
-		
+
 		('old_state', HIDControllerInput),
 		('state', HIDControllerInput),
 	]
@@ -180,13 +180,13 @@ class HIDController(USBDevice, Controller):
 			| ControllerFlags.SEPARATE_STICK
 			| ControllerFlags.HAS_DPAD
 			| ControllerFlags.NO_GRIPS )
-	
+
 	def __init__(self, device, daemon, handle, config_file, config, test_mode=False):
 		USBDevice.__init__(self, device, handle)
 		self._ready = False
 		self.daemon = daemon
 		self.config_file = config_file
-		
+
 		id = None
 		max_size = 64
 		for inter in self.device[0]:
@@ -197,12 +197,12 @@ class HIDController(USBDevice, Controller):
 							if id is None or endpoint.getAddress() > id:
 								id = endpoint.getAddress()
 								max_size = endpoint.getMaxPacketSize()
-		
+
 		if id is None:
 			raise NotHIDDevice()
-		
+
 		log.debug("Endpoint: %s", id)
-		
+
 		vid, pid = self.device.getVendorID(), self.device.getProductID()
 		if (vid, pid) in BLACKLIST:
 			raise NotHIDDevice("Blacklisted device: %x:%x", vid, pid)
@@ -210,10 +210,11 @@ class HIDController(USBDevice, Controller):
 		self._load_hid_descriptor(config, max_size, vid, pid, test_mode)
 		self.claim_by(klass=DEV_CLASS_HID, subclass=0, protocol=0)
 		Controller.__init__(self)
-		
+
 		if test_mode:
 			self.set_input_interrupt(id, self._packet_size, self.test_input)
-				
+
+
 			print("Buttons:", " ".join([ str(x + FIRST_BUTTON)
 					for x in xrange(self._decoder.buttons.button_count) ]))
 			print("Axes:", " ".join([ str(x)
@@ -226,8 +227,8 @@ class HIDController(USBDevice, Controller):
 			self.set_input_interrupt(id, self._packet_size, self.input)
 			self.daemon.add_controller(self)
 			self._ready = True
-	
-	
+
+
 	def _load_hid_descriptor(self, config, max_size, vid, pid, test_mode):
 		hid_descriptor = HIDController.find_sys_devices_descriptor(vid, pid)
 		if hid_descriptor is None:
@@ -236,13 +237,13 @@ class HIDController(USBDevice, Controller):
 		open("report", "wb").write(b"".join([ chr(x) for x in hid_descriptor ]))
 		self._build_hid_decoder(hid_descriptor, config, max_size)
 		self._packet_size = self._decoder.packet_size
-	
-	
+
+
 	def _build_button_map(self, config):
 		"""
 		Returns button  map readed from configuration, in format situable
 		for HIDDecoder.buttons.button_map field.
-		
+
 		Generates default if config is not available.
 		"""
 		if config:
@@ -260,10 +261,10 @@ class HIDController(USBDevice, Controller):
 					buttons[keycode] = self.button_to_bit(getattr(SCButtons, value))
 		else:
 			buttons = list(xrange(BUTTON_COUNT))
-		
+
 		return (ctypes.c_uint8 * BUTTON_COUNT)(*buttons)
-	
-	
+
+
 	@staticmethod
 	def button_to_bit(sc):
 		sc, bit = int(sc), 0
@@ -273,8 +274,8 @@ class HIDController(USBDevice, Controller):
 		if sc & 1 == 1:
 			return bit
 		return BUTTON_COUNT - 1
-	
-	
+
+
 	def _build_axis_maping(self, axis, config, mode = AxisMode.AXIS):
 		"""
 		Converts configuration mapping for _one_ axis to value situable
@@ -318,8 +319,8 @@ class HIDController(USBDevice, Controller):
 				axis_data = AxisData(mode = AxisMode.DISABLED)
 			return target, axis_data
 		return None, None
-	
-	
+
+
 	def _build_hid_decoder(self, data, config, max_size):
 		size, count, total, kind = 1, 0, 0, None
 		next_axis = AxisType.AXIS_LPAD_X
@@ -402,24 +403,24 @@ class HIDController(USBDevice, Controller):
 					else:
 						log.debug("Skipped over %s bits for %s at bit %s", count * size, kind, total)
 						total += count * size
-		
+
 		self._decoder.packet_size = total / 8
 		if total % 8 > 0:
 			self._decoder.packet_size += 1
 		if self._decoder.packet_size > max_size:
 			self._decoder.packet_size = max_size
 		log.debug("Packet size: %s", self._decoder.packet_size)
-	
-	
+
+
 	@staticmethod
 	def find_sys_devices_descriptor(vid, pid):
 		"""
 		Finds, loads and returns HID descriptor available somewhere deep in
 		/sys/devices structure.
-		
+
 		Done by walking /sys/devices recursivelly, searching for file named
 		'report_descriptor' in subdirectory with name contining vid and pid.
-		
+
 		This is very much prefered before loading HID descriptor from device,
 		as some controllers are presenting descriptor that are completly
 		broken and kernel already deals with it.
@@ -440,7 +441,7 @@ class HIDController(USBDevice, Controller):
 				except IOError:
 					pass
 			return None
-		
+
 		pattern = ":%.4x:%.4x" % (vid, pid)
 		full_path = recursive_search(pattern, SYS_DEVICES)
 		try:
@@ -450,20 +451,20 @@ class HIDController(USBDevice, Controller):
 		except Exception as e:
 			log.exception(e)
 		return None
-	
-	
+
+
 	def close(self):
 		# Called when pad is disconnected
 		USBDevice.close(self)
 		if self._ready:
 			self.daemon.remove_controller(self)
 			self._ready = False
-	
-	
+
+
 	def get_type(self):
 		return "hid"
-	
-	
+
+
 	def _generate_id(self):
 		"""
 		ID is generated as 'hid0000:1111' where first number is vendor and
@@ -478,21 +479,21 @@ class HIDController(USBDevice, Controller):
 			id = "hid%.4x:%.4x:%s" % (vid, pid, magic_number)
 			magic_number += 1
 		return id
-	
-	
+
+
 	def get_id(self):
 		return self._id
-	
-	
+
+
 	def get_gui_config_file(self):
 		return self.config_file
-	
-	
+
+
 	def __repr__(self):
 		vid, pid = self.device.getVendorID(), self.device.getProductID()
 		return "<HID %.4x%.4x>" % (vid, pid)
-	
-	
+
+
 	def test_input(self, endpoint, data):
 		if not _lib.decode(ctypes.byref(self._decoder), data):
 			# Returns True if anything changed
@@ -505,7 +506,7 @@ class HIDController(USBDevice, Controller):
 				# print("Axis", code, getattr(self._decoder.state, attr))
 				sys.stdout.flush()
 			code += 1
-		
+
 		pressed = self._decoder.state.buttons & ~self._decoder.old_state.buttons
 		released = self._decoder.old_state.buttons & ~self._decoder.state.buttons
 		for j in xrange(0, self._decoder.buttons.button_count):
@@ -516,48 +517,48 @@ class HIDController(USBDevice, Controller):
 			if released & mask:
 				print("ButtonRelease", FIRST_BUTTON + j)
 				sys.stdout.flush()
-	
-	
+
+
 	def input(self, endpoint, data):
 		if _lib.decode(ctypes.byref(self._decoder), data):
 			if self.mapper:
 				self.mapper.input(self,
 						self._decoder.old_state, self._decoder.state)
-	
-	
+
+
 	def apply_config(self, config):
 		# TODO: This?
 		pass
-	
-	
+
+
 	def disconnected(self):
 		# TODO: This!
 		pass
-	
-	
+
+
 	# def configure(self, idle_timeout=None, enable_gyros=None, led_level=None):
-	
-	
+
+
 	def set_led_level(self, level):
 		# TODO: This?
 		pass
-	
-	
+
+
 	def set_gyro_enabled(self, enabled):
 		# TODO: This, maybe.
 		pass
 
 
 class HIDDrv(object):
-	
+
 	def __init__(self, daemon):
 		self.registered = set()
 		self.config_files = {}
 		self.configs = {}
 		self.scan_files()
 		self.daemon = daemon
-	
-	
+
+
 	def hotplug_cb(self, device, handle):
 		vid, pid = device.getVendorID(), device.getProductID()
 		if (vid, pid) in self.configs:
@@ -565,8 +566,8 @@ class HIDDrv(object):
 				self.config_files[vid, pid], self.configs[vid, pid])
 			return controller
 		return None
-	
-	
+
+
 	def scan_files(self):
 		"""
 		Goes through ~/.config/scc/devices and enables hotplug callback for
@@ -576,7 +577,7 @@ class HIDDrv(object):
 		if not os.path.exists(path):
 			# Nothing to do
 			return
-		
+
 		known = set()
 		for name in os.listdir(path):
 			if name.startswith("hid-") and name.endswith(".json"):
@@ -589,16 +590,16 @@ class HIDDrv(object):
 				except Exception:
 					log.warning("Ignoring file that cannot be parsed: %s", name)
 					continue
-				
+
 				self.config_files[vid, pid] = config_file.decode("utf-8")
 				self.configs[vid, pid] = config
 				known.add((vid, pid))
-		
+
 		for new in known - self.registered:
 			vid, pid = new
 			register_hotplug_device(self.hotplug_cb, vid, pid)
 			self.registered.add(new)
-		
+
 		for removed in self.registered - known:
 			vid, pid = removed
 			unregister_hotplug_device(self.hotplug_cb, vid, pid)
@@ -617,7 +618,7 @@ def hiddrv_test(cls, args):
 	from scc.drivers.usb import _usb
 	from scc.device_monitor import create_device_monitor
 	from scc.scripts import InvalidArguments
-	
+
 	try:
 		if ":" in args[0]:
 			args[0:1] = args[0].split(":")
@@ -625,28 +626,28 @@ def hiddrv_test(cls, args):
 		pid = int(args[1], 16)
 	except Exception:
 		raise InvalidArguments()
-	
+
 	class FakeDaemon(object):
-		
+
 		def __init__(self):
 			self.poller = Poller()
 			self.dev_monitor = create_device_monitor(self)
 			self.exitcode = -1
-		
+
 		def get_device_monitor(self):
 			return self.dev_monitor
-		
+
 		def add_error(self, id, error):
 			fake_daemon.exitcode = 2
 			log.error(error)
-		
+
 		def remove_error(*a): pass
-		
+
 		def get_poller(self):
 			return self.poller
-	
+
 	fake_daemon = FakeDaemon()
-	
+
 	def cb(device, handle):
 		try:
 			return cls(device, None, handle, None, None, test_mode=True)
@@ -659,20 +660,20 @@ def hiddrv_test(cls, args):
 		except Exception as e:
 			print >>sys.stderr, "Failed to open device:", str(e)
 			fake_daemon.exitcode = 2
-	
+
 	_usb.set_daemon(fake_daemon)
 	register_hotplug_device(cb, vid, pid)
 	fake_daemon.dev_monitor.start()
 	_usb.start()
 	fake_daemon.dev_monitor.rescan()
-	
+
 	if fake_daemon.exitcode < 0:
 		print("Ready")
 	sys.stdout.flush()
 	while fake_daemon.exitcode < 0:
 		fake_daemon.poller.poll()
 		_usb.mainloop()
-	
+
 	return fake_daemon.exitcode
 
 def init(daemon, config):
