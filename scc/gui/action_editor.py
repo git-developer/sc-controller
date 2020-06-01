@@ -1103,7 +1103,7 @@ class ActionEditor(Editor):
 		Also sets title, but that can be overriden by calling set_title after.
 		"""
 		self.id = id
-		if id in SCButtons or mode in (Action.AC_MENU, Action.AC_BUTTON):
+		if id in (btn for btn in SCButtons) or mode in (Action.AC_MENU, Action.AC_BUTTON):
 			if id in PRESSABLE:
 				self.set_title(_("%s Press") % (nameof(id),))
 			elif id in SCButtons:
@@ -1111,19 +1111,19 @@ class ActionEditor(Editor):
 			self._set_mode(action, mode or Action.AC_BUTTON)
 			self.hide_modifiers()
 			self.set_action(action)
-		elif id in TRIGGERS:
+		elif id in (trig for trig in TRIGGERS):
 			self.set_title(_("%s Trigger") % (id,))
 			self._set_mode(action, mode or Action.AC_TRIGGER)
 			self.set_action(action)
 			self.hide_macro()
 			self.hide_ring()
-		elif id in STICKS:
+		elif id in (stick for stick in STICKS):
 			self.set_title(_("Stick"))
 			self._set_mode(action, mode or Action.AC_STICK)
 			self.set_action(action)
 			self.hide_macro()
 			self.id = Profile.STICK
-		elif id in GYROS:
+		elif id in (gyro for gyro in GYROS):
 			self.set_title(_("Gyro"))
 			self._set_mode(action, mode or Action.AC_GYRO)
 			self.set_action(action)
@@ -1131,7 +1131,7 @@ class ActionEditor(Editor):
 			self.hide_macro()
 			self.hide_ring()
 			self.id = Profile.GYRO
-		elif id in PADS:
+		elif id in (pad for pad in PADS):
 			self._set_mode(action, mode or Action.AC_PAD)
 			self.set_action(action)
 			self.hide_macro()
