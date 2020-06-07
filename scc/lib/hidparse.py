@@ -373,7 +373,7 @@ def make_parsers(data):
 	parsers = []
 	axis_id, buttons_id = 0, 0
 	for x in parse_report_descriptor(data, True):
-		# print x
+		# print(x)
 		if x[0] == GlobalItem.ReportSize:
 			size = x[1]
 		elif x[0] == GlobalItem.ReportCount:

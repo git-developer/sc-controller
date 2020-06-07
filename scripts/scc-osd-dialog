@@ -23,7 +23,7 @@ def main():
 		sys.exit(1)
 	m.run()
 	if m.get_exit_code() == 0:
-		print m.get_selected_item_id()
+		print(m.get_selected_item_id())
 	sys.exit(m.get_exit_code())
 
 

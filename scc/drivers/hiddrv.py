@@ -651,13 +651,13 @@ def hiddrv_test(cls, args):
 		try:
 			return cls(device, None, handle, None, None, test_mode=True)
 		except NotHIDDevice:
-			print >>sys.stderr, "%.4x:%.4x is not a HID device" % (vid, pid)
+			print("%.4x:%.4x is not a HID device" % (vid, pid), file=sys.stderr)
 			fake_daemon.exitcode = 3
 		except UnparsableDescriptor as e:
-			print >>sys.stderr, "Invalid or unparsable HID descriptor", str(e)
+			print("Invalid or unparsable HID descriptor", str(e), file=sys.stderr)
 			fake_daemon.exitcode = 4
 		except Exception as e:
-			print >>sys.stderr, "Failed to open device:", str(e)
+			print("Failed to open device:", str(e), file=sys.stderr)
 			fake_daemon.exitcode = 2
 	
 	_usb.set_daemon(fake_daemon)

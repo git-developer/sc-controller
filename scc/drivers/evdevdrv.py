@@ -453,7 +453,7 @@ class EvdevDriver(object):
 		try:
 			controller = factory(self.daemon, evdevdevice, *userdata)
 		except IOError as e:
-			print >>sys.stderr, "Failed to open device:", str(e)
+			print("Failed to open device:", str(e), file=sys.stderr)
 			return None
 		if controller:
 			self._devices[evdevdevice.fn] = controller
@@ -536,7 +536,7 @@ def evdevdrv_test(args):
 	except IndexError:
 		raise InvalidArguments()
 	except Exception as e:
-		print >>sys.stderr, "Failed to open device:", str(e)
+		print("Failed to open device:", str(e), file=sys.stderr)
 		return 2
 	
 	c = EvdevController(None, dev, None, {})

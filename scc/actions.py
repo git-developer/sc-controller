@@ -1387,7 +1387,7 @@ class TiltAction(MultichildAction):
 				if pyr[j] < TiltAction.MIN * -1 / self.speed[j]:
 					# Side faces down
 					if not self.states[i]:
-						# print self.actions[i]
+						# print(self.actions[i])
 						self.actions[i].button_press(mapper)
 						self.states[i] = True
 				elif self.states[i]:
