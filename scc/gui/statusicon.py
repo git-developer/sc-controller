@@ -312,8 +312,8 @@ class StatusIconProxy(StatusIcon):
 		try:
 			# Try loading GTK native status icon
 			self._status_gtk = StatusIconGTK3(*args, **kwargs)
-			self._status_gtk.connect(b"clicked",        self._on_click)
-			self._status_gtk.connect(b"notify::active", self._on_notify_active_gtk)
+			self._status_gtk.connect("clicked",        self._on_click)
+			self._status_gtk.connect("notify::active", self._on_notify_active_gtk)
 			self._on_notify_active_gtk()
 			
 			log.info("Using backend StatusIconGTK3 (primary)")
