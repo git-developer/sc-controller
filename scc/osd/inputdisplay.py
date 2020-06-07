@@ -141,7 +141,7 @@ class InputDisplay(OSDWindow):
 				else:
 					self.hilights[self.OBSERVE_COLOR].remove(what)
 				self._update_background()
-			except KeyError, e:
+			except KeyError as e:
 				# Non fatal
 				pass
 		else:

@@ -177,26 +177,26 @@ def cmd_dependency_check(argv0, argv):
 		gi.require_version('Gtk', '3.0') 
 		gi.require_version('GdkX11', '3.0') 
 		gi.require_version('Rsvg', '2.0') 
-	except ValueError, e1:
+	except ValueError as e1:
 		print >>sys.stderr, e1
 		if "Rsvg" in str(e1):
 			print >>sys.stderr, "Please, install 'gir1.2-rsvg-2.0' package to use this application"
 		else:
 			print >>sys.stderr, "Please, install 'PyGObject' package to use this application"
-	except ImportError, e2:
+	except ImportError as e2:
 		print >>sys.stderr, e2
 		if "gi" in str(e2):
 			print >>sys.stderr, "Please, install 'PyGObject' package to use this application"
 		return 1
 	try:
 		import evdev
-	except Exception, e:
+	except Exception as e:
 		print >>sys.stderr, e
 		print >>sys.stderr, "Please, install python-evdev package to enable non-steam controller support"
 	try:
 		import scc.lib.xwrappers as X
 		X.Atom
-	except Exception, e:
+	except Exception as e:
 		print >>sys.stderr, e
 		print >>sys.stderr, "Failed to load X11 helpers, please, check your X installation"
 		return 1
@@ -280,7 +280,7 @@ def connect_to_daemon():
 	try:
 		s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 		s.connect(get_daemon_socket())
-	except Exception, e:
+	except Exception as e:
 		print >>sys.stderr, "Connection to scc-daemon failed: %s" % (e, )
 		return None
 	return s.makefile()
