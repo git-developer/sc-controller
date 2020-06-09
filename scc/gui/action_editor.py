@@ -341,7 +341,7 @@ class ActionEditor(Editor):
 		elif not self._action:
 			self._action = NameModifier(name, self._action)
 		else:
-			#print ">>>", "_set_title", self._action, entName
+			#print(">>>", "_set_title", self._action, entName)
 			self._action.name = name
 	
 	

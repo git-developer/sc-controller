@@ -151,7 +151,7 @@ class QuickMenu(Menu):
 				self.items.append(item)
 		self.pack_items(self.parent, self.items)
 		if len(self.items) == 0:
-			print >>sys.stderr, '%s: error: no items in menu' % (sys.argv[0])
+			print('%s: error: no items in menu' % (sys.argv[0]), file=sys.stderr)
 			return False
 		
 		return True
