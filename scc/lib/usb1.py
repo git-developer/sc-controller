@@ -133,7 +133,6 @@ else:
 if sys.version_info[0] == 3:
     BYTE = bytes([0])
     # pylint: disable=redefined-builtin
-    xrange = range
     long = int
     # pylint: enable=redefined-builtin
 else:
@@ -1257,7 +1256,7 @@ class USBDeviceHandle(object):
         langid_list = cast(descriptor_string, POINTER(c_uint16))
         result = []
         append = result.append
-        for offset in xrange(1, length / 2):
+        for offset in range(1, length / 2):
             append(libusb1.libusb_le16_to_cpu(langid_list[offset]))
         return result
 
@@ -1508,7 +1507,7 @@ class USBConfiguration(object):
         """
         context = self.__context
         interface_list = self.__config.interface
-        for interface_num in xrange(self.getNumInterfaces()):
+        for interface_num in range(self.getNumInterfaces()):
             yield USBInterface(context, interface_list[interface_num])
 
     # BBB
@@ -1547,7 +1546,7 @@ class USBInterface(object):
         """
         context = self.__context
         alt_setting_list = self.__interface.altsetting
-        for alt_setting_num in xrange(self.getNumSettings()):
+        for alt_setting_num in range(self.getNumSettings()):
             yield USBInterfaceSetting(
                 context, alt_setting_list[alt_setting_num])
 
@@ -1620,7 +1619,7 @@ class USBInterfaceSetting(object):
         """
         context = self.__context
         endpoint_list = self.__alt_setting.endpoint
-        for endpoint_num in xrange(self.getNumEndpoints()):
+        for endpoint_num in range(self.getNumEndpoints()):
             yield USBEndpoint(context, endpoint_list[endpoint_num])
 
     # BBB
@@ -1695,7 +1694,7 @@ class USBDevice(object):
             self.__configuration_descriptor_list = descriptor_list = []
             append = descriptor_list.append
             device_p = self.device_p
-            for configuration_id in xrange(
+            for configuration_id in range(
                     self.device_descriptor.bNumConfigurations):
                 config = libusb1.libusb_config_descriptor_p()
                 result = libusb1.libusb_get_config_descriptor(

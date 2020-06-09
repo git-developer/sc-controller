@@ -25,7 +25,7 @@ import os, ctypes, errno
 
 class Eudev:
 	LIB_NAME = "udev"
-	
+
 	def __init__(self):
 		self._ctx = None
 		try:
@@ -38,7 +38,7 @@ class Eudev:
 		self._ctx = self._lib.udev_new()
 		if self._ctx is None:
 			raise OSError("Failed to initialize udev context")
-	
+
 	@staticmethod
 	def _setup_lib(l):
 		""" Just so it's away from init and can be folded in IDE """
@@ -95,7 +95,7 @@ class Eudev:
 		l.udev_device_get_devnum.argtypes = [ ctypes.c_void_p ]
 		l.udev_device_get_devnum.restype = ctypes.c_int
 		l.udev_device_unref.argtypes = [ ctypes.c_void_p ]
-		
+
 		for name in dir(Enumerator):
 			if "match_" in name:
 				twoargs = getattr(getattr(Enumerator, name), "twoargs", False)
@@ -105,14 +105,14 @@ class Eudev:
 				else:
 					fn.argtypes = [ ctypes.c_void_p, ctypes.c_char_p ]
 				fn.restype = ctypes.c_int
-	
-	
+
+
 	def __del__(self):
 		if self._ctx is not None:
 			self._lib.udev_unref(self._ctx)
 			self._ctx = None
-	
-	
+
+
 	def enumerate(self, subclass=None):
 		"""
 		Returns new Enumerator instance.
@@ -124,8 +124,8 @@ class Eudev:
 			assert issubclass(subclass, Enumerator)
 		subclass = subclass or Enumerator
 		return subclass(self, enumerator)
-	
-	
+
+
 	def monitor(self, subclass=None):
 		"""
 		Returns new Monitor instance.
@@ -148,7 +148,7 @@ class Enumerator:
 	"""
 	Iterable object used for enumerating available devices.
 	Yields syspaths (strings).
-	
+
 	All match_* methods are returning self for chaining.
 	"""
 	def __init__(self, eudev, enumerator):
@@ -157,14 +157,14 @@ class Enumerator:
 		self._keep_in_mem = []
 		self._enumeration_started = False
 		self._next = None
-	
-	
+
+
 	def __del__(self):
 		if self._enumerator is not None:
 			self._eudev._lib.udev_enumerate_unref(self._enumerator)
 			self._enumerator = None
-	
-	
+
+
 	def _add_match(self, whichone, *pars):
 		if self._enumeration_started:
 			raise RuntimeError("Cannot add match after enumeration is started")
@@ -175,8 +175,8 @@ class Enumerator:
 		if err < 0:
 			raise OSError("udev_enumerate_add_%s: error %s" % (whichone, err))
 		return self
-	
-	
+
+
 	@twoargs
 	def match_sysattr(self, sysattr, value): return self._add_match("match_sysattr", sysattr, value)
 	@twoargs
@@ -189,8 +189,8 @@ class Enumerator:
 	def match_tag(self, tag): return self._add_match("match_tag", tag)
 	def match_is_initialized(self): return self._add_match("match_is_initialized")
 	# match_parent is not implemented
-	
-	
+
+
 	def __iter__(self):
 		if self._enumeration_started:
 			raise RuntimeError("Cannot iterate same Enumerator twice")
@@ -225,25 +225,25 @@ class Monitor:
 	receive_device method blocks until next event is processed, so it can be
 	used either in dumb loop, or called when select syscall reports descriptor
 	returned by get_fd has data available.
-	
+
 	All match_* methods are returning self for chaining
 	"""
 	DeviceEvent = namedtuple("DeviceEvent", "action,node,initialized,subsystem,devtype,syspath,devnum")
-	
+
 	def __init__(self, eudev, monitor):
 		self._eudev = eudev
 		self._monitor = monitor
 		self._monitor_started = False
 		self._keep_in_mem = []
 		self._enabled_matches = set()
-	
-	
+
+
 	def __del__(self):
 		if self._monitor is not None:
 			self._eudev._lib.udev_monitor_unref(self._monitor)
 			self._monitor = None
-	
-	
+
+
 	def _add_match(self, whichone, *pars):
 		key = tuple([whichone] + list(pars))
 		if key in self._enabled_matches:
@@ -261,26 +261,26 @@ class Monitor:
 			if err < 0:
 				raise OSError("udev_monitor_filter_update: error %s" % (errno.errorcode.get(err, err), ))
 		return self
-	
-	
+
+
 	def match_subsystem_devtype(self, subsystem, devtype=None):
 		return self._add_match("match_subsystem_devtype", subsystem, devtype)
 	def match_subsystem(self, subsystem):
 		return self._add_match("match_subsystem_devtype", subsystem, None)
 	def match_tag(self, tag):
 		return self._add_match("match_tag", tag)
-	
+
 	def is_started(self):
 		return self._monitor_started
-	
-	
+
+
 	def get_fd(self):
 		fileno = self._eudev._lib.udev_monitor_get_fd(self._monitor)
 		if fileno < 0:
 			raise OSError("udev_monitor_get_fd: error %s" % (errno.errorcode.get(fileno, fileno), ))
 		return fileno
-	
-	
+
+
 	def enable_receiving(self):
 		""" Returns self for chaining """
 		if self._monitor_started:
@@ -290,24 +290,24 @@ class Monitor:
 			raise OSError("udev_monitor_enable_receiving: error %s" % (errno.errorcode.get(err, err)))
 		self._monitor_started = True
 		return self
-	
-	
+
+
 	def set_receive_buffer_size(self, size):
 		""" Returns self for chaining """
 		err = self._eudev._lib.udev_monitor_set_receive_buffer_size(self._monitor, size)
 		if err < 0:
 			raise OSError("udev_monitor_set_receive_buffer_size: error %s" % (errno.errorcode.get(err, err)))
 		return self
-	
-	
+
+
 	fileno = get_fd				# python stuff likes this name better
 	start = enable_receiving	# I like this name better
-	
-	
+
+
 	def receive_device(self):
 		if not self._monitor_started:
 			self.enable_receiving()
-		
+
 		dev = self._eudev._lib.udev_monitor_receive_device(self._monitor)
 		if dev is None:
 			# udev_monitor_receive_device is _supposed_ to be blocking.
@@ -325,11 +325,11 @@ class Monitor:
 			devnode_str,
 			self._eudev._lib.udev_device_get_is_initialized(dev) == 1,
 			str(self._eudev._lib.udev_device_get_subsystem(dev), "utf-8"),
-			devtype_str,
-			str(self._eudev._lib.udev_device_get_syspath(dev), "utf-8"),
+			str(self._eudev._lib.udev_device_get_devtype(dev) or b"", "utf-8"),
+			str(self._eudev._lib.udev_device_get_syspath(dev) or b"", "utf-8"),
 			self._eudev._lib.udev_device_get_devnum(dev),
 		)
-		
+
 		self._eudev._lib.udev_device_unref(dev)
 		return event
 
@@ -339,7 +339,7 @@ if __name__ == "__main__":
 	en = udev.enumerate().match_subsystem("hidraw")
 	for i in en:
 		print(i)
-	
+
 	m = udev.monitor().match_subsystem("hidraw").start()
 	while True:
 		d = m.receive_device()
