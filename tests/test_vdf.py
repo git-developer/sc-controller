@@ -81,5 +81,5 @@ class TestVDF(object):
 		path = "tests/vdfs"
 		for f in os.listdir(path):
 			filename = os.path.join(path, f)
-			print "Testing import of '%s'" % (filename,)
+			print("Testing import of '%s'" % (filename,))
 			VDFProfile().load(filename)

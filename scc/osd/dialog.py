@@ -128,7 +128,7 @@ class Dialog(OSDWindow):
 			self.items = MenuData.from_args(self.args.items)
 			self._menuid = None
 		except ValueError:
-			print >>sys.stderr, '%s: error: invalid number of arguments' % (sys.argv[0])
+			print('%s: error: invalid number of arguments' % (sys.argv[0]), file=sys.stderr)
 			return False
 		
 		self._text.set_label(self.args.text)
@@ -146,7 +146,7 @@ class Dialog(OSDWindow):
 				self.items.append(item)
 		self.pack_items(self.parent, self.items)
 		if len(self.items) == 0:
-			print >>sys.stderr, '%s: error: no items in menu' % (sys.argv[0])
+			print('%s: error: no items in menu' % (sys.argv[0]), file=sys.stderr)
 			return False
 		
 		return True
