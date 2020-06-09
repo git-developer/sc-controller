@@ -49,7 +49,7 @@ class InputGrabber(object):
 		parent = self.parent
 		
 		if isinstance(what, AxisData) and what in parent._mappings.values():
-			for c in parent._mappings.keys():
+			for c in parent._mappings.copy():
 				if parent._mappings[c] == what:
 					del parent._mappings[c]
 		
@@ -175,7 +175,7 @@ class StickGrabber(TriggerGrabber):
 		else:
 			if number != self.grabbed[X]:
 				self.grabbed[Y] = number
-				for i in xrange(len(self.grabbed)):
+				for i in range(len(self.grabbed)):
 					self.what[i].reset()
 					self.set_mapping(self.grabbed[i], self.what[i])
 				self.parent.generate_unassigned()

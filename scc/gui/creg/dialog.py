@@ -284,7 +284,7 @@ class ControllerRegistration(Editor):
 			return rv
 
 		for code, target in self._mappings.items():
-			if target in SCButtons.__members__:
+			if target in SCButtons.__members__.values():
 				config['buttons'][code] = nameof(target)
 			elif isinstance(target, DPadEmuData):
 				config['dpads'][code] = axis_to_json(target.axis_data)
