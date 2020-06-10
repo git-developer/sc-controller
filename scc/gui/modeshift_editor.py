@@ -400,7 +400,7 @@ class ModeshiftEditor(Editor):
 			lblPressAlone.set_label(_("(pressed alone)"))
 			self.mode = mode = mode or Action.AC_BUTTON
 		
-		self.set_title("Modeshift for %s" % (nameof(id) if id in SCButtons else str(id),))
+		self.set_title("Modeshift for %s" % (nameof(id) if id in SCButtons.__members__.values() else str(id),))
 		
 		if isinstance(action, FeedbackModifier):
 			cbHoldFeedback.set_active(True)

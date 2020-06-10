@@ -1550,7 +1550,7 @@ class CircularModifier(Modifier, HapticEnabledAction):
 	
 	def __init__(self, *params):
 		# Piece of backwards compatibility
-		if len(params) >= 1 and params[0] in Rels:
+		if len(params) >= 1 and params[0] in Rels.__members__.values():
 			params = [ MouseAction(params[0]) ]
 		self._haptic_counter = 0
 		Modifier.__init__(self, *params)

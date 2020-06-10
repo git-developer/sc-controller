@@ -1106,7 +1106,7 @@ class ActionEditor(Editor):
 		if id in (btn for btn in SCButtons) or mode in (Action.AC_MENU, Action.AC_BUTTON):
 			if id in PRESSABLE:
 				self.set_title(_("%s Press") % (nameof(id),))
-			elif id in SCButtons:
+			elif id in SCButtons.__members__.values():
 				self.set_title(nameof(id),)
 			self._set_mode(action, mode or Action.AC_BUTTON)
 			self.hide_modifiers()
