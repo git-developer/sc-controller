@@ -98,7 +98,7 @@ class MenuData(object):
 		# Rearange data into list of pair tuples
 		data = [
 			(data[i * 2], data[(i * 2) + 1])
-			for i in xrange(0, len(data) / 2)
+			for i in range(0, len(data) / 2)
 		]
 		
 		# Parse data

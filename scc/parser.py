@@ -255,7 +255,7 @@ class ActionParser(object):
 		try:
 			return cls(*pars)
 		except ValueError as e:
-			raise ParseError(unicode(e))
+			raise ParseError(str(e))
 		except TypeError as e:
 			print(e, file=sys.stderr)
 			raise ParseError("Invalid number of parameters for '%s'" % (cls.COMMAND))

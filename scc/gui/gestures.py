@@ -76,7 +76,7 @@ class GestureDraw(Gtk.DrawingArea):
 		
 		# Grid
 		Gdk.cairo_set_source_rgba(cr, self.colors['grid'])
-		for i in xrange(1, resolution):
+		for i in range(1, resolution):
 			cr.move_to(i * box_width, self.GRID_PAD)
 			cr.line_to(i * box_width, self._size - self.GRID_PAD)
 			cr.stroke()

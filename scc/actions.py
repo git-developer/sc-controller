@@ -382,8 +382,8 @@ class Action(object):
 		""" Encodes one parameter. Used by encode_parameters """
 		if parameter in PARSER_CONSTANTS:
 			return parameter
-		if type(parameter) in (str, unicode):
-			return "'%s'" % (str(parameter).encode('string_escape'),)
+		if type(parameter) == str:
+			return "'%s'" % (str(parameter).encode("latin1").decode('unicode_escape'),)
 		return nameof(parameter)
 	
 	

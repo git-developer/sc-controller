@@ -104,7 +104,7 @@ class DeviceMonitor(Monitor):
 			log.error("Failed to list bluetooth collections")
 			return
 		
-		for i in xrange(cl.conn_num):
+		for i in range(cl.conn_num):
 			ci = cl.conn_info[i]
 			id = "hci%s:%s" % (cl.dev_id, ci.handle)
 			address = ":".join([ hex(x).lstrip("0x").zfill(2).upper() for x in reversed(ci.bdaddr) ])

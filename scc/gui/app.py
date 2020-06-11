@@ -251,11 +251,11 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 		# TODO: Maybe not best place to do this
 		try:
 			# Dynamic modules
-			rawlist = file("/proc/modules", "r").read().split("\n")
+			rawlist = open("/proc/modules", "r").read().split("\n")
 			kernel_mods = [ line.split(" ")[0] for line in rawlist ]
 			# Built-in modules
 			release = platform.uname()[2]
-			rawlist = file("/lib/modules/%s/modules.builtin" % release, "r").read().split("\n")
+			rawlist = open("/lib/modules/%s/modules.builtin" % release, "r").read().split("\n")
 			kernel_mods += [ os.path.split(x)[-1].split(".")[0] for x in rawlist ]
 		except Exception:
 			# Maybe running on BSD or Windows...

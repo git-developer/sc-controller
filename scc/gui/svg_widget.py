@@ -170,7 +170,7 @@ class SVGWidget(Gtk.EventBox):
 		Returns x, y, width and height of rect element relative to document root.
 		element can be specified by it's id.
 		"""
-		if type(element) in (str, unicode):
+		if type(element) == str:
 			tree = ET.fromstring(self.current_svg.encode("utf-8"))
 			SVGEditor.update_parents(tree)
 			element = SVGEditor.get_element(tree, element)
@@ -341,7 +341,7 @@ class SVGEditor(object):
 		Returns self.
 		"""
 		
-		if type(e) in (str, unicode):
+		if type(e) == str:
 			e = SVGEditor.get_element(self, e)
 		if e is not None:
 			e.parent.remove(e)
