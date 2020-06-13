@@ -123,6 +123,14 @@ convert -background none ${BUILD_APPDIR}/usr/share/pixmaps/${APP}.svg ${BUILD_AP
 mkdir -p ${BUILD_APPDIR}/usr/share/metainfo/
 cp scripts/${APP}.appdata.xml ${BUILD_APPDIR}/usr/share/metainfo/${APP}.appdata.xml
 
+# Make symlinks
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libcemuhook.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libcemuhook.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libhiddrv.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libhiddrv.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libremotepad.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libremotepad.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libsc_by_bt.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libsc_by_bt.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libuinput.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libuinput.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/posix1e.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/posix1e.so
+
 # Copy AppRun script
 cp scripts/appimage-AppRun.sh ${BUILD_APPDIR}/AppRun
 chmod +x ${BUILD_APPDIR}/AppRun
