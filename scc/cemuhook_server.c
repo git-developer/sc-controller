@@ -180,7 +180,7 @@ static void parse_message(int fd, const char* buffer, size_t size, struct sockad
 		return;
 	}
 	if (size < msg->packet_size + 20 - 4) {
-		WARN("Recieved invalid message: Invalid size (expected %i, got %i)", msg->packet_size + 20 - 4, size);
+		WARN("Recieved invalid message: Invalid size (expected %i, got %zu)", msg->packet_size + 20 - 4, size);
 		return;
 	}
 	

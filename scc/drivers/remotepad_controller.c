@@ -40,7 +40,7 @@ void remotepad_input(RemotePad* pad, struct remote_joypad_message* msg) {
 	// LOG("on_data_ready %i %i %i %i", msg->device, msg->index, msg->id, msg->state);
 	
 	if (sizeof(SCButton) != sizeof(uint32_t)) {
-		printf("sizeof(SCButton) != sizeof(uint32_t): %i != %i\n",
+		printf("sizeof(SCButton) != sizeof(uint32_t): %zu != %zu\n",
 				sizeof(SCButton), sizeof(uint32_t));
 	}
 	
