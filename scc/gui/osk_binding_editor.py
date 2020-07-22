@@ -47,7 +47,7 @@ class OSKBindingEditor(Editor, BindingEditor):
 				_("Stick"))
 			ae.set_input(STICK, self.current.stick, mode=Action.AC_OSK)
 			ae.show(self.window)
-		elif id in SCButtons:
+		elif id in SCButtons.__members__.values():
 			title = _("%s Button") % (id.name,)
 			ae = self.choose_editor(self.current.buttons[id], title)
 			ae.set_input(id, self.current.buttons[id], mode=Action.AC_OSK)

@@ -100,7 +100,7 @@ class ControllerButton(ControllerWidget):
 	
 	
 	def update(self):
-		if self.id in SCButtons and self.id in self.app.current.buttons:
+		if self.id in SCButtons.__members__.values() and self.id in self.app.current.buttons:
 			txt = self.app.current.buttons[self.id].describe(self.ACTION_CONTEXT)
 			if len(txt) > LONG_TEXT or "\n" in txt:
 				txt = "\n".join(txt.split("\n")[0:2])

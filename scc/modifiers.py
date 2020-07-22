@@ -820,7 +820,7 @@ class ModeModifier(Modifier):
 			elif isinstance(i, Action):
 				self.mods[button] = i
 				button = None
-			elif isinstance(i, RangeOP) or i in SCButtons:
+			elif isinstance(i, RangeOP) or i in SCButtons.__members__.values():
 				button = i
 			else:
 				raise ValueError("Invalid parameter for 'mode': %s" % (i,))

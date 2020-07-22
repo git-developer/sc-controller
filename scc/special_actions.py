@@ -515,9 +515,9 @@ class DialogAction(Action, SpecialAction):
 		self.text = _("Dialog")
 		self.x, self.y = MenuAction.DEFAULT_POSITION
 		# First and 2nd parameter may be confirm and cancel button
-		if len(pars) > 0 and pars[0] in SCButtons:
+		if len(pars) > 0 and pars[0] in SCButtons.__members__.values():
 			self.confirm_with, pars = pars[0], pars[1:]
-			if len(pars) > 0 and pars[0] in SCButtons:
+			if len(pars) > 0 and pars[0] in SCButtons.__members__.values():
 				self.cancel_with, pars = pars[0], pars[1:]
 		# 1st always present argument is title
 		if len(pars) > 0:

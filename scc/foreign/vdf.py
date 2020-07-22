@@ -466,7 +466,7 @@ class VDFProfile(Profile):
 		
 		Throws ParseError if key is not supported.
 		"""
-		if binding in SCButtons:
+		if binding in SCButtons.__members__.values():
 			self.buttons[binding] = action
 		elif binding.startswith("left_trackpad"):
 			self.pads[Profile.LEFT] = action
@@ -503,7 +503,7 @@ class VDFProfile(Profile):
 		
 		Throws ParseError if key is not supported.
 		"""
-		if binding in SCButtons:
+		if binding in SCButtons.__members__.values():
 			return self.buttons[binding]
 		elif binding.startswith("left_trackpad"):
 			return self.pads[Profile.LEFT]
