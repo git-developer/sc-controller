@@ -49,7 +49,7 @@ class ChangeProfileAction(Action, SpecialAction):
 	
 	def to_string(self, multiline=False, pad=0):
 		return (" " * pad) + "%s('%s')" % (self.COMMAND,
-				self.profile.encode('utf-8').encode('string_escape'))
+				self.profile.encode('utf-8').decode('unicode_escape'))
 	
 	
 	def button_release(self, mapper):

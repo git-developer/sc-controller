@@ -125,7 +125,7 @@ def shjoin(lst):
 	""" Joins list into shell-escaped, utf-8 encoded string """
 	s = [ x.encode("utf-8") for x in lst ]
 	#   - escape quotes
-	s = [ x.encode('string_escape') if (b'"' in x or b"'" in x) else x for x in s ]
+	s = [ x.encode('unicode_escape') if (b'"' in x or b"'" in x) else x for x in s ]
 	#   - quote strings with spaces
 	s = [ b"'%s'" % (x,) if b" " in x else x for x in s ]
 	return b" ".join(s)

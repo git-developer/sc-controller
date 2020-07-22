@@ -316,7 +316,7 @@ class SCCDaemon(Daemon):
 	def on_sa_osd(self, mapper, action):
 		""" Called when 'osd' action is used """
 		with self.lock:
-			self._osd('message', '-t', action.timeout, '-s', action.size, action.text)
+			self._osd('message', '-t', str(action.timeout), '-s', str(action.size), action.text)
 	
 	
 	def on_sa_clearosd(self, mapper, action):
@@ -1026,7 +1026,7 @@ class SCCDaemon(Daemon):
 			return not is_locked(mapper.profile.triggers[LEFT])
 		if what == SCButtons.RT:
 			return not is_locked(mapper.profile.triggers[RIGHT])
-		if what in SCButtons:
+		if what in SCButtons.__members__.values():
 			return not is_locked(mapper.profile.buttons[what])
 		if what in (LEFT, RIGHT, CPAD):
 			return not is_locked(mapper.profile.pads[what])
@@ -1047,7 +1047,7 @@ class SCCDaemon(Daemon):
 			mapper.profile.triggers[LEFT] = callback(mapper.profile.triggers[LEFT], *args)
 		elif what == SCButtons.RT:
 			mapper.profile.triggers[RIGHT] = callback(mapper.profile.triggers[RIGHT], *args)
-		elif what in SCButtons:
+		elif what in SCButtons.__members__.values():
 			r = callback(mapper.profile.buttons[what], *args)
 			mapper.profile.buttons[what] = r
 		elif what in (LEFT, RIGHT):

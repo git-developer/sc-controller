@@ -24,7 +24,7 @@ class AutoSwitcher(object):
 	INTERVAL = 1
 	
 	def __init__(self):
-		self.dpy = X.open_display(os.environ["DISPLAY"])
+		self.dpy = X.open_display(os.environ["DISPLAY"].encode("utf-8"))
 		self.lock = threading.Lock()
 		self.thread = threading.Thread(target=self.connect_daemon)
 		self.config = Config()
@@ -76,7 +76,7 @@ class AutoSwitcher(object):
 		count, cmpwith = 0, None
 		if action is not None:
 			cmpwith = action.to_string()
-		for c in conds.keys():
+		for c in conds.copy().keys():
 			if action is None or conds[c].to_string() == cmpwith:
 				if c.matches(title, wm_class):
 					del conds[c]
@@ -102,7 +102,7 @@ class AutoSwitcher(object):
 				log.error("Connection to daemon lost")
 				os._exit(2)
 				return
-			buffer += r
+			buffer += r.decode("utf-8")
 			while "\n" in buffer:
 				line, buffer = buffer.split("\n", 1)
 				if line.startswith("Version:"):
@@ -218,7 +218,7 @@ class Condition(object):
 		self.exact_title = exact_title
 		self.title = title
 		self.regexp = regexp
-		if type(self.regexp) in (str, unicode):
+		if type(self.regexp) is str:
 			self.regexp = re.compile(self.regexp)
 		self.wm_class = wm_class
 		self.empty = not ( title or title or regexp or wm_class )
