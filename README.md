@@ -37,7 +37,7 @@ Based on [Standalone Steam Controller Driver](https://github.com/ynsta/steamcont
 ## Building the package by yourself
 
 ### Dependencies
-  - python 2.7, GTK 3.22 or newer and [PyGObject](https://live.gnome.org/PyGObject)
+  - python 3, GTK 3.22 or newer and [PyGObject](https://live.gnome.org/PyGObject)
   - [python-gi-cairo](https://packages.debian.org/sid/python-gi-cairo) and [gir1.2-rsvg-2.0](https://packages.debian.org/sid/gir1.2-rsvg-2.0) on debian based distros (included in PyGObject elsewhere)
   - [setuptools](https://pypi.python.org/pypi/setuptools)
   - [python-pylibacl](http://pylibacl.k1024.org/) is recommended
@@ -45,8 +45,8 @@ Based on [Standalone Steam Controller Driver](https://github.com/ynsta/steamcont
 
 ### Installing
   - Download and extract  [latest release](https://github.com/kozec/sc-controller/releases/latest)
-  - `python2 setup.py build`
-  - `python2 setup.py install`
+  - `python3 setup.py build`
+  - `python3 setup.py install`
 
 
 ## Running with non distro-specific package          
