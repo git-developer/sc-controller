@@ -188,7 +188,7 @@ class ImportSccprofile(object):
 		cbImportHidden.set_label(_("Import as hidden menus and profiles named \".%s:name\"") % (main_name,))
 		cbImportVisible.set_label(_("Import normaly, with names formated as \"%s:name\"") % (main_name,))
 		
-		for i in xrange(0, len(files)):
+		for i in range(0, len(files)):
 			enabled, name, importas, type, obj = files[i]
 			if enabled == 2:
 				importas = main_name

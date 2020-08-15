@@ -539,7 +539,7 @@ class BallModifier(Modifier, WholeHapticAction):
 	
 	def change(self, mapper, dx, dy, what):
 		if what in (None, STICK) or (mapper.controller_flags() & ControllerFlags.HAS_RSTICK and what == RIGHT):
-			return self.action.change(mapper, x, y, what)
+			return self.action.change(mapper, dx, dy, what)
 		if mapper.is_touched(what):
 			if mapper.was_touched(what):
 				t = time.time()

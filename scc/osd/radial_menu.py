@@ -176,7 +176,7 @@ class RadialMenu(Menu):
 				elif len(label) == 2:
 					self.editor.remove_element(SVGEditor.get_element(i.widget, "line0"))
 					first_line = 1
-				for line in xrange(0, len(label)):
+				for line in range(0, len(label)):
 					l = SVGEditor.get_element(i.widget, "line%s" % (first_line + line,))
 					if l is None:
 						break
@@ -283,7 +283,6 @@ if __name__ == "__main__":
 	gi.require_version('GdkX11', '3.0')
 	
 	from scc.tools import init_logging
-	from scc.paths import get_share_path
 	init_logging()
 	
 	m = RadialMenu()

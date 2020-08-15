@@ -116,7 +116,7 @@ class QuickMenu(Menu):
 			if config and config["gui"] and config["gui"]["buttons"]:
 				buttons = config["gui"]["buttons"]
 				try:
-					for i in xrange(len(self._icons)):
+					for i in range(len(self._icons)):
 						icon = self._icons[i]
 						name = buttons[self.BUTTON_INDEXES[i]]
 						filename, trash = find_icon("buttons/%s" % name)

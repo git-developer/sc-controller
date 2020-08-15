@@ -216,9 +216,9 @@ class HIDController(USBDevice, Controller):
 
 
 			print("Buttons:", " ".join([ str(x + FIRST_BUTTON)
-					for x in xrange(self._decoder.buttons.button_count) ]))
+					for x in range(self._decoder.buttons.button_count) ]))
 			print("Axes:", " ".join([ str(x)
-					for x in xrange(len([
+					for x in range(len([
 						a for a in self._decoder.axes
 						if a.mode != AxisMode.DISABLED
 					]))]))
@@ -260,7 +260,7 @@ class HIDController(USBDevice, Controller):
 				else:
 					buttons[keycode] = self.button_to_bit(getattr(SCButtons, value))
 		else:
-			buttons = list(xrange(BUTTON_COUNT))
+			buttons = list(range(BUTTON_COUNT))
 
 		return (ctypes.c_uint8 * BUTTON_COUNT)(*buttons)
 
@@ -340,7 +340,7 @@ class HIDController(USBDevice, Controller):
 					if kind in AXES:
 						if not size in ALLOWED_SIZES:
 							raise UnparsableDescriptor("Axis with invalid size (%s bits)" % (size, ))
-						for i in xrange(count):
+						for i in range(count):
 							if next_axis < AXIS_COUNT:
 								log.debug("Found axis #%s at bit %s", int(next_axis), total)
 								if config:
@@ -447,7 +447,10 @@ class HIDController(USBDevice, Controller):
 		try:
 			if full_path:
 				log.debug("Loading descriptor from '%s'", full_path)
-				return [ ord(x) for x in file(full_path, "rb").read(1024) ]
+				temp_list = None
+				with open(full_path, "rb") as read_file:
+					temp_list = [ ord(x) for x in read_file.read(1024) ]
+				return temp_list
 		except Exception as e:
 			log.exception(e)
 		return None
@@ -509,7 +512,7 @@ class HIDController(USBDevice, Controller):
 
 		pressed = self._decoder.state.buttons & ~self._decoder.old_state.buttons
 		released = self._decoder.old_state.buttons & ~self._decoder.state.buttons
-		for j in xrange(0, self._decoder.buttons.button_count):
+		for j in range(0, self._decoder.buttons.button_count):
 			mask = 1 << j
 			if pressed & mask:
 				print("ButtonPress", FIRST_BUTTON + j)

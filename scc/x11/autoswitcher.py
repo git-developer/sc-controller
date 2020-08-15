@@ -163,7 +163,7 @@ class AutoSwitcher(object):
 						os._exit(2)
 						return
 		else:
-			log.error("Cannot switch to profile '%s', profile file not found", self.conds[c])
+			log.error("Cannot switch to profile '%s', profile file not found", profile_name)
 	
 	
 	def on_sa_turnoff(self, mapper, action):

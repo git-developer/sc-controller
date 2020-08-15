@@ -377,7 +377,7 @@ class VDFProfile(Profile):
 				action = MouseAction()
 		elif mode == "mouse_wheel":
 			action = BallModifier(XYAction(MouseAction(Rels.REL_HWHEEL),
-			 	ouseAction(Rels.REL_WHEEL)))
+			 	MouseAction(Rels.REL_WHEEL)))
 		elif mode == "trigger":
 			actions = []
 			if "click" in inputs:

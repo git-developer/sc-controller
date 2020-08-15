@@ -239,7 +239,7 @@ def parse_item(it, page):
 			elif isize == 3:			 # 4 bytes (usage page: usage id)
 				uid = it[2] * 256 + it[1]
 				upg = it[4] * 256 + it[3]
-				page = enum_or_reserved(hidparse_data.UsagePage, upg)
+				page = enum_or_reserved(UsagePage, upg)
 				try:
 					return item, page(uid)
 				except ValueError:
@@ -385,7 +385,7 @@ def make_parsers(data):
 				pass
 			elif x[1] == ItemType.Data:
 				if kind in AXES:
-					for i in xrange(count):
+					for i in range(count):
 						parsers.append(HIDAxisParser(axis_id, offset + size * i, 1, size))
 						axis_id += 1
 				else:

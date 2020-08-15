@@ -11,7 +11,7 @@ action only prints warning to console.
 from __future__ import unicode_literals
 
 from scc.constants import FE_STICK, FE_TRIGGER, FE_PAD, SCButtons
-from scc.constants import LEFT, RIGHT, STICK, SCButtons, SAME
+from scc.constants import LEFT, RIGHT, STICK, SAME
 from scc.constants import STICK_PAD_MAX, DEFAULT
 from scc.actions import Action, NoAction, SpecialAction, ButtonAction
 from scc.actions import HapticEnabledAction, OSDEnabledAction

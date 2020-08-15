@@ -7,7 +7,9 @@ Observes active window and commands scc-daemon to change profiles as needed.
 from __future__ import unicode_literals
 
 from scc.x11.autoswitcher import AutoSwitcher
-import sys, os
+import sys, os, logging
+
+log = logging.getLogger("AutoSwitcher-Daemon")
 
 if __name__ == "__main__":
 	from scc.tools import init_logging, set_logging_level

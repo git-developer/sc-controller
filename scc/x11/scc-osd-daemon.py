@@ -307,7 +307,7 @@ class OSDDaemon(object):
 
 
 if __name__ == "__main__":
-	from scc.tools import init_logging, set_logging_level
+	from scc.tools import init_logging
 	from scc.paths import get_share_path
 	init_logging(suffix=" OSD")
 	set_logging_level('debug' in sys.argv, 'debug' in sys.argv)

@@ -19,7 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 """
 
 from ctypes import CDLL, POINTER, c_void_p, Structure, byref, cast
-from ctypes import c_long, c_ulong, c_int, c_uint, c_short, c_char_p
+from ctypes import c_long, c_ulong, c_int, c_uint, c_short
 from ctypes import c_ushort, c_ubyte, c_char_p, c_bool
 
 

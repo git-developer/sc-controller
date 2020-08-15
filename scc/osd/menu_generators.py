@@ -97,8 +97,8 @@ class WindowListMenuGenerator(MenuGenerator):
 	GENERATOR_NAME = "windowlist"
 	MAX_LENGHT = 50
 	
-	def generate(self, menuhandler):
-		return _("[ Window Lists ]")
+	#def generate(self, menuhandler):
+	#	return _("[ Window Lists ]")
 
 	
 	def encode(self):
@@ -145,8 +145,8 @@ class GameListMenuGenerator(MenuGenerator):
 	
 	_games = None		# Static list of know games
 	
-	def generate(self, menuhandler):
-		return _("[ Games ]")
+	#def generate(self, menuhandler):
+	#	return _("[ Games ]")
 
 	
 	def encode(self):
