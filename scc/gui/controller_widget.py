@@ -18,6 +18,7 @@ from scc.modifiers import DoubleclickModifier
 from scc.profile import Profile
 from scc.tools import nameof
 import os, sys, logging
+import itertools
 
 log = logging.getLogger("ControllerWidget")
 
@@ -270,7 +271,7 @@ class ControllerGyro(ControllerWidget):
 	
 	def _set_label(self, action):
 		if is_gyro_enable(action):
-			action = action.mods.values()[0] or action.default
+			action = next(itertools.islice(action.mods.values(), 0, 1)) or action.default
 		if isinstance(action, MultiAction):
 			rv = []
 			for a in action.actions:

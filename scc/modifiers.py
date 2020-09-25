@@ -22,6 +22,7 @@ from math import pi as PI, sqrt, copysign, atan2, sin, cos
 from collections import OrderedDict, deque
 
 import time, logging, inspect
+import itertools
 log = logging.getLogger("Modifiers")
 _ = lambda x : x
 
@@ -881,7 +882,7 @@ class ModeModifier(Modifier):
 		if self.default:
 			return self.default.strip()
 		if len(self.mods):
-			return self.mods.values()[0].strip()
+			return next(itertools.islice(self.mods.values(), 0, 1)).strip()
 		# Empty ModeModifier
 		return NoAction()
 	

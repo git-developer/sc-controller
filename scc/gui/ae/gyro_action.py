@@ -16,6 +16,7 @@ from scc.gui.ae import AEComponent
 from scc.tools import nameof
 
 import logging, re
+import itertools
 log = logging.getLogger("AE.GyroAction")
 
 __all__ = [ 'GyroActionComponent' ]
@@ -80,7 +81,7 @@ class GyroActionComponent(AEComponent):
 				self._recursing = True
 				self.builder.get_object("cbInvertGyro").set_active(bool(action.default))
 				self._recursing = False
-				b = action.mods.keys()[0]
+				b = next(itertools.islice(action.mods.keys(), 0, 1))
 				action = action.mods[b] or action.default
 				self.select_gyro_button(b)
 			else:
@@ -156,7 +157,7 @@ class GyroActionComponent(AEComponent):
 		if isinstance(action, NoAction):
 			return True
 		if is_gyro_enable(action):
-			action = action.mods.values()[0] or action.default
+			action = next(itertools.islice(action.mods.values(), 0, 1)) or action.default
 			if isinstance(action, SensitivityModifier):
 				action = action.action
 		if isinstance(action, GyroAction):	# Takes GyroAbsAction as well
