@@ -1204,7 +1204,7 @@ class GyroAction(Action):
 		for i in (0, 1, 2):
 			axis = self.axes[i]
 			# 'gyro' cannot map to mouse, but 'mouse' does that.
-			if axis in Axes or type(axis) == int:
+			if axis in Axes.__members__.values() or type(axis) == int:
 				mapper.gamepad.axisEvent(axis, AxisAction.clamp_axis(axis, pyr[i] * self.speed[i] * -10))
 				mapper.syn_list.add(mapper.gamepad)
 	
