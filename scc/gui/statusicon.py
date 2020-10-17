@@ -322,7 +322,7 @@ class StatusIconProxy(StatusIcon):
 			self._load_fallback()
 	
 	def _on_click(self, *args):
-		self.emit(b"clicked")
+		self.emit("clicked")
 	
 	def _on_notify_active_gtk(self, *args):
 		if self._status_fb:
