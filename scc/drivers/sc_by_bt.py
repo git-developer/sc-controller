@@ -202,9 +202,9 @@ class SCByBt(SCController):
 		))
 	
 	
-	def read_serial(self):	
+	def read_serial(self):
 		self._serial = (self._hidrawdev
-			.getPhysicalAddress().replace(":", ""))
+			.getPhysicalAddress().replace(b":", b""))
 	
 	
 	def send_control(self, index, data):
