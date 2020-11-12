@@ -124,7 +124,8 @@ class DeviceMonitor(Monitor):
 			try:
 				node_addr = DeviceMonitor._find_bt_address(node)
 				#Joe: somehow my node_addr is in lowercase
-				node_addr = str.upper(node_addr)
+				if node_addr is not None:
+					node_addr = str.upper(node_addr)
 			except IOError:
 				continue
 			if node_addr == addr:
