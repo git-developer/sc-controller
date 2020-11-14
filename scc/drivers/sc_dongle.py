@@ -237,7 +237,7 @@ class SCController(Controller):
 		def cb(rawserial):
 			size, serial = struct.unpack(">xBx12s49x", rawserial)
 			if size > 1:
-				serial = serial.strip(b" \x00")
+				serial = serial.strip(b" \x00").decode('ASCII')
 				self._serial = serial
 				self.on_serial_got()
 			else:
