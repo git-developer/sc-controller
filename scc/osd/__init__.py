@@ -14,6 +14,7 @@ from scc.paths import get_share_path
 from scc.lib import xwrappers as X
 from scc.config import Config
 
+import cairo
 import os, argparse, traceback, logging
 log = logging.getLogger("osd")
 
