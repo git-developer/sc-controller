@@ -425,9 +425,23 @@ class SCCDaemon(Daemon):
 	def connect_x(self):
 		""" Creates connection to X Server """
 		if "WAYLAND_DISPLAY" in os.environ:
+			import gi
+			gi.require_version("Gtk", "3.0")
+			try:
+				gi.require_version("GtkLayerShell", "0.1")
+				from gi.repository import GtkLayerShell
+				if GtkLayerShell.is_supported():
+					log.warning("Wayland with WLRoots detected. Disabling X11 support, some functionality will be unavailable")
+					self.xdisplay = None
+					self.subprocs.append(Subprocess("scc-osd-daemon", True))
+					return
+			except (ImportError, ValueError):
+				pass
+
 			log.warning("Wayland detected. Disabling X11 support, some functionality will be unavailable")
 			self.xdisplay = None
 			return
+
 		if "DISPLAY" not in os.environ:
 			log.warning("DISPLAY env variable not set. Some functionality will be unavailable")
 			self.xdisplay = None
