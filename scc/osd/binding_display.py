@@ -359,7 +359,7 @@ class Box(object):
 					# 3 hours finding this, so I'm willing to murder.
 					SVGEditor.add_element(root, "image", x = x, y = y,
 						style = "filter:url(#filterInvert)",
-						width = h, height = h, **{"xlink:href" : image} )
+						width = h, height = h, **{"href" : image} )
 				x += h + self.SPACING
 			x = self.x + self.PADDING + self.icount * (h + self.SPACING)
 			y += h
