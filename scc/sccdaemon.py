@@ -831,7 +831,7 @@ class SCCDaemon(Daemon):
 				action = TalkingActionParser().restart(actionstr).parse().compress()
 			except Exception as e:
 				e = str(e).encode("utf-8").decode('unicode_escape').encode("latin1")
-				client.wfile.write(b"Fail: failed to parse: " + e + "\n")
+				client.wfile.write(b"Fail: failed to parse: " + e + b"\n")
 				return
 			with self.lock:
 				try:
