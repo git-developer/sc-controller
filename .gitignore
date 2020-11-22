@@ -16,3 +16,5 @@ out.svg
 appimage/
 *.cpp
 *.vdf
+.kateconfig
+
