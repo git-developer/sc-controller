@@ -14,6 +14,7 @@ from scc.paths import get_share_path
 from scc.lib import xwrappers as X
 from scc.config import Config
 
+import cairo
 import os, argparse, traceback, logging
 log = logging.getLogger("osd")
 
@@ -50,12 +51,24 @@ class OSDWindow(Gtk.Window):
 		self._controller = None
 		self.set_name(wmclass)
 		self.set_wmclass(wmclass, wmclass)
-		self.set_decorated(False)
-		self.stick()
-		self.set_skip_taskbar_hint(True)
-		self.set_skip_pager_hint(True)
-		self.set_keep_above(True)
-		self.set_type_hint(Gdk.WindowTypeHint.NOTIFICATION)
+		self.using_wlroots = False
+		try:
+			from gi.repository import GtkLayerShell
+			if GtkLayerShell.is_supported():
+				self.using_wlroots=True
+				GtkLayerShell.init_for_window(self)
+				GtkLayerShell.set_layer(self, GtkLayerShell.Layer.TOP)
+				GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.LEFT, True)
+				GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.BOTTOM, True)
+		except (ImportError):
+			pass
+		if not self.using_wlroots:
+			self.set_decorated(False)
+			self.stick()
+			self.set_skip_taskbar_hint(True)
+			self.set_skip_pager_hint(True)
+			self.set_keep_above(True)
+			self.set_type_hint(Gdk.WindowTypeHint.NOTIFICATION)
 	
 	
 	@staticmethod
@@ -144,12 +157,15 @@ class OSDWindow(Gtk.Window):
 	
 	
 	def make_window_clicktrough(self):
-		dpy = X.Display(hash(GdkX11.x11_get_default_xdisplay()))		# I have no idea why this works...
-		win = X.XID(self.get_window().get_xid())
-		reg = X.create_region(dpy, None, 0)
-		X.set_window_shape_region (dpy, win, X.SHAPE_BOUNDING, 0, 0, 0)
-		X.set_window_shape_region (dpy, win, X.SHAPE_INPUT, 0, 0, reg)
-		X.destroy_region (dpy, reg)
+		(width, height) = self.get_size()
+		surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+		surface_ctx = cairo.Context(surface)
+		surface_ctx.set_source_rgba(0.0, 0.0, 0.0, 0.0)
+		surface_ctx.set_operator(cairo.OPERATOR_SOURCE)
+		surface_ctx.paint()
+		reg = Gdk.cairo_region_create_from_surface(surface)
+		self.input_shape_combine_region(reg)
+
 	
 	
 	def get_active_screen_geometry(self):
