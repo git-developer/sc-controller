@@ -283,7 +283,7 @@ def connect_to_daemon():
 	except Exception as e:
 		print("Connection to scc-daemon failed: %s" % (e, ), file=sys.stderr)
 		return None
-	return s.makefile()
+	return s.makefile(mode="rw")
 
 
 def check_error(s):
