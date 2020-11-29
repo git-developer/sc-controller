@@ -314,6 +314,8 @@ class Menu(OSDWindow):
 	
 	
 	def _check_on_screen_position(self, quick=False):
+		if self.using_wlroots:
+			return
 		x, y = Menu._get_on_screen_position(self._selected.widget)
 		try:
 			m = self.get_window().get_display().get_monitor_at_window(self.get_window())
