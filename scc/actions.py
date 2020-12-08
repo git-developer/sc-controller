@@ -357,7 +357,7 @@ class Action(object):
 		if as_strings is set to True, all parameters are converted to apropriate
 		strings (x.name for enums, x.encode('unicode_escape') for strings,
 		"""
-		argspec = inspect.getargspec(self.__class__.__init__)
+		argspec = inspect.getfullargspec(self.__class__.__init__)
 		required_count = len(argspec.args) - len(argspec.defaults) - 1
 		d = list(argspec.defaults)
 		l = list(self.parameters)
