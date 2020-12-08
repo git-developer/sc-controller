@@ -12,7 +12,11 @@ from scc.paths import get_profiles_path, get_default_profiles_path
 from scc.paths import get_menus_path, get_default_menus_path
 from scc.paths import get_button_images_path
 from math import pi as PI, sin, cos, atan2, sqrt
-import os, sys, ctypes, imp, shlex, gettext, logging
+import os
+import ctypes
+import shlex
+import logging
+import importlib.machinery
 
 HAVE_POSIX1E = False
 try:
@@ -323,8 +327,7 @@ def find_library(libname):
 	"""
 	base_path = os.path.dirname(__file__)
 	lib, search_paths = None, []
-	so_extensions = [ ext for ext, _, typ in imp.get_suffixes()
-			if typ == imp.C_EXTENSION ]
+	so_extensions = importlib.machinery.EXTENSION_SUFFIXES
 	for extension in so_extensions:
 		search_paths += [
 			os.path.abspath(os.path.normpath(
