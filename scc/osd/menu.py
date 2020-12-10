@@ -546,9 +546,6 @@ class Menu(OSDWindow):
 						self.select(self.items.index(i))
 			else:
 				self._scon.set_stick(x, y)
-		elif what == self._cancel_with:
-			if data[0] == 0:	# Button released
-				self.quit(-1)
 		elif what == self._confirm_with:
 			if data[0] == 0:	# Button released
 				if self._selected and self._selected.callback:
@@ -557,6 +554,9 @@ class Menu(OSDWindow):
 					self.quit(0)
 				else:
 					self.quit(-1)
+		elif what == self._cancel_with:
+			if data[0] == 0:	# Button released
+				self.quit(-1)
 	
 	
 class MenuIcon(Gtk.DrawingArea):
