@@ -357,7 +357,7 @@ class Action(object):
 		if as_strings is set to True, all parameters are converted to apropriate
 		strings (x.name for enums, x.encode('unicode_escape') for strings,
 		"""
-		argspec = inspect.getargspec(self.__class__.__init__)
+		argspec = inspect.getfullargspec(self.__class__.__init__)
 		required_count = len(argspec.args) - len(argspec.defaults) - 1
 		d = list(argspec.defaults)
 		l = list(self.parameters)
@@ -383,7 +383,7 @@ class Action(object):
 		if parameter in PARSER_CONSTANTS:
 			return parameter
 		if type(parameter) == str:
-			return "'%s'" % (str(parameter).encode("latin1").decode('unicode_escape'),)
+			return "'%s'" % (str(parameter),)
 		return nameof(parameter)
 	
 	
@@ -1426,7 +1426,7 @@ class TrackballAction(Action):
 	COMMAND = "trackball"
 	
 	def __new__(cls, speed=None):
-		from modifiers import BallModifier
+		from scc.modifiers import BallModifier
 		return BallModifier(MouseAction(speed=speed))
 
 
