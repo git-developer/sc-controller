@@ -786,8 +786,7 @@ class SCCDaemon(Daemon):
 					client.wfile.write(b"Fail: cannot display OSD\n")
 		elif message.startswith(b"Feedback:"):
 			try:
-				message = message.decode("utf-8")
-				position, amplitude = message[9:].strip().split(" ", 2)
+				position, amplitude = message[9:].strip().split(b" ", 2)
 				data = HapticData(
 					getattr(HapticPos, position.strip(" \t\r")),
 					int(amplitude)
@@ -832,8 +831,7 @@ class SCCDaemon(Daemon):
 				client.mapper.get_controller().set_led_level(number)
 		elif message.startswith(b"Observe:"):
 			if Config()["enable_sniffing"]:
-				message = message.decode("utf-8")
-				to_observe = [ x for x in message.split(":", 1)[1].strip(" \t\r").split(" ") ]
+				to_observe = [ x for x in message.split(b":", 1)[1].strip(b" \t\r").split(b" ") ]
 				with self.lock:
 					for l in to_observe:
 						client.observe_action(self, SCCDaemon.source_to_constant(l))
@@ -843,8 +841,7 @@ class SCCDaemon(Daemon):
 				client.wfile.write(b"Fail: Sniffing disabled.\n")
 		elif message.startswith(b"Replace:"):
 			try:
-				message = message.decode("utf-8")
-				l, actionstr = message.split(":", 1)[1].strip(" \t\r").split(" ", 1)
+				l, actionstr = message.split(b":", 1)[1].strip(b" \t\r").split(b" ", 1)
 				action = TalkingActionParser().restart(actionstr).parse().compress()
 			except Exception as e:
 				e = str(e).encode("utf-8").decode('unicode_escape').encode("latin1")
@@ -936,8 +933,7 @@ class SCCDaemon(Daemon):
 			client.wfile.write(b"OK.\n")
 		elif message.startswith(b"Gesture:"):
 			try:
-				message = message.decode("utf-8")
-				what, up_angle = message[8:].strip().split(" ", 2)
+				what, up_angle = message[8:].strip().split(b" ", 2)
 				up_angle = int(up_angle)
 			except Exception as  e:
 				tb = str(traceback.format_exc()).encode("utf-8").decode('unicode_escape').encode("latin1")
