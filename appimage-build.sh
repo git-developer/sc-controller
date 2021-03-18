@@ -5,6 +5,7 @@ LIB="lib"
 
 EVDEV_VERSION=0.7.0
 [ x"$BUILD_APPDIR" == "x" ] && BUILD_APPDIR=$(pwd)/appimage
+PYTHON_VERSION=$(python -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}".format(*version))')
 
 
 function download_dep() {
@@ -27,10 +28,10 @@ function build_dep() {
 	mkdir -p /tmp/${NAME}
 	pushd /tmp/${NAME}
 	tar --extract --strip-components=1 -f /tmp/${NAME}.tar.gz
-	PYTHONPATH=${BUILD_APPDIR}/usr/lib/python3.8/site-packages python3 \
+	PYTHONPATH=${BUILD_APPDIR}/usr/lib/python${PYTHON_VERSION}/site-packages python3 \
 		setup.py install --optimize=1 \
 		--prefix="/usr/" --root="${BUILD_APPDIR}"
-	mkdir -p "${BUILD_APPDIR}/usr/lib/python3.8/site-packages/"
+	mkdir -p "${BUILD_APPDIR}/usr/lib/python${PYTHON_VERSION}/site-packages/"
 	python3 setup.py install --prefix="/usr/" --root="${BUILD_APPDIR}"
 	popd
 }
@@ -59,12 +60,12 @@ download_dep "zlib-1:1.2.11" "https://archive.archlinux.org/packages/z/zlib/zlib
 download_dep "libffi-3.3" "https://archive.archlinux.org/packages/l/libffi/libffi-3.3-3-x86_64.pkg.tar.zst"
 
 # Prepare & build deps
-export PYTHONPATH=${BUILD_APPDIR}/usr/lib/python3.8/site-packages/
+export PYTHONPATH=${BUILD_APPDIR}/usr/lib/python${PYTHON_VERSION}/site-packages/
 mkdir -p "$PYTHONPATH"
 if [[ $(grep ID_LIKE /etc/os-release) == *"suse"* ]] ; then
 	# Special handling for OBS
 	ln -s lib64 ${BUILD_APPDIR}/usr/lib
-	export PYTHONPATH="$PYTHONPATH":${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/
+	export PYTHONPATH="$PYTHONPATH":${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/
 	LIB=lib64
 fi
 
@@ -124,12 +125,12 @@ mkdir -p ${BUILD_APPDIR}/usr/share/metainfo/
 cp scripts/${APP}.appdata.xml ${BUILD_APPDIR}/usr/share/metainfo/${APP}.appdata.xml
 
 # Make symlinks
-ln -sfr ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libcemuhook.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libcemuhook.so
-ln -sfr ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libhiddrv.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libhiddrv.so
-ln -sfr ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libremotepad.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libremotepad.so
-ln -sfr ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libsc_by_bt.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libsc_by_bt.so
-ln -sfr ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libuinput.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/libuinput.so
-ln -sfr ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/posix1e.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python3.8/site-packages/posix1e.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libcemuhook.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libcemuhook.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libhiddrv.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libhiddrv.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libremotepad.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libremotepad.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libsc_by_bt.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libsc_by_bt.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libuinput.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libuinput.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/posix1e.cpython-38-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/posix1e.so
 
 # Copy AppRun script
 cp scripts/appimage-AppRun.sh ${BUILD_APPDIR}/AppRun
