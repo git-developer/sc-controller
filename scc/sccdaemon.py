@@ -804,7 +804,7 @@ class SCCDaemon(Daemon):
 		elif message.startswith(b"Controller:"):
 			with self.lock:
 				try:
-					controller_id = message[11:].strip()
+					controller_id = message[11:].strip().decode('utf-8')
 					for c in self.controllers:
 						if c.get_id() == controller_id:
 							client.mapper = c.get_mapper()
