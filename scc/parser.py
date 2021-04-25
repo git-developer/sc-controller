@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 """
 SC Controller - ActionParser
 
@@ -96,17 +96,19 @@ class ActionParser(object):
 		return a
 	
 	
-	def restart(self, string):
+	def restart(self, s):
 		"""
 		Restarts parsing with new string
 		Returns self for chaining.
 		"""
-		
+		if type(s) == bytes:
+			s = s.decode("utf-8")
+			
 		try:
 			self.tokens = [
 				ActionParser.Token(type, string)
-				for (type, string, trash, trash, trash)
-				in generate_tokens( iter([string]).__next__ )
+				for type, string, *_
+				in generate_tokens( iter([s]).__next__ )
 				if type != TokenType.ENDMARKER
 			]
 		except TokenError:
