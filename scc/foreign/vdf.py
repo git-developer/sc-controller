@@ -239,7 +239,7 @@ class VDFProfile(Profile):
 		elif "activators" in bdef:
 			# V3
 			act_actions = []
-			for k in ("full_press", "double_press", "long_press"):
+			for k in ("Full_Press", "Double_Press", "Long_Press"):
 				a = NoAction()
 				if k in bdef["activators"]:
 					# TODO: Handle multiple bindings
@@ -277,7 +277,7 @@ class VDFProfile(Profile):
 	@staticmethod
 	def find_group(data, id):
 		""" Returns group with specified ID or None """
-		for g in ensure_list(data["group"]):
+		for g in data.get_all_for('group'):
 			if "id" in g and g["id"] == id:
 				return g
 		return None
