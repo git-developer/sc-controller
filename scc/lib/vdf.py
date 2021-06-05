@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 """
 VDF file reader
 Copyright (C) 2017 Kozec
@@ -16,68 +16,27 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-import shlex
+import os, sys, importlib
 
-
-def parse_vdf(fileobj):
-	"""
-	Converts VDF file or file-like object into python dict
+def parse_vdf(file):
+	# employ arcane rituals to import a better vdf parser
 	
-	Throws ValueError if profile cannot be parsed.
-	"""
-	rv = {}
-	stack = [ rv ]
-	lexer = shlex.shlex(fileobj)
-	key = None
+	# find system installed vdf package
+	locs = sys.path[1:]
+	for d in locs:
+		if os.path.isdir(d):
+			if os.path.isdir(os.path.join(d, 'vdf')):
+				vdfpath = os.path.join(d, 'vdf/__init__.py')
+	if not vdfpath:
+		raise ModuleNotFoundError("vdf package not found!")
 	
-	t = lexer.get_token()
-	while t:
-		if t == "{":
-			# Set value to dict and add it on top of stack
-			if key is None:
-				raise ValueError("Dict without key")
-			value = {}
-			if key in stack[-1]:
-				lst = ensure_list(stack[-1][key])
-				lst.append(value)
-				stack[-1][key] = lst
-			else:
-				stack[-1][key] = value
-			
-			stack.append(value)
-			key = None
-		elif t == "}":
-			# Pop last dict from stack
-			if len(stack) < 2:
-				raise ValueError("'}' without '{'")
-			stack = stack[0:-1]
-		elif key is None:
-			key = t.strip('"').lower()
-		elif key in stack[-1]:
-			lst = ensure_list(stack[-1][key])
-			lst.append(t.strip('"'))
-			stack[-1][key] = lst
-			key = None
-		else:
-			stack[-1][key] = t.strip('"')
-			key = None
-		
-		t = lexer.get_token()
-	
-	if len(stack) > 1:
-		raise ValueError("'{' without '}'")
-	
-	return rv
-
-
-def ensure_list(value):
-	"""
-	If value is list, returns same value.
-	Otherwise, returns [ value ]
-	"""
-	return value if type(value) == list else [ value ]
-
+	# import it
+	spec = importlib.util.spec_from_file_location('vdf', vdfpath)
+	vdf = importlib.util.module_from_spec(spec)
+	sys.modules[spec.name] = vdf
+	spec.loader.exec_module(vdf)
+	return vdf.parse(file)
 
 if __name__ == "__main__":
-	print(parse_vdf(open('app_generic.vdf', "r")))
+	print(parse_vdf(open('test.vdf', "r")))
 
