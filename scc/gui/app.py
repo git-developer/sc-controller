@@ -1608,7 +1608,7 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 					# Failed. Just do nothing
 					return
 			if giofile.get_path():
-				path = giofile.get_path().decode("utf-8")
+				path = giofile.get_path()
 				filetype = Dialog.determine_type(path)
 				if filetype:
 					log.info("Importing '%s'..." % (filetype))

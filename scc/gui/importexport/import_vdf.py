@@ -20,7 +20,7 @@ import re, sys, os, collections, threading, logging
 log = logging.getLogger("IE.ImportVdf")
 
 class ImportVdf(object):
-	PROFILE_LIST = "7/remote/sharedconfig.vdf"
+	PROFILE_LIST = "config/localconfig.vdf"
 	STEAMPATH = '~/.steam/steam/'
 	
 	def __init__(self):
@@ -33,7 +33,6 @@ class ImportVdf(object):
 		self._lock = threading.Lock()
 		self.__profile_load_started = False
 		self._on_preload_finished = None
-	
 	
 	def on_grVdfImport_activated(self, *a):
 		if not self.__profile_load_started:
@@ -55,22 +54,20 @@ class ImportVdf(object):
 		i = 0
 		if os.path.exists(p):
 			for user in os.listdir(p):
-				sharedconfig = os.path.join(p, user, self.PROFILE_LIST)
-				if os.path.isfile(sharedconfig):
+				profilelist = os.path.join(p, user, self.PROFILE_LIST)
+				if os.path.isfile(profilelist):
 					self._lock.acquire()
-					log.debug("Loading sharedconfig from '%s'", sharedconfig)
+					log.debug("Loading profile list from '%s'", profilelist)
 					try:
-						i = self._parse_profile_list(i, sharedconfig)
+						i = self._parse_profile_list(i, profilelist, user)
 					except Exception as e:
 						log.exception(e)
 					self._lock.release()
-		
 		GLib.idle_add(self._load_finished)
 	
-	
-	def _parse_profile_list(self, i, filename):
+	def _parse_profile_list(self, i, filename, userid):
 		"""
-		Parses sharedconfig.vdf and loads game and profile IDs. That is later
+		Parses localconfig.vdf and loads game and profile IDs. That is later
 		decoded into name of game and profile name.
 		
 		Called from _load_profiles, in thread. Exceptions are catched and logged
@@ -79,24 +76,43 @@ class ImportVdf(object):
 		"""
 		data = parse_vdf(open(filename, "r"))
 		# Sanity check
-		if "userroamingconfigstore" not in data: return
-		if "controller_config" not in data["userroamingconfigstore"]: return
-		# Grab config
-		cc = data["userroamingconfigstore"]["controller_config"]
+		if "UserLocalConfigStore" not in data: return
+		if "controller_config" not in data["UserLocalConfigStore"]: return
+		
+		# Grab config - currently only grabs SC configs!
+		cc = data["UserLocalConfigStore"]["controller_config"][userid]["controller_steamcontroller_gordon"]["DEFAULT_FOR_TYPE"]
 		# Go through all games
 		listitems = []
+		i = 0
 		for gameid in cc:
-			if "selected" in cc[gameid] and cc[gameid]["selected"].startswith("workshop"):
-				profile_id = cc[gameid]["selected"].split("/")[-1]
-				listitems.append(( i, gameid, profile_id, None ))
-				i += 1
-				if len(listitems) > 10:
-					GLib.idle_add(self.fill_list, listitems)
-					listitems = []
+			# skip templates
+			if 'selected' not in cc[gameid]:
+				continue
+			
+			if not self._check_for_app_manifest(gameid):
+				continue
+				
+			profile_id = cc[gameid]["selected"]
+			listitems.append(( i, gameid, profile_id, None ))
+			i += 1
+			if len(listitems) > 10:
+				GLib.idle_add(self.fill_list, listitems)
+				listitems = []
 		
 		GLib.idle_add(self.fill_list, listitems)
 		return i
 	
+	def _check_for_app_manifest(self, gameid):
+		"""
+		Checks if an app manifest exists for a game.
+		It seems like a better idea to only worry about importing configs for games the user 			already has installed.
+		"""
+		sa_path = self._find_steamapps()
+		if gameid.isdigit():
+			filename = os.path.join(sa_path, "appmanifest_%s.acf" % (gameid))
+			if os.path.exists(filename):
+				return True
+			
 	
 	def _load_game_names(self):
 		"""
@@ -108,6 +124,7 @@ class ImportVdf(object):
 		
 		Calls GLib.idle_add to send loaded data into UI.
 		"""
+		
 		sa_path = self._find_steamapps()
 		while True:
 			self._s_games.acquire(True)	# Wait until something is added to the queue
@@ -122,7 +139,7 @@ class ImportVdf(object):
 				if os.path.exists(filename):
 					try:
 						data = parse_vdf(open(filename, "r"))
-						name = data['appstate']['name']
+						name = data['AppState']['name']
 					except Exception as e:
 						log.error("Failed to load app manifest for '%s'", gameid)
 						log.exception(e)
@@ -188,6 +205,7 @@ class ImportVdf(object):
 				name = _("(not found)")
 				GLib.idle_add(self._set_profile_name, index, name, None)
 			self._lock.release()
+			
 	
 	
 	def _load_finished(self):

@@ -7,7 +7,7 @@ from scc.actions import Action, NoAction, ButtonAction, DPadAction, XYAction
 from scc.actions import HatRightAction, TriggerAction, MouseAction
 from scc.actions import HatUpAction, HatDownAction, HatLeftAction
 from scc.actions import AxisAction, RelAreaAction, MultiAction
-from scc.special_actions import ChangeProfileAction, GridMenuAction, MenuAction
+from scc.special_actions import ChangeProfileAction, GridMenuAction, RadialMenuAction, MenuAction
 from scc.modifiers import SensitivityModifier, ClickModifier, FeedbackModifier
 from scc.constants import SCButtons, HapticPos, TRIGGER_CLICK, YAW, ROLL
 from scc.modifiers import BallModifier, DoubleclickModifier
@@ -239,7 +239,7 @@ class VDFProfile(Profile):
 		elif "activators" in bdef:
 			# V3
 			act_actions = []
-			for k in ("full_press", "double_press", "long_press"):
+			for k in ("Full_Press", "Double_Press", "Long_Press"):
 				a = NoAction()
 				if k in bdef["activators"]:
 					# TODO: Handle multiple bindings
@@ -277,7 +277,7 @@ class VDFProfile(Profile):
 	@staticmethod
 	def find_group(data, id):
 		""" Returns group with specified ID or None """
-		for g in ensure_list(data["group"]):
+		for g in data.get_all_for('group'):
 			if "id" in g and g["id"] == id:
 				return g
 		return None
@@ -357,6 +357,26 @@ class VDFProfile(Profile):
 			self.menus[menu_id] = MenuData(*items)
 			
 			action = GridMenuAction(menu_id,
+				'LEFT' if side == Profile.LEFT else 'RIGHT',
+				SCButtons.LPAD if side == Profile.LEFT else SCButtons.RPAD
+			)
+		elif mode == "radial_menu":
+			items = []
+			next_item_id = 1
+			for k in inputs:
+				action = self.parse_button(inputs[k])
+				items.append(MenuItem(
+					"item_%s" % (next_item_id,),
+					action.describe(Action.AC_BUTTON),
+					action
+				))
+				next_item_id += 1
+			# Menu is stored in profile, with generated ID
+			menu_id = "menu_%s" % (self.next_menu_id,)
+			self.next_menu_id += 1
+			self.menus[menu_id] = MenuData(*items)
+			
+			action = RadialMenuAction(menu_id,
 				'LEFT' if side == Profile.LEFT else 'RIGHT',
 				SCButtons.LPAD if side == Profile.LEFT else SCButtons.RPAD
 			)
