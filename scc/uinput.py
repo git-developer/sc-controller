@@ -24,7 +24,7 @@
 
 import os, ctypes, time
 from ctypes import Structure, POINTER, c_bool, c_int16, c_uint16, c_int32, byref
-from math import pi, copysign, sqrt
+from math import pi, copysign, sqrt, fmod
 from scc.lib.libusb1 import timeval
 from scc.tools import find_library
 from scc.cheader import defines
@@ -485,21 +485,24 @@ class Mouse(UInput):
 			self._dy = 0
 
 		# Base speed around 8 ms standard
+		# (base USB poll rate for Steam Controller)
 		baseFactor = (time_elapsed * 125.0)
 		self._dx += dx * self._xscale * baseFactor
 		self._dy += dy * self._yscale * baseFactor
 		if int(self._dx):
+			self._dx = self._dx - (fmod(self._dx * 100.0, 1.0) / 100.0)
 			self.relEvent(rel=Rels.REL_X, val=int(self._dx))
 			self._dx -= int(self._dx)
 			_syn = True
 		if int(self._dy):
+			self._dy = self._dy - (fmod(self._dy * 100.0, 1.0) / 100.0)
 			self.relEvent(rel=Rels.REL_Y, val=int(self._dy))
 			self._dy -= int(self._dy)
 			_syn = True
 		if _syn:
 			self.synEvent()
 
-	def clearRemainders():
+	def clearRemainders(self):
 		self._dx = 0
 		self._dy = 0
 
