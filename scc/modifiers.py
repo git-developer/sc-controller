@@ -423,6 +423,9 @@ class BallModifier(Modifier, WholeHapticAction):
 	
 	def set_speed(self, x, y, *a):
 		self.speed = (x, y)
+		# Reset calculated x and y velocities
+		self._xvel = 0.0
+		self._yvel = 0.0
 	
 	
 	def get_speed(self):
