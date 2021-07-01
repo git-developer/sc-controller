@@ -492,6 +492,10 @@ class Mouse(UInput):
 		if _syn:
 			self.synEvent()
 
+	def clearRemainders():
+		self._dx = 0
+		self._dy = 0
+
 	def _factorDeadzone(self, dx, dy, time_elapsed):
 		pass
 
