@@ -42,6 +42,7 @@ Based on [Standalone Steam Controller Driver](https://github.com/ynsta/steamcont
   - [setuptools](https://pypi.python.org/pypi/setuptools)
   - [python-pylibacl](http://pylibacl.k1024.org/) is recommended
   - [python-evdev](https://python-evdev.readthedocs.io/en/latest/) is strongly recommended
+  - [python-vdf](https://pypi.org/project/vdf/)
 
 ### Installing
   - Download and extract  [latest release](https://github.com/kozec/sc-controller/releases/latest)
