@@ -1642,8 +1642,10 @@ class CircularModifier(Modifier, HapticEnabledAction):
 						self._haptic_counter += 0.5
 					mapper.send_feedback(self.haptic)
 			# Apply movement to child action
-			self.action.change(mapper, -angle * self.speed, 0, what)
-			mapper.force_event.add(FE_PAD)
+			# Keep event from activating if no angle change
+			if angle != 0.0
+				self.action.change(mapper, -angle * self.speed, 0, what)
+				mapper.force_event.add(FE_PAD)
 
 
 class CircularAbsModifier(Modifier, WholeHapticAction):
