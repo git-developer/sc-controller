@@ -1515,7 +1515,7 @@ class SmoothModifier(Modifier):
 		""" Computes average x,y from all accumulated positions """
 		x = sum(( self._deq_x[i] * self._weights[i] for i in self._range ))
 		y = sum(( self._deq_y[i] * self._weights[i] for i in self._range ))
-		return x / self._w_sum, y / self._w_sum
+		return int(x / self._w_sum), int(y / self._w_sum)
 	
 	
 	def whole(self, mapper, x, y, what):
