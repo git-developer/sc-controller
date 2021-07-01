@@ -566,6 +566,9 @@ class BallModifier(Modifier, WholeHapticAction):
 		if mapper.controller_flags() & ControllerFlags.HAS_RSTICK and what == RIGHT:
 			return self.action.whole(mapper, x, y, what)
 		if mapper.is_touched(what):
+			if mapper.is_touched(what) and not mapper.was_touched(what):
+				mapper.mouse.clearRemainders()
+
 			if self._old_pos and mapper.was_touched(what):
 				t = time.time()
 				dt = t - self._lastTime
@@ -1643,7 +1646,7 @@ class CircularModifier(Modifier, HapticEnabledAction):
 					mapper.send_feedback(self.haptic)
 			# Apply movement to child action
 			# Keep event from activating if no angle change
-			if angle != 0.0
+			if angle != 0.0:
 				self.action.change(mapper, -angle * self.speed, 0, what)
 				mapper.force_event.add(FE_PAD)
 

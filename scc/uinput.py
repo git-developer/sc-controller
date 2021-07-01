@@ -477,6 +477,13 @@ class Mouse(UInput):
 
 		"""
 		_syn = False
+
+		if (dx == 0 or ((dx > 0) != (self._dx > 0))):
+			self._dx = 0
+
+		if (dy == 0 or ((dy > 0) != (self._dy > 0))):
+			self._dy = 0
+
 		# Base speed around 8 ms standard
 		baseFactor = (time_elapsed * 125.0)
 		self._dx += dx * self._xscale * baseFactor

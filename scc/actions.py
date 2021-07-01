@@ -877,6 +877,10 @@ class MouseAction(WholeHapticAction, Action):
 		
 	def pad(self, mapper, position, what):
 		if mapper.is_touched(what):
+			# Initial pad touch
+			if not mapper.was_touched(what):
+				mapper.mouse.clearRemainders()
+
 			if self._old_pos and mapper.was_touched(what):
 				d = position - self._old_pos[0]
 				self.change(mapper, d, 0, what)
