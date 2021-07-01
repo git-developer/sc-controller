@@ -468,7 +468,7 @@ class Mapper(object):
 		# Generate events - mouse
 		mx, my, wx, wy = self.mouse_movements
 		if mx != 0 or my != 0:
-			self.mouse.moveEvent(mx, my * -1, self.time_elapsed)
+			self.mouse.moveEvent(int(mx), int(my * -1), self.time_elapsed)
 			self.syn_list.add(self.mouse)
 		if wx != 0 or wy != 0:
 			self.mouse.scrollEvent(wx, wy)
