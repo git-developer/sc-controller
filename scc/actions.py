@@ -897,7 +897,7 @@ class MouseAction(WholeHapticAction, Action):
 		
 		dx, dy = dx * self.speed[0], dy * self.speed[1]
 		if self._mouse_axis is None:
-			mapper.mouse.moveEvent(dx, dy)
+			mapper.mouse.moveEvent(dx, dy, mapper.time_elapsed)
 		elif self._mouse_axis == Rels.REL_X:
 			mapper.mouse_move(dx, 0)
 		elif self._mouse_axis == Rels.REL_Y:
@@ -1004,7 +1004,7 @@ class MouseAbsAction(Action):
 	def whole(self, mapper, x, y, what):
 		dx = x * self.speed[0] * MouseAbsAction.MOUSE_FACTOR
 		dy = y * self.speed[0] * MouseAbsAction.MOUSE_FACTOR
-		mapper.mouse.moveEvent(dx, dy)
+		mapper.mouse.moveEvent(dx, dy, mapper.time_elapsed)
 
 
 class AreaAction(Action, SpecialAction, OSDEnabledAction):

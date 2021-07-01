@@ -58,6 +58,8 @@ class Mapper(object):
 		self.lpad_touched = False
 		self.state, self.old_state = None, None
 		self.force_event = set()
+		self._lastTime = time.time()
+		self.time_elapsed = 0.0
 	
 	
 	def create_gamepad(self, enabled, poller):
@@ -359,6 +361,9 @@ class Mapper(object):
 		self.state = state
 		self.buttons = state.buttons
 		
+		t = time.time()
+		self.time_elapsed, self._lastTime = t - self._lastTime, t
+
 		if self.buttons & SCButtons.LPAD and not self.buttons & (SCButtons.LPADTOUCH | STICKTILT):
 			self.buttons = (self.buttons & ~SCButtons.LPAD) | SCButtons.STICKPRESS
 		
@@ -463,7 +468,7 @@ class Mapper(object):
 		# Generate events - mouse
 		mx, my, wx, wy = self.mouse_movements
 		if mx != 0 or my != 0:
-			self.mouse.moveEvent(mx, my * -1)
+			self.mouse.moveEvent(mx, my * -1, self.time_elapsed)
 			self.syn_list.add(self.mouse)
 		if wx != 0 or wy != 0:
 			self.mouse.scrollEvent(wx, wy)

@@ -468,7 +468,7 @@ class Mouse(UInput):
 		self._scr_xscale = xscale
 		self._scr_yscale = yscale
 
-	def moveEvent(self, dx=0, dy=0):
+	def moveEvent(self, dx=0, dy=0, time_elapsed=0.0):
 		"""
 		Generate move events from parametters and displacement
 
@@ -476,9 +476,11 @@ class Mouse(UInput):
 		@param int dy		   delta movement from last call on y axis
 
 		"""
-		self._dx += dx * self._xscale
-		self._dy += dy * self._yscale
 		_syn = False
+		# Base speed around 8 ms standard
+		baseFactor = (time_elapsed * 125.0)
+		self._dx += dx * self._xscale * baseFactor
+		self._dy += dy * self._yscale * baseFactor
 		if int(self._dx):
 			self.relEvent(rel=Rels.REL_X, val=int(self._dx))
 			self._dx -= int(self._dx)
@@ -489,6 +491,9 @@ class Mouse(UInput):
 			_syn = True
 		if _syn:
 			self.synEvent()
+
+	def _factorDeadzone(self, dx, dy, time_elapsed):
+		pass
 
 	def scrollEvent(self, dx=0, dy=0):
 		"""
