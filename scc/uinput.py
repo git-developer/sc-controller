@@ -478,9 +478,11 @@ class Mouse(UInput):
 		"""
 		_syn = False
 
+		# Clear mouse axis remainders if axis direction has changed
 		if (dx == 0 or ((dx > 0) != (self._dx > 0))):
 			self._dx = 0
 
+		# Clear mouse axis remainders if axis direction has changed
 		if (dy == 0 or ((dy > 0) != (self._dy > 0))):
 			self._dy = 0
 
@@ -489,6 +491,7 @@ class Mouse(UInput):
 		baseFactor = (time_elapsed * 125.0)
 		self._dx += dx * self._xscale * baseFactor
 		self._dy += dy * self._yscale * baseFactor
+		#self._factorDeadzone(dx, dy, time_elapsed)
 		if int(self._dx):
 			self._dx = self._dx - (fmod(self._dx * 100.0, 1.0) / 100.0)
 			self.relEvent(rel=Rels.REL_X, val=int(self._dx))
@@ -507,7 +510,84 @@ class Mouse(UInput):
 		self._dy = 0
 
 	def _factorDeadzone(self, dx, dy, time_elapsed):
-		pass
+		"""
+		Take raw event and adjust based on assigned dead zone setting.
+
+		@param int dx				delta movement from last call on x axis
+		@param int dy				delta movement from last call on y axis
+		@param double time_elapsed		time elapsed in sec.
+		"""
+
+		#print("COMING IN {} {}".format(dx, dy))
+		#deadzonetmp = 15
+		deadzonetmp = 22
+		#offset = 0.297477440456902
+		offset = 0.375 #0.8 #0.6 #0.45
+
+		#if (dx == 0 or ((dx > 0) != (self._dx > 0))):
+		#	self._dx = 0
+
+		#if (dy == 0 or ((dy > 0) != (self._dy > 0))):
+		#	self._dy = 0
+
+		_hyp = sqrt((dx**2) + (dy**2))
+		unitx = 0
+		unity = 0
+		deadzoneX = deadzonetmp
+		deadzoneY = deadzonetmp
+		if _hyp != 0.0:
+			unitx = (dx / _hyp)
+			unity = (dy / _hyp)
+			deadzoneX = int(deadzonetmp * unitx)
+			deadzoneY = int(deadzonetmp * unity)
+
+		if (abs(dx) > abs(deadzoneX)):
+			beforedx = dx
+			dx -= copysign(deadzoneX, dx)
+			#print("DX: {} {} {} {}".format(beforedx, dx, deadzoneX, unitx))
+		else:
+			dx = 0
+
+		if (abs(dy) > abs(deadzoneY)):
+			beforedy = dy
+			dy -= copysign(deadzoneY, dy)
+			#print("DY: {} {} {} {}".format(beforedy, dy, deadzoneY, unity))
+		else:
+			dy = 0
+
+		#throttla = 1.43
+		throttla = 1.428
+		offman = 28 #30
+		tempx = 0.0
+		tempy = 0.0
+		# Throttle low end of X axis movement
+		if (dx != 0.0):
+			if abs(dx) < (abs(unitx) * offman):
+				signx = copysign(1.0, dx)
+				ratioX = abs(dx) / offman
+				#print("OLD {} | NEW {}".format(tempx, tempx ** 1.5))
+				dx = ratioX ** throttla * signx * offman
+
+		if (dx != 0.0):
+			tempx = dx * (time_elapsed * 125.0) * self._xscale + (abs(unitx) * copysign(offset, dx))
+			self._dx += tempx
+		else:
+			#print("UP IN HERE {}".format(self._dx))
+			self._dx = 0
+
+		# Throttle low end of Y axis movement
+		if (dy != 0.0):
+			if abs(dy) < (abs(unity) * offman):
+				signy = copysign(1.0, dy)
+				ratioY = abs(dy) / offman
+				#print("OLD {} | NEW {}".format(tempy, tempy ** 1.5))
+				dy = ratioY ** throttla * signy * offman
+
+		if (dy != 0.0):
+			tempy = dy * (time_elapsed * 125.0) * self._yscale + (abs(unity) * copysign(offset, dy))
+			self._dy += tempy
+		else:
+			self._dy = 0
 
 	def scrollEvent(self, dx=0, dy=0):
 		"""
