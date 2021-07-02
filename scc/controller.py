@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 from scc.constants import HapticPos
+import time
 import logging
 
 log = logging.getLogger("SCController")
@@ -20,6 +21,8 @@ class Controller(object):
 		self.mapper = None
 		self._id = next_id
 		next_id += 1
+		self.lastTime = time.time()
+		self.time_elapsed = 0.0
 	
 	
 	def get_type(self):

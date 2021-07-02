@@ -58,7 +58,6 @@ class Mapper(object):
 		self.lpad_touched = False
 		self.state, self.old_state = None, None
 		self.force_event = set()
-		self._lastTime = time.time()
 		self.time_elapsed = 0.0
 	
 	
@@ -362,7 +361,8 @@ class Mapper(object):
 		self.buttons = state.buttons
 		
 		t = time.time()
-		self.time_elapsed, self._lastTime = t - self._lastTime, t
+		controller.time_elapsed = self.time_elapsed = t - controller.lastTime
+		controller.lastTime = t
 
 		if self.buttons & SCButtons.LPAD and not self.buttons & (SCButtons.LPADTOUCH | STICKTILT):
 			self.buttons = (self.buttons & ~SCButtons.LPAD) | SCButtons.STICKPRESS
