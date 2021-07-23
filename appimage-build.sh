@@ -50,6 +50,7 @@ set -ex		# display commands, terminate after 1st failure
 download_dep "python-evdev-0.7.0" "https://github.com/gvalkov/python-evdev/archive/v0.7.0.tar.gz"
 download_dep "pylibacl-0.5.3" "https://github.com/iustin/pylibacl/releases/download/pylibacl-v0.5.3/pylibacl-0.5.3.tar.gz"
 download_dep "python-gobject-3.36.1" "https://archive.archlinux.org/packages/p/python-gobject/python-gobject-3.36.1-1-x86_64.pkg.tar.zst"
+download_dep "python-vdf-3.4" "https://github.com/ValvePython/vdf/archive/v3.4.tar.gz"
 download_dep "libpng-1.6.34" "https://archive.archlinux.org/packages/l/libpng/libpng-1.6.34-2-x86_64.pkg.tar.xz"
 download_dep "gdk-pixbuf-2.36.9" "https://archive.archlinux.org/packages/g/gdk-pixbuf2/gdk-pixbuf2-2.36.9-1-x86_64.pkg.tar.xz"
 download_dep "libcroco-0.6.13" "https://archive.archlinux.org/packages/l/libcroco/libcroco-0.6.13-1-x86_64.pkg.tar.xz"
@@ -71,6 +72,7 @@ fi
 
 build_dep "python-evdev-0.7.0"
 build_dep "pylibacl-0.5.3"
+build_dep "python-vdf-3.4"
 unpack_dep "libpng-1.6.34"
 unpack_dep "python-gobject-3.36.1"
 unpack_dep "gdk-pixbuf-2.36.9"
