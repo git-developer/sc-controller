@@ -74,7 +74,8 @@ class ImportVdf(object):
 		from there.
 		Calls GLib.idle_add to send loaded data into UI.
 		"""
-		data = parse_vdf(open(filename, "r"))
+		# VDF file is a ISO-8859-1 encoded file. Not UTF-8
+		data = parse_vdf(open(filename, "r", encoding = "ISO-8859-1"))
 		# Sanity check
 		if "UserLocalConfigStore" not in data: return
 		if "controller_config" not in data["UserLocalConfigStore"]: return
@@ -263,9 +264,12 @@ class ImportVdf(object):
 		"""
 		tvVdfProfiles = self.builder.get_object("tvVdfProfiles")
 		model, iter = tvVdfProfiles.get_selection().get_selected()
-		filename = model.get_value(iter, 3)
+		filename = None
+		if iter:
+			filename = model.get_value(iter, 3)
+
 		self.enable_next(filename is not None, self.import_vdf)
-	
+
 	
 	@staticmethod
 	def gen_aset_name(base_name, set_name):

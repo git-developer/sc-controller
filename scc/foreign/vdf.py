@@ -23,10 +23,10 @@ log = logging.getLogger("import.vdf")
 class VDFProfile(Profile):
 	BUTTON_TO_BUTTON = {
 		# maps button keys from vdf file to SCButtons constants
-		'button_a'			: SCButtons.A,
-		'button_b'			: SCButtons.B,
-		'button_x'			: SCButtons.X,
-		'button_y'			: SCButtons.Y,
+		'button_A'			: SCButtons.A,
+		'button_B'			: SCButtons.B,
+		'button_X'			: SCButtons.X,
+		'button_Y'			: SCButtons.Y,
 		'button_back_left'	: SCButtons.LGRIP,
 		'button_back_right'	: SCButtons.RGRIP,
 		'button_menu'		: SCButtons.BACK,
