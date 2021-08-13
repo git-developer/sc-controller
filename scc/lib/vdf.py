@@ -18,26 +18,30 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 """
 import os, sys, importlib
 
-
-def parse_vdf(file):
-	# employ arcane rituals to import a better vdf parser
-	
-	# find system installed vdf package
+# try to import vdf directly
+try:
+	import vdf
+except ModuleNotFoundError as e:
+	# try to find the system package before giving up
 	locs = sys.path[1:]
 	for d in locs:
 		if os.path.isdir(d):
 			if os.path.isdir(os.path.join(d, 'vdf')):
 				vdfpath = os.path.join(d, 'vdf/__init__.py')
-				
-	if not vdfpath:
-		raise ModuleNotFoundError("vdf package not found!")
+				break
+	else:
+		raise e
 
 	# import it
 	spec = importlib.util.spec_from_file_location('vdf', vdfpath)
 	vdf = importlib.util.module_from_spec(spec)
 	sys.modules[spec.name] = vdf
 	spec.loader.exec_module(vdf)
+
+
+def parse_vdf(file):
 	return vdf.parse(file, mapper=vdf.VDFDict, merge_duplicate_keys=False)
+
 
 def ensure_list(value):
 	"""
@@ -49,4 +53,3 @@ def ensure_list(value):
 
 if __name__ == "__main__":
 	print(parse_vdf(open('test.vdf', "r")))
-

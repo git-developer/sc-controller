@@ -3,6 +3,7 @@ from scc.foreign.vdf import VDFProfile
 from io import StringIO
 import os
 import pytest
+import vdf
 
 class TestVDF(object):
 	""" Tests VDF parser """
@@ -19,7 +20,7 @@ class TestVDF(object):
 		}
 		""")
 		parsed = parse_vdf(sio)
-		assert type(parsed["data"]) == dict
+		assert type(parsed["data"]) == vdf.vdict.VDFDict
 		assert parsed["data"]["version"] == "3"
 		assert parsed["data"]["more data"]["version"] == "7"
 	
@@ -37,7 +38,7 @@ class TestVDF(object):
 			}
 		}
 		""")
-		with pytest.raises(ValueError) as excinfo:
+		with pytest.raises(SyntaxError) as excinfo:
 			parsed = parse_vdf(sio)
 	
 	
@@ -53,7 +54,7 @@ class TestVDF(object):
 				"version" "7"
 			}
 		""")
-		with pytest.raises(ValueError) as excinfo:
+		with pytest.raises(SyntaxError) as excinfo:
 			parsed = parse_vdf(sio)
 	
 	
@@ -71,7 +72,7 @@ class TestVDF(object):
 			}
 		}
 		""")
-		with pytest.raises(ValueError) as excinfo:
+		with pytest.raises(SyntaxError) as excinfo:
 			parsed = parse_vdf(sio)
 	
 	
