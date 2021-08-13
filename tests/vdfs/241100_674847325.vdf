@@ -7,10 +7,10 @@
 		"mode"		"four_buttons"
 		"bindings"
 		{
-			"button_a"		"key_press SPACE, Secondary Situational"
+			"button_A"		"key_press SPACE, Secondary Situational"
 			"button_B"		"key_press X, Free look with left touch"
 			"button_X"		"key_press C, Camera View"
-			"button_y"		"key_press F, Special Ability"
+			"button_Y"		"key_press F, Special Ability"
 		}
 		"settings"
 		{
