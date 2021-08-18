@@ -757,13 +757,18 @@ class GesturesAction(Action, OSDEnabledAction, SpecialAction):
 class CemuHookAction(Action, SpecialAction):
 	SA = COMMAND = "cemuhook"
 	MAGIC_GYRO = (2000.0 / 32768.0)
+	ACC_RES_PER_G = 16384.0
 	
 	def gyro(self, mapper, *pyr):
 		sa_data = (
-			pyr[0] * CemuHookAction.MAGIC_GYRO,
-			-pyr[1] * CemuHookAction.MAGIC_GYRO,
-			-pyr[2] * CemuHookAction.MAGIC_GYRO,
+			-mapper.state.accel_x / CemuHookAction.ACC_RES_PER_G, # AccelX
+			mapper.state.accel_y / CemuHookAction.ACC_RES_PER_G, # AccelY
+			mapper.state.accel_z / CemuHookAction.ACC_RES_PER_G, # AccelZ
+			pyr[0] * CemuHookAction.MAGIC_GYRO, # Gyro Pitch
+			-pyr[1] * CemuHookAction.MAGIC_GYRO, # Gyro Yaw
+			-pyr[2] * CemuHookAction.MAGIC_GYRO, # Gyro Roll
 		)
+		#log.debug(sa_data)
 		self.execute(mapper, sa_data)
 	
 	def describe(self, context):

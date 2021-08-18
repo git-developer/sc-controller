@@ -60,7 +60,9 @@ class CemuhookServer:
 	
 	def feed(self, data):
 		c_data = CemuhookServer.C_DATA_T()
-		c_data[3:6] = data[0:3]
+		#log.debug(data)
+		c_data[0:6] = data[0:6]
+		#log.debug(list(c_data))
 		self._lib.cemuhook_feed(self.socket.fileno(), 0, c_data)
 
 

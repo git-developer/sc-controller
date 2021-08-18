@@ -36,7 +36,10 @@ INPUT_FORMAT = [
 	('h',   'lpad_y'),
 	('h',   'rpad_x'),
 	('h',   'rpad_y'),
-	('10x', 'ukn_06'),
+	('4x',  'ukn_06'),
+	('h',   'accel_x'),
+	('h',   'accel_y'),
+	('h',   'accel_z'),
 	('h',   'gpitch'),
 	('h',   'groll'),
 	('h',   'gyaw'),
@@ -207,6 +210,7 @@ class SCController(Controller):
 						idata.type, idata.status, idata.seq, idata.buttons,
 						idata.ltrig, idata.rtrig,
 						lx, ly, rx, ry,
+						idata.accel_x, idata.accel_y, idata.accel_z,
 						idata.gpitch, idata.groll, idata.gyaw,
 						idata.q1, idata.q2, idata.q3, idata.q4
 				)
