@@ -762,8 +762,8 @@ class CemuHookAction(Action, SpecialAction):
 	def gyro(self, mapper, *pyr):
 		sa_data = (
 			-mapper.state.accel_x / CemuHookAction.ACC_RES_PER_G, # AccelX
+			-mapper.state.accel_z / CemuHookAction.ACC_RES_PER_G, # AccelZ
 			mapper.state.accel_y / CemuHookAction.ACC_RES_PER_G, # AccelY
-			mapper.state.accel_z / CemuHookAction.ACC_RES_PER_G, # AccelZ
 			pyr[0] * CemuHookAction.MAGIC_GYRO, # Gyro Pitch
 			-pyr[1] * CemuHookAction.MAGIC_GYRO, # Gyro Yaw
 			-pyr[2] * CemuHookAction.MAGIC_GYRO, # Gyro Roll
