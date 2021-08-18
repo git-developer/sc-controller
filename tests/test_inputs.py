@@ -70,7 +70,6 @@ class RememberingDummy(Dummy):
 		self.scroll_y = 0
 		self.axes = {}
 	
-	
 	def axisEvent(self, axis, val):
 		self.axes[axis] = val
 	
@@ -95,6 +94,9 @@ class RememberingDummy(Dummy):
 		for k in keys:
 			if k in self.pressed:
 				self.pressed.remove(k)
+
+	def clearRemainders(self):
+		pass
 
 
 class TestInputs(object):
