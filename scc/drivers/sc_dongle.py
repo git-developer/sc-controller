@@ -338,7 +338,8 @@ class SCController(Controller):
 			SCConfigType.CONFIGURE,
 			timeout1, timeout2,
 			unknown1,
-			0x14 if self._enable_gyros else 0,
+			# 0x10 (Gyro) | 0x08 (Accel) | 0x04 (Quat)
+			0x1C if self._enable_gyros else 0,
 			unknown2))
 		
 		# LED
