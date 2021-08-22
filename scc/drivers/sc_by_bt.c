@@ -54,6 +54,9 @@ struct SCByBtControllerInput {
 	int32_t lpad_y;
 	int32_t rpad_x;
 	int32_t rpad_y;
+	int32_t accel_x;
+	int32_t accel_y;
+	int32_t accel_z;
 	int32_t gpitch;
 	int32_t groll;
 	int32_t gyaw;
@@ -105,7 +108,7 @@ static uint32_t BT_BUTTONS[] = {
 static inline void debug_packet(char* buffer, size_t size) {
 	size_t i;
 	for(i=0; i<size; i++)
-		printf("%02x", buffer[i] & 0xff);
+		printf("%02x ", buffer[i] & 0xff);
 	printf("\n");
 }
 
@@ -119,7 +122,7 @@ int read_input(SCByBtCPtr ptr) {
 			return 2;
 		memcpy(ptr->buffer + PACKET_SIZE, tmp_buffer + 1, PACKET_SIZE - 1);
 		ptr->long_packet = 0;
-		// debug_packet(ptr->buffer, PACKET_SIZE * 2);
+		//debug_packet(ptr->buffer, PACKET_SIZE * 2);
 	} else {
 		if (read(ptr->fileno, ptr->buffer, PACKET_SIZE) < PACKET_SIZE)
 			return 2;
@@ -128,7 +131,7 @@ int read_input(SCByBtCPtr ptr) {
 			// This is 1st part of long packet
 			return 0;
 		}
-		// debug_packet(ptr->buffer, PACKET_SIZE);
+		//debug_packet(ptr->buffer, PACKET_SIZE);
 	}
 	
 	struct SCByBtControllerInput* state = &(ptr->state);
@@ -181,7 +184,18 @@ int read_input(SCByBtCPtr ptr) {
 	}
 	if ((type & GYRO) == GYRO) {
 		if (rv == 0) { *old_state = *state; state->type = type; rv = 1; }
-		state->gpitch = *(((int16_t*)data) + 0);
+		state->accel_x = *(((int16_t*)data) + 0);
+		state->accel_y = *(((int16_t*)data) + 1);
+		state->accel_z = *(((int16_t*)data) + 2);
+		state->gpitch = *(((int16_t*)data) + 3);
+		state->groll = *(((int16_t*)data) + 4);
+		state->gyaw = *(((int16_t*)data) + 5);
+		state->q1 = *(((int16_t*)data) + 6);
+		state->q2 = *(((int16_t*)data) + 7);
+		state->q3 = *(((int16_t*)data) + 8);
+		state->q4 = *(((int16_t*)data) + 9);
+		data += 20;
+		/*state->gpitch = *(((int16_t*)data) + 0);
 		state->groll = *(((int16_t*)data) + 1);
 		state->gyaw = *(((int16_t*)data) + 2);
 		state->q1 = *(((int16_t*)data) + 3);
@@ -189,6 +203,7 @@ int read_input(SCByBtCPtr ptr) {
 		state->q3 = *(((int16_t*)data) + 5);
 		state->q4 = *(((int16_t*)data) + 6);
 		data += 14;
+		*/
 	}
 	
 	return rv;

@@ -34,6 +34,9 @@ class SCByBtControllerInput(ctypes.Structure):
 		('lpad_y', ctypes.c_int32),
 		('rpad_x', ctypes.c_int32),
 		('rpad_y', ctypes.c_int32),
+		('accel_x', ctypes.c_int32),
+		('accel_y', ctypes.c_int32),
+		('accel_z', ctypes.c_int32),
 		('gpitch', ctypes.c_int32),
 		('groll', ctypes.c_int32),
 		('gyaw', ctypes.c_int32),
@@ -189,7 +192,7 @@ class SCByBt(SCController):
 			SCPacketLength.CONFIGURE_BT,
 			SCConfigType.CONFIGURE_BT,
 			unknown1,
-			0x14 if self._enable_gyros else 0,
+			0x1C if self._enable_gyros else 0,
 			unknown2))
 		
 		# LED
