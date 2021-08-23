@@ -192,6 +192,7 @@ class SCByBt(SCController):
 			SCPacketLength.CONFIGURE_BT,
 			SCConfigType.CONFIGURE_BT,
 			unknown1,
+			# 0x10 (Gyro) | 0x08 (Accel) | 0x04 (Quat)
 			0x1C if self._enable_gyros else 0,
 			unknown2))
 		
