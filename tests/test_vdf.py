@@ -14,7 +14,8 @@ class TestVDF(object):
 		"data"
 		{
 			"version" "3"
-			"more data" {
+			"more data"
+			{
 				"version" "7"
 			}
 		}
