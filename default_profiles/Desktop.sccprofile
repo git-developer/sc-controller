@@ -38,9 +38,7 @@
     "cpad": {
         "action": "mouse()"
     }, 
-    "gyro": {
-    	"action": "cemuhook"
-    }, 
+    "gyro": {},
     "is_template": false, 
     "menus": {}, 
     "pad_left": {
