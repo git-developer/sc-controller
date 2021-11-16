@@ -21,6 +21,7 @@ log = logging.getLogger("DS4")
 
 VENDOR_ID = 0x054c
 PRODUCT_ID = 0x09cc
+DS4_V1_PRODUCT_ID = 0x5C4
 
 
 class DS4Controller(HIDController):
@@ -411,10 +412,17 @@ def init(daemon, config):
 			# daemon.add_error("ds4", "No access to DS4 device")
 	
 	if config["drivers"].get("hiddrv") or (HAVE_EVDEV and config["drivers"].get("evdevdrv")):
+		# DS4 v.2
 		register_hotplug_device(hid_callback, VENDOR_ID, PRODUCT_ID, on_failure=fail_cb)
+		# DS4 v.1
+		register_hotplug_device(hid_callback, VENDOR_ID, DS4_V1_PRODUCT_ID, on_failure=fail_cb)
 		if HAVE_EVDEV and config["drivers"].get("evdevdrv"):
+			# DS4 v.2
 			daemon.get_device_monitor().add_callback("bluetooth",
 							VENDOR_ID, PRODUCT_ID, make_evdev_device, None)
+			# DS4 v.1
+			daemon.get_device_monitor().add_callback("bluetooth",
+				VENDOR_ID, DS4_V1_PRODUCT_ID, make_evdev_device, None)
 		return True
 	else:
 		log.warning("Neither HID nor Evdev driver is enabled, DS4 support cannot be enabled.")
