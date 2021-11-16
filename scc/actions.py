@@ -1456,8 +1456,9 @@ class ButtonAction(HapticEnabledAction, Action):
 		Keys.BTN_SELECT	: "< Select",
 		Keys.BTN_A		: "A Button",
 		Keys.BTN_B		: "B Button",
-		Keys.BTN_X		: "X Button",
-		Keys.BTN_Y		: "Y Button",
+		# Work around busted Linux btn aliases
+		Keys.BTN_NORTH	: "X Button",
+		Keys.BTN_WEST	: "Y Button",
 		
 		Keys.KEY_PREVIOUSSONG	: "<< Song",
 		Keys.KEY_STOP			: "Stop",
