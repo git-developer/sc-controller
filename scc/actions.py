@@ -13,7 +13,8 @@ from scc.tools import ensure_size, quat2euler, anglediff
 from scc.tools import circle_to_square, clamp, nameof
 from scc.uinput import Keys, Axes, Rels
 from scc.lib import xwrappers as X
-from scc.constants import STICK_PAD_MIN, STICK_PAD_MAX, STICK_PAD_MIN_HALF
+from scc.constants import (STICK_PAD_MIN, STICK_PAD_MAX, STICK_PAD_MIN_HALF,
+OUTPUT_360_STICK_MIN, OUTPUT_360_STICK_MAX)
 from scc.constants import STICK_PAD_MAX_HALF, TRIGGER_MIN, TRIGGER_HALF
 from scc.constants import HIPFIRE_NORMAL, HIPFIRE_SENSIBLE, HIPFIRE_EXCLUSIVE
 from scc.constants import LEFT, RIGHT, CPAD, STICK, PITCH, YAW, ROLL
@@ -682,7 +683,7 @@ class AxisAction(Action):
 			# DPAD
 			return int(max(-1, min(1, value)))
 		# Everything else
-		return int(max(STICK_PAD_MIN, min(STICK_PAD_MAX, value)))
+		return int(max(OUTPUT_360_STICK_MIN, min(OUTPUT_360_STICK_MAX, value)))
 	
 	
 	def axis(self, mapper, position, what):
