@@ -8,7 +8,7 @@ Handles one or multiple controllers connected to dongle.
 
 from scc.lib import IntEnum
 from scc.drivers.usb import USBDevice, register_hotplug_device
-from scc.constants import SCButtons, STICKTILT
+from scc.constants import SCButtons, STICKTILT, STICK_PAD_MIN, STICK_PAD_MAX
 from scc.controller import Controller
 from scc.config import Config
 from collections import namedtuple
@@ -199,12 +199,23 @@ class SCController(Controller):
 				lx, ly = idata.lpad_x, idata.lpad_y
 				if idata.buttons & SCButtons.LPADTOUCH:
 					s, c = sin(self._input_rotation_l), cos(self._input_rotation_l)
-					lx = int(idata.lpad_x * c - idata.lpad_y * s)
-					ly = int(idata.lpad_x * s + idata.lpad_y * c)
+					# Adjust LX for rotation and clamp
+					value = int(idata.lpad_x * c - idata.lpad_y * s)
+					lx = max(STICK_PAD_MIN, min(STICK_PAD_MAX, value))
+
+					# Adjust LY for rotation and clamp
+					value = int(idata.lpad_x * s + idata.lpad_y * c)
+					ly = max(STICK_PAD_MIN, min(STICK_PAD_MAX, value))
 				s, c = sin(self._input_rotation_r), cos(self._input_rotation_r)
-				rx = int(idata.rpad_x * c - idata.rpad_y * s)
-				ry = int(idata.rpad_x * s + idata.rpad_y * c)
-				
+
+				# Adjust RX for rotation and clamp
+				value = int(idata.rpad_x * c - idata.rpad_y * s)
+				rx = max(STICK_PAD_MIN, min(STICK_PAD_MAX, value))
+
+				# Adjust LY for rotation and clamp
+				value = int(idata.rpad_x * s + idata.rpad_y * c)
+				ry = max(STICK_PAD_MIN, min(STICK_PAD_MAX, value))
+
 				# TODO: This is awfull :(
 				idata = ControllerInput(
 						idata.type, idata.status, idata.seq, idata.buttons,

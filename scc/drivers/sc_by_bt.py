@@ -8,7 +8,7 @@ Shares a lot of classes with sc_dongle.py
 """
 
 from scc.lib.hidraw import HIDRaw
-from scc.constants import ControllerFlags
+from scc.constants import ControllerFlags, STICK_PAD_MIN, STICK_PAD_MAX
 from scc.tools import find_library
 from .sc_dongle import SCPacketType, SCPacketLength, SCConfigType
 from .sc_dongle import SCController
@@ -269,13 +269,25 @@ class SCByBt(SCController):
 				if self._input_rotation_l and (self._state.type & 0x0100) != 0:
 					lx, ly = self._state.lpad_x, self._state.lpad_y
 					s, c = sin(self._input_rotation_l), cos(self._input_rotation_l)
-					self._state.lpad_x = int(lx * c - ly * s)
-					self._state.lpad_y = int(lx * s + ly * c)
+
+					# Adjust LX for rotation and clamp
+					value = int(lx * c - ly * s)
+					self._state.lpad_x = max(STICK_PAD_MIN, min(STICK_PAD_MAX, value))
+
+					# Adjust LY for rotation and clamp
+					value = int(lx * s + ly * c)
+					self._state.lpad_y = max(STICK_PAD_MIN, min(STICK_PAD_MAX, value))
 				if self._input_rotation_r and (self._state.type & 0x0200) != 0:
 					rx, ry = self._state.rpad_x, self._state.rpad_y
 					s, c = sin(self._input_rotation_r), cos(self._input_rotation_r)
-					self._state.rpad_x = int(rx * c - ry * s)
-					self._state.rpad_y = int(rx * s + ry * c)
+
+					# Adjust RX for rotation and clamp
+					value = int(rx * c - ry * s)
+					self._state.rpad_x = max(STICK_PAD_MIN, min(STICK_PAD_MAX, value))
+
+					# Adjust RY for rotation and clamp
+					value = int(rx * s + ry * c)
+					self._state.rpad_y = max(STICK_PAD_MIN, min(STICK_PAD_MAX, value))
 				
 				self.mapper.input(self, self._old_state, self._state)
 			self.flush()
