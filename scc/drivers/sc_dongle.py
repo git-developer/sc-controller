@@ -195,9 +195,11 @@ class SCController(Controller):
 			#	if (idata.buttons & STICKPRESS) and not (idata.buttons & STICKTILT):
 			#		idata = ControllerInput.replace(buttons=idata.buttons & ~SCButtons.LPAD)
 			
-			if self._input_rotation_l:
+			if self._input_rotation_l or self._input_rotation_r:
 				lx, ly = idata.lpad_x, idata.lpad_y
-				if idata.buttons & SCButtons.LPADTOUCH:
+				rx, ry = idata.rpad_x, idata.rpad_y
+
+				if self._input_rotation_l and idata.buttons & SCButtons.LPADTOUCH:
 					s, c = sin(self._input_rotation_l), cos(self._input_rotation_l)
 					# Adjust LX for rotation and clamp
 					value = int(idata.lpad_x * c - idata.lpad_y * s)
@@ -206,15 +208,17 @@ class SCController(Controller):
 					# Adjust LY for rotation and clamp
 					value = int(idata.lpad_x * s + idata.lpad_y * c)
 					ly = max(STICK_PAD_MIN, min(STICK_PAD_MAX, value))
-				s, c = sin(self._input_rotation_r), cos(self._input_rotation_r)
 
-				# Adjust RX for rotation and clamp
-				value = int(idata.rpad_x * c - idata.rpad_y * s)
-				rx = max(STICK_PAD_MIN, min(STICK_PAD_MAX, value))
+				if self._input_rotation_r and idata.buttons & SCButtons.RPADTOUCH:
+					s, c = sin(self._input_rotation_r), cos(self._input_rotation_r)
 
-				# Adjust RY for rotation and clamp
-				value = int(idata.rpad_x * s + idata.rpad_y * c)
-				ry = max(STICK_PAD_MIN, min(STICK_PAD_MAX, value))
+					# Adjust RX for rotation and clamp
+					value = int(idata.rpad_x * c - idata.rpad_y * s)
+					rx = max(STICK_PAD_MIN, min(STICK_PAD_MAX, value))
+
+					# Adjust RY for rotation and clamp
+					value = int(idata.rpad_x * s + idata.rpad_y * c)
+					ry = max(STICK_PAD_MIN, min(STICK_PAD_MAX, value))
 
 				# TODO: This is awfull :(
 				idata = ControllerInput(
@@ -225,7 +229,7 @@ class SCController(Controller):
 						idata.gpitch, idata.groll, idata.gyaw,
 						idata.q1, idata.q2, idata.q3, idata.q4
 				)
-			
+
 			self.mapper.input(self, old_state, idata)
 	
 	
