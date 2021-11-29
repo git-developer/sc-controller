@@ -212,7 +212,7 @@ class SCController(Controller):
 				value = int(idata.rpad_x * c - idata.rpad_y * s)
 				rx = max(STICK_PAD_MIN, min(STICK_PAD_MAX, value))
 
-				# Adjust LY for rotation and clamp
+				# Adjust RY for rotation and clamp
 				value = int(idata.rpad_x * s + idata.rpad_y * c)
 				ry = max(STICK_PAD_MIN, min(STICK_PAD_MAX, value))
 
