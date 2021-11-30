@@ -23,9 +23,14 @@ log = logging.getLogger("import.vdf")
 class VDFProfile(Profile):
 	BUTTON_TO_BUTTON = {
 		# maps button keys from vdf file to SCButtons constants
+		# It looks like uppercase button and lowercase button aliases are needed
+		'button_a'			: SCButtons.A,
 		'button_A'			: SCButtons.A,
+		'button_b'			: SCButtons.B,
 		'button_B'			: SCButtons.B,
+		'button_x'			: SCButtons.X,
 		'button_X'			: SCButtons.X,
+		'button_y'			: SCButtons.Y,
 		'button_Y'			: SCButtons.Y,
 		'button_back_left'	: SCButtons.LGRIP,
 		'button_back_right'	: SCButtons.RGRIP,
