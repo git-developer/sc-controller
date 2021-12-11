@@ -234,7 +234,7 @@ class HIDController(USBDevice, Controller):
 		if hid_descriptor is None:
 			hid_descriptor = self.handle.getRawDescriptor(
 					LIBUSB_DT_REPORT, 0, 512)
-		open("report", "wb").write(b"".join([ chr(x) for x in hid_descriptor ]))
+		open("report", "wb").write(bytes([x for x in hid_descriptor ]))
 		self._build_hid_decoder(hid_descriptor, config, max_size)
 		self._packet_size = self._decoder.packet_size
 
@@ -346,13 +346,13 @@ class HIDController(USBDevice, Controller):
 								if config:
 									target, axis_data = self._build_axis_maping(next_axis, config)
 									if axis_data:
-										axis_data.byte_offset = total / 8
+										axis_data.byte_offset = total // 8
 										axis_data.bit_offset = total % 8
 										axis_data.size = size
 										self._decoder.axes[target] = axis_data
 								else:
 									self._decoder.axes[next_axis] = AxisData(mode = AxisMode.AXIS_NO_SCALE)
-									self._decoder.axes[next_axis].byte_offset = total / 8
+									self._decoder.axes[next_axis].byte_offset = total // 8
 									self._decoder.axes[next_axis].bit_offset = total % 8
 									self._decoder.axes[next_axis].size = size
 								next_axis = next_axis + 1
@@ -367,12 +367,12 @@ class HIDController(USBDevice, Controller):
 							if config:
 								target, axis_data = self._build_axis_maping(next_axis, config, AxisMode.HATSWITCH)
 								if axis_data:
-									axis_data.byte_offset = total / 8
+									axis_data.byte_offset = total // 8
 									axis_data.bit_offset = total % 8
 									self._decoder.axes[target] = axis_data
 							else:
 								self._decoder.axes[next_axis] = AxisData(mode = AxisMode.HATSWITCH)
-								self._decoder.axes[next_axis].byte_offset = total / 8
+								self._decoder.axes[next_axis].byte_offset = total // 8
 								self._decoder.axes[next_axis].bit_offset = total % 8
 								self._decoder.axes[next_axis].data.hatswitch.min = STICK_PAD_MIN
 								self._decoder.axes[next_axis].data.hatswitch.max = STICK_PAD_MAX
@@ -393,7 +393,7 @@ class HIDController(USBDevice, Controller):
 						log.debug("Found %s buttons at bit %s", count, total)
 						self._decoder.buttons = ButtonData(
 							enabled = True,
-							byte_offset = total / 8,
+							byte_offset = total // 8,
 							bit_offset = total % 8,
 							size = buttons_size,
 							button_count = count,
@@ -404,7 +404,7 @@ class HIDController(USBDevice, Controller):
 						log.debug("Skipped over %s bits for %s at bit %s", count * size, kind, total)
 						total += count * size
 
-		self._decoder.packet_size = total / 8
+		self._decoder.packet_size = total // 8
 		if total % 8 > 0:
 			self._decoder.packet_size += 1
 		if self._decoder.packet_size > max_size:
@@ -449,7 +449,8 @@ class HIDController(USBDevice, Controller):
 				log.debug("Loading descriptor from '%s'", full_path)
 				temp_list = None
 				with open(full_path, "rb") as read_file:
-					temp_list = [ ord(str(x)) for x in read_file.read(1024) ]
+					temp_list = [ x for x in read_file(1024)]
+
 				return temp_list
 		except Exception as e:
 			log.exception(e)

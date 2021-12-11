@@ -70,7 +70,7 @@ class ReservedItem(object):
 	
 	def __new__(cls, value):
 		if value not in cls._CACHE:
-			cls._CACHE[value] = object.__new__(cls, value)
+			cls._CACHE[value] = object.__new__(cls)
 		return cls._CACHE[value]
 
 
