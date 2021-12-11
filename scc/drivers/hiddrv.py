@@ -449,7 +449,7 @@ class HIDController(USBDevice, Controller):
 				log.debug("Loading descriptor from '%s'", full_path)
 				temp_list = None
 				with open(full_path, "rb") as read_file:
-					temp_list = [ ord(x) for x in read_file.read(1024) ]
+					temp_list = [ ord(str(x)) for x in read_file.read(1024) ]
 				return temp_list
 		except Exception as e:
 			log.exception(e)
