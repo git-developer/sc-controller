@@ -460,7 +460,9 @@ class ControllerRegistration(Editor):
 			]
 			self._tester.start()
 
-		if dev.info.vendor == 0 and dev.info.product == 0:
+		# Check VID+PID info and whether HID driver support is enabled
+		if (dev.info.vendor == 0 and dev.info.product == 0 or
+			not self.app.config["drivers"].get("hiddrv")):
 			# Not an USB device, skip HID test altogether
 			retry_with_evdev(None, 0)
 		else:
