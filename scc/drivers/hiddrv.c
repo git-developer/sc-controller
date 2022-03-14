@@ -8,7 +8,7 @@
 #define HIDDRV_MODULE_VERSION 5
 PyObject* module;
 
-#define AXIS_COUNT 17
+#define AXIS_COUNT 20
 #define BUTTON_COUNT 32
 
 struct HIDControllerInput {
@@ -26,15 +26,18 @@ enum AxisType {
 	AXIS_STICK_Y = 5,
 	AXIS_LTRIG   = 6,
 	AXIS_RTRIG   = 7,
-	AXIS_GPITCH  = 8,
-	AXIS_GROLL   = 9,
-	AXIS_GYAW    = 10,
-	AXIS_Q1      = 11,
-	AXIS_Q2      = 12,
-	AXIS_Q3      = 13,
-	AXIS_Q4      = 14,
-	AXIS_CPAD_X  = 15,
-	AXIS_CPAD_Y  = 16,
+	AXIS_ACCEL_X = 8,
+	AXIS_ACCEL_Y = 9,
+	AXIS_ACCEL_Z = 10,
+	AXIS_GPITCH  = 11,
+	AXIS_GROLL   = 12,
+	AXIS_GYAW    = 13,
+	AXIS_Q1      = 14,
+	AXIS_Q2      = 15,
+	AXIS_Q3      = 16,
+	AXIS_Q4      = 17,
+	AXIS_CPAD_X  = 18,
+	AXIS_CPAD_Y  = 19,
 	_AxisType_force_int = INT_MAX
 };
 
