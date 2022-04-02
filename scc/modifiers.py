@@ -714,7 +714,20 @@ class DeadzoneModifier(Modifier):
 		
 		angle = atan2(x, y)
 		return distance * sin(angle), distance * cos(angle)
-	
+
+	def _convert_trigger_stick_range(self, position, trigger_range):
+		result = clamp(0,
+		    (position / trigger_range) * STICK_PAD_MAX,
+		    STICK_PAD_MAX)
+
+		return result
+
+	def _convert_stick_trigger_range(self, position):
+		result = clamp(0,
+		    (position / STICK_PAD_MAX) * TRIGGER_MAX,
+		    TRIGGER_MAX)
+
+		return result
 	
 	@staticmethod
 	def decode(data, a, *b):
@@ -773,9 +786,19 @@ class DeadzoneModifier(Modifier):
 	
 	
 	def trigger(self, mapper, position, old_position):
-		position = self._convert(position, 0, TRIGGER_MAX)
+		# Need to convert trigger value to stick range for deadzone modifier
+		# calcs to work as intended
+		position = self._convert_trigger_stick_range(position, TRIGGER_MAX)
+
+		# Perform dead zone calculations
+		position = self._convert(position, 0, STICK_PAD_MAX)
+
+		# Convert calculated stick position value back to applicable
+		# position in trigger range
+		position = self._convert_stick_trigger_range(position[0])
+		# Invoke trigger action with new value
 		return self.action.trigger(mapper, position, old_position)
-	
+
 	
 	def axis(self, mapper, position, what):
 		position = self._convert(position, 0, STICK_PAD_MAX)
