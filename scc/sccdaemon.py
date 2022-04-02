@@ -328,7 +328,7 @@ class SCCDaemon(Daemon):
 	def on_sa_area(self, mapper, action, x1, y1, x2, y2):
 		""" Called when *AreaAction has OSD enabled """
 		with self.lock:
-			self._osd('area', '-x', x1, '-y', y1, '--width', x2-x1, '--height', y2-y1)
+			self._osd('area', '-x', str(x1), '-y', str(y1), '--width', str(x2-x1), '--height', str(y2-y1))
 	
 	
 	def on_sa_clear_osd(self, *a):
