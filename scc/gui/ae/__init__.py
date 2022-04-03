@@ -105,7 +105,11 @@ def describe_action(mode, cls, v):
 	if v is None or type(v) in (int, float, str,):
 		return _('(not set)')
 	elif isinstance(v, Action):
-		dsc = v.describe(Action.AC_STICK if cls == XYAction else Action.AC_BUTTON)
+		if not mode:
+			dsc = v.describe(Action.AC_STICK if cls == XYAction else Action.AC_BUTTON)
+		else:
+			dsc = v.describe(mode)
+
 		if "\n" in dsc:
 			dsc = "<small>" + "\n".join(dsc.split("\n")[0:2]) + "</small>"
 		return dsc

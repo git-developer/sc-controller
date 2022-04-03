@@ -156,9 +156,10 @@ class TriggerComponent(AEComponent, BindingEditor):
 					self.set_cb(cb, trigger_style, 1)
 				if full:
 					self.builder.get_object("sclFullLevel").set_value(full.press_level)
-				if isinstance(analog, TriggerAction):
-					self.builder.get_object("sclARangeStart").set_value(analog.press_level)
-					self.builder.get_object("sclARangeEnd").set_value(analog.release_level)
+
+				if isinstance(analog, AxisAction):
+					self.builder.get_object("sclARangeStart").set_value(analog.min)
+					self.builder.get_object("sclARangeEnd").set_value(analog.max)
 			
 			self._recursing = False
 		self.update()
@@ -167,7 +168,7 @@ class TriggerComponent(AEComponent, BindingEditor):
 	def update(self):
 		self.builder.get_object("lblPartPressed").set_label(describe_action(Action.AC_BUTTON, ButtonAction, self.half))
 		self.builder.get_object("lblFullPressed").set_label(describe_action(Action.AC_BUTTON, ButtonAction, self.full))
-		self.builder.get_object("lblAnalog").set_label(describe_action(Action.AC_BUTTON, AxisAction, self.analog))
+		self.builder.get_object("lblAnalog").set_label(describe_action(Action.AC_TRIGGER, AxisAction, self.analog))
 	
 	
 	def send(self):
@@ -197,9 +198,9 @@ class TriggerComponent(AEComponent, BindingEditor):
 				analog_start = int(self.builder.get_object("sclARangeStart").get_value())
 				analog_end   = int(self.builder.get_object("sclARangeEnd").get_value())
 				if analog_start == TRIGGER_MIN and analog_end == TRIGGER_MAX:
-					actions.append(self.analog)
+					actions.append(AxisAction(self.analog.id))
 				else:
-					actions.append(TriggerAction(analog_start, analog_end, self.analog))
+					actions.append(AxisAction(self.analog.id, analog_start, analog_end))
 		
 		self.editor.set_action(MultiAction.make(*actions))
 	
