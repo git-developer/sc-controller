@@ -401,11 +401,13 @@ int uinput_ff_read(int fd, int ff_effects_max, struct feedback_effect** ff_effec
 									// supposed to play, effect properties are updated on the fly.
 									if (!ff_effects[rv]->continuous_rumble) {
 										ff_effects[rv]->continuous_rumble = true;
+										ff_effects[rv]->repetitions = 1;
 										RUMBLE_DEBUG("CONTINUOUS RUMBLE enabled on %i\n", rv);
 									}
 								} else if (ff_effects[rv]->continuous_rumble) {
 									RUMBLE_DEBUG("CONTINUOUS RUMBLE disabled on %i\n", rv);
 									ff_effects[rv]->continuous_rumble = false;
+									ff_effects[rv]->repetitions = 0;
 								}
 								RUMBLE_DEBUG("FF_PLAY -> %i (type %i, lvl %i, dur. %i, reps. %i)\n", event.code,
 									ff_effects[rv]->type, ff_effects[rv]->level, ff_effects[rv]->duration,
