@@ -742,7 +742,9 @@ class ControllerRegistration(Editor):
 		for fname in evdev.list_devices():
 			dev = evdev.InputDevice(fname)
 			is_gamepad = ControllerRegistration.does_he_looks_like_a_gamepad(dev)
-			if not dev.phys:
+			# bustype 3 is BUS_USB, which is the type used for emulated
+			# gamepads. phys is blank for BUS_BLUETOOTH devices.
+			if dev.info.bustype == 3 and not dev.phys:
 				# Skipping over virtual devices so list doesn't show
 				# gamepads emulated by SCC
 				continue
