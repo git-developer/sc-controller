@@ -43,6 +43,7 @@ Based on [Standalone Steam Controller Driver](https://github.com/ynsta/steamcont
   - [python-pylibacl](http://pylibacl.k1024.org/) is recommended
   - [python-evdev](https://python-evdev.readthedocs.io/en/latest/) is strongly recommended
   - [python-vdf](https://pypi.org/project/vdf/)
+  - [gtk-layer-shell](https://github.com/wmww/gtk-layer-shell) (Wayland only)
 
 ### Installing
   - Download and extract  [latest release](https://github.com/kozec/sc-controller/releases/latest)

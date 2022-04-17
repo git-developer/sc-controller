@@ -37,7 +37,7 @@ class OSDWindow(Gtk.Window):
 	EPILOG = ""
 	css_provider = None			# Used by staticmethods
 	
-	def __init__(self, wmclass):
+	def __init__(self, wmclass, layer = None):
 		Gtk.Window.__init__(self)
 		OSDWindow._apply_css(Config())
 		
@@ -56,10 +56,13 @@ class OSDWindow(Gtk.Window):
 			from gi.repository import GtkLayerShell
 			if GtkLayerShell.is_supported():
 				self.using_wlroots=True
+				self.x_layer_anchor = GtkLayerShell.Edge.LEFT
+				self.y_layer_anchor = GtkLayerShell.Edge.BOTTOM
 				GtkLayerShell.init_for_window(self)
-				GtkLayerShell.set_layer(self, GtkLayerShell.Layer.TOP)
-				GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.LEFT, True)
-				GtkLayerShell.set_anchor(self, GtkLayerShell.Edge.BOTTOM, True)
+				GtkLayerShell.set_layer(self, layer if layer is not None else GtkLayerShell.Layer.TOP)
+				GtkLayerShell.set_anchor(self, self.x_layer_anchor, True)
+				GtkLayerShell.set_anchor(self, self.y_layer_anchor, True)
+				self.layer_shell = GtkLayerShell
 		except (ImportError):
 			pass
 		if not self.using_wlroots:
@@ -210,12 +213,26 @@ class OSDWindow(Gtk.Window):
 		self.get_window().set_override_redirect(True)
 		
 		x, y = self.compute_position()
-		if x < 0:	# Negative X position is counted from right border
-			x = Gdk.Screen.width() - self.get_allocated_width() + x + 1
-		if y < 0:	# Negative Y position is counted from bottom border
-			y = Gdk.Screen.height() - self.get_allocated_height() + y + 1
-		
-		self.move(x, y)
+		if self.using_wlroots:
+			if x < 0:
+				self.layer_shell.set_anchor(self, self.x_layer_anchor, False)
+				self.x_layer_anchor = self.layer_shell.Edge.RIGHT
+				self.layer_shell.set_anchor(self, self.x_layer_anchor, True)
+				x = -x
+			if y < 0:
+				self.layer_shell.set_anchor(self, self.y_layer_anchor, False)
+				self.y_layer_anchor = self.layer_shell.Edge.BOTTOM
+				self.layer_shell.set_anchor(self, self.y_layer_anchor, True)
+				y = -y
+			self.layer_shell.set_margin(self, self.x_layer_anchor, x)
+			self.layer_shell.set_margin(self, self.y_layer_anchor, y)
+		else: # X11
+			if x < 0:	# Negative X position is counted from right border
+				x = Gdk.Screen.width() - self.get_allocated_width() + x + 1
+			if y < 0:	# Negative Y position is counted from bottom border
+				y = Gdk.Screen.height() - self.get_allocated_height() + y + 1
+			self.move(x, y)
+
 		Gtk.Window.show(self)
 		self.make_window_clicktrough()
 	

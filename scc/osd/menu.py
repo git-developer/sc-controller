@@ -41,8 +41,8 @@ class Menu(OSDWindow):
 	PREFER_BW_ICONS = True
 	
 	
-	def __init__(self, cls="osd-menu"):
-		OSDWindow.__init__(self, cls)
+	def __init__(self, cls="osd-menu", layer = None):
+		OSDWindow.__init__(self, cls, layer)
 		self.daemon = None
 		self.config = None
 		self.feedback = None
@@ -70,7 +70,6 @@ class Menu(OSDWindow):
 		self._control_with_dpad = False
 		self._confirm_with = 'A'
 		self._cancel_with = 'B'
-	
 	
 	def set_is_submenu(self):
 		"""
@@ -468,13 +467,20 @@ class Menu(OSDWindow):
 			self._selected = self._submenu._selected
 			self.quit(self._submenu.get_exit_code())
 		self._submenu = None
+		if self.using_wlroots:
+			self.layer_shell.set_layer(self, self.layer_shell.Layer.OVERLAY)
 	
 	
 	def show_submenu(self, trash, trash2, trash3, menuitem):
 		""" Called when user chooses menu item pointing to submenu """
 		filename = find_menu(menuitem.filename)
 		if filename:
-			self._submenu = self.__class__()
+			layer = None
+			if self.using_wlroots:
+				if self.layer_shell.is_supported(): 
+					layer = self.layer_shell.Layer.OVERLAY
+					self.layer_shell.set_layer(self, self.layer_shell.Layer.TOP)
+			self._submenu = self.__class__(layer = layer)
 			sub_pos = list(self.position)
 			for i in (0, 1):
 				sub_pos[i] = (sub_pos[i] - self.SUBMENU_OFFSET
