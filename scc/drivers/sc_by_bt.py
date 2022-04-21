@@ -92,12 +92,13 @@ class Driver:
 		self.daemon.get_scheduler().schedule(1.0, reconnect)
 	
 	
-	def _retry_cancel(self, syspath):
+	def _retry_cancel(self, syspath, vendor, product):
 		"""
 		Cancels reconnection scheduled by 'retry'. Called when device monitor
 		reports controller (as in BT device) being disconencted.
 		"""
-		self.reconnecting.remove(syspath)
+		if syspath in self.reconnecting:
+			self.reconnecting.remove(syspath)
 	
 	
 	def new_device_callback(self, syspath, *whatever):

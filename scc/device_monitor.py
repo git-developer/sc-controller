@@ -8,7 +8,7 @@ manage plugging/releasing devices.
 from scc.lib.eudevmonitor import Eudev, Monitor
 from scc.lib.ioctl_opt import IOR
 from ctypes.util import find_library
-import os, ctypes, fcntl, re, logging
+import os, ctypes, fcntl, re, logging, time
 
 log = logging.getLogger("DevMon")
 
@@ -195,6 +195,9 @@ class DeviceMonitor(Monitor):
 				return vendor, product
 			# Above method works for anything _but_ SteamController
 			# For that one, following desperate mess is needed
+
+			# Sleep for 1 second to make sure info is available on system
+			time.sleep(1)
 			node = self._dev_for_hci(syspath)
 			if node:
 				name = node.split("/")[-1]
