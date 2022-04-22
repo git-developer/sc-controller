@@ -17,6 +17,7 @@ enum BtInPacketType {
 };
 
 #define LONG_PACKET 0x80
+#define SINGLE_PACKET_PAYLOAD_PREFIX 0x40
 #define PACKET_SIZE 20
 
 enum SCButtons {
@@ -116,24 +117,48 @@ static char tmp_buffer[256];
 
 /** Returns 1 if state has changed, 2 on read error */
 int read_input(SCByBtCPtr ptr) {
-	if (ptr->long_packet) {
-		// Previous packet had long flag set and this is its 2nd part
-		if (read(ptr->fileno, tmp_buffer, PACKET_SIZE) < PACKET_SIZE)
-			return 2;
-		memcpy(ptr->buffer + PACKET_SIZE, tmp_buffer + 1, PACKET_SIZE - 1);
-		ptr->long_packet = 0;
-		//debug_packet(ptr->buffer, PACKET_SIZE * 2);
-	} else {
-		if (read(ptr->fileno, ptr->buffer, PACKET_SIZE) < PACKET_SIZE)
-			return 2;
-		ptr->long_packet = *((uint8_t*)(ptr->buffer + 1)) == LONG_PACKET;
-		if (ptr->long_packet) {
-			// This is 1st part of long packet
+	if (read(ptr->fileno, tmp_buffer, PACKET_SIZE) < PACKET_SIZE)
+	{
+		return 2;
+	}
+
+	bool inLongPacket = false;
+	bool endPayload = false;
+	bool resetBufferData = false;
+	{
+		char checkPayloadByte = tmp_buffer[1];
+		int currentPacketNum = (int)(checkPayloadByte & 0x0F);
+		//printf("%i\n", currentPacketNum);
+		//bool processPayload = false;
+
+		inLongPacket = ptr->long_packet;
+		if (ptr->long_packet)
+		{
+			memcpy(ptr->buffer + (PACKET_SIZE * currentPacketNum), tmp_buffer + 2, PACKET_SIZE - 2);
+		}
+		else
+		{
+			memcpy(ptr->buffer, tmp_buffer, PACKET_SIZE);
+		}
+
+		endPayload = (checkPayloadByte & SINGLE_PACKET_PAYLOAD_PREFIX) == SINGLE_PACKET_PAYLOAD_PREFIX;
+		ptr->long_packet = !endPayload;
+
+		if (!endPayload)
+		{
 			return 0;
 		}
-		//debug_packet(ptr->buffer, PACKET_SIZE);
+		else if (inLongPacket && endPayload)
+		{
+			resetBufferData = true;
+		}
+
+		if (endPayload)
+		{
+			debug_packet(ptr->buffer, PACKET_SIZE * (currentPacketNum+1));
+		}
 	}
-	
+
 	struct SCByBtControllerInput* state = &(ptr->state);
 	struct SCByBtControllerInput* old_state = &(ptr->old_state);
 	
@@ -143,6 +168,12 @@ int read_input(SCByBtCPtr ptr) {
 	char* data = &ptr->buffer[4];
 	if ((type & PING) == PING) {
 		// PING packet does nothing
+
+		if (resetBufferData)
+		{
+			memset(ptr->buffer, 0, 256);
+		}
+
 		return 0;
 	}
 	if ((type & BUTTON) == BUTTON) {
@@ -204,6 +235,11 @@ int read_input(SCByBtCPtr ptr) {
 		state->q4 = *(((int16_t*)data) + 6);
 		data += 14;
 		*/
+	}
+
+	if (resetBufferData)
+	{
+		memset(ptr->buffer, 0, 256);
 	}
 	
 	return rv;
