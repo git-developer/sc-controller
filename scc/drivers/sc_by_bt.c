@@ -153,10 +153,10 @@ int read_input(SCByBtCPtr ptr) {
 			resetBufferData = true;
 		}
 
-		if (endPayload)
-		{
-			debug_packet(ptr->buffer, PACKET_SIZE * (currentPacketNum+1));
-		}
+		//if (endPayload)
+		//{
+		//	debug_packet(ptr->buffer, PACKET_SIZE * (currentPacketNum+1));
+		//}
 	}
 
 	struct SCByBtControllerInput* state = &(ptr->state);
