@@ -134,7 +134,12 @@ int read_input(SCByBtCPtr ptr) {
 		inLongPacket = ptr->long_packet;
 		if (ptr->long_packet)
 		{
-			memcpy(ptr->buffer + (PACKET_SIZE * currentPacketNum), tmp_buffer + 2, PACKET_SIZE - 2);
+			// Will grab 18 bytes from each partial input. Start idx
+			// offset from 20.
+			int offset = ((PACKET_SIZE - 2) * currentPacketNum) + 2;
+			// Skip copying first two bytes in partial input
+			// (report ID and packet payload byte)
+			memcpy(ptr->buffer + offset, tmp_buffer + 2, PACKET_SIZE - 2);
 		}
 		else
 		{
