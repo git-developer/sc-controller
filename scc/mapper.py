@@ -108,7 +108,7 @@ class Mapper(object):
 		if ef:	# tale of...
 			self.send_feedback(HapticData(
 				HapticPos.BOTH,
-				period = 32760,
+				period = 20000,
 				amplitude = max(0, ef.level),
 				count = min(0x7FFF, ef.duration * ef.repetitions / 30)
 			))
