@@ -235,7 +235,7 @@ class MenuEditor(Editor):
 		
 	
 	def on_entName_changed(self, *a):
-		id = self.builder.get_object("entName").get_text().decode("utf-8")
+		id = self.builder.get_object("entName").get_text()
 		if len(id.strip()) == 0:
 			self._bad_id_no_id()
 			return
