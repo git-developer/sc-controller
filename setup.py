@@ -1,5 +1,5 @@
-#!/usr/bin/env python2
-from distutils.core import setup, Extension
+#!/usr/bin/env python3
+from setuptools import setup, Extension
 from scc.constants import DAEMON_VERSION
 import glob
 
