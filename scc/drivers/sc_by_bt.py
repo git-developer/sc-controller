@@ -252,6 +252,12 @@ class SCByBt(SCController):
 	
 	def input(self, idata):
 		raise RuntimeError("This shouldn't be called, ever")
+
+	def turnoff(self):
+		super().turnoff()
+		# Need to call flush to make sure packet
+		# is sent to controller
+		self.flush()
 	
 	
 	def close(self, *a):
