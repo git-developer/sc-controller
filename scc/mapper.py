@@ -104,13 +104,34 @@ class Mapper(object):
 	
 	
 	def _rumble_ready(self, fd, event):
+		# Taken from Steam Controller Singer project
+		# https://gitlab.com/Pilatomic/SteamControllerSinger
+		STEAM_CONTROLLER_MAGIC_PERIOD_RATIO = 495483.0
 		ef = self.gamepad.ff_read()
 		if ef:	# tale of...
+			period_command = 0
+			amplitude = 0
+			if ef.level != 0:
+				tempRatio = ef.level / 32767.5
+				period_command = ((6000 - 25000) * tempRatio + 25000)
+				amplitude = ((900 - 600) * tempRatio + 600);
+
+			raw_period = period_command / STEAM_CONTROLLER_MAGIC_PERIOD_RATIO
+			#duration_seconds = 1
+			duration_seconds = ef.duration / 1000.0 * ef.repetitions
+			count = 0
+			if raw_period != 0:
+				count = min(int(duration_seconds * 1.5 / raw_period), 0x7FFF)
+
+			#log.debug(f"{ef.level} {ef.duration} {ef.repetitions} {count}")
 			self.send_feedback(HapticData(
 				HapticPos.BOTH,
-				period = 20000,
-				amplitude = max(0, ef.level),
-				count = min(0x7FFF, ef.duration * ef.repetitions / 30)
+				period = period_command,
+				amplitude = amplitude,
+				count = count,
+				#period = 20000,
+				#amplitude = max(0, ef.level),
+				#count = min(0x7FFF, ef.duration * ef.repetitions / 30)
 			))
 	
 	
