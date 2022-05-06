@@ -105,7 +105,9 @@ rm -R "${BUILD_APPDIR}/usr/share/icu"
 
 # Build important part
 python3 setup.py build
-python3 setup.py install --prefix ${BUILD_APPDIR}/usr
+
+# Need to use single-version-externally-managed due to setuptools behavior
+python3 setup.py install --single-version-externally-managed --prefix ${BUILD_APPDIR}/usr --record /dev/null
 
 # Move udev stuff
 mv ${BUILD_APPDIR}/usr/lib/udev/rules.d/69-${APP}.rules ${BUILD_APPDIR}/
