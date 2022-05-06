@@ -129,12 +129,12 @@ mkdir -p ${BUILD_APPDIR}/usr/share/metainfo/
 cp scripts/${APP}.appdata.xml ${BUILD_APPDIR}/usr/share/metainfo/${APP}.appdata.xml
 
 # Make symlinks
-ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libcemuhook.cpython-39-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libcemuhook.so
-ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libhiddrv.cpython-39-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libhiddrv.so
-ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libremotepad.cpython-39-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libremotepad.so
-ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libsc_by_bt.cpython-39-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libsc_by_bt.so
-ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libuinput.cpython-39-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libuinput.so
-ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/posix1e.cpython-39-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/posix1e.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libcemuhook.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libcemuhook.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libhiddrv.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libhiddrv.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libremotepad.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libremotepad.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libsc_by_bt.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libsc_by_bt.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libuinput.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/libuinput.so
+ln -sfr ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/posix1e.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/posix1e.so
 
 # Copy AppRun script
 cp scripts/appimage-AppRun.sh ${BUILD_APPDIR}/AppRun
