@@ -185,7 +185,7 @@ class ControllerImage(SVGWidget):
 				img.attrib["id"] = b
 				SVGEditor.add_element(target, img)
 
-			except Exception, err:
+			except Exception as err:
 				log.warning("Failed to add image for button %s (from %s)", b, path)
 				log.exception(err)
 		e.commit()
