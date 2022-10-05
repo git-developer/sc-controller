@@ -563,6 +563,11 @@ class GlobalSettings(Editor, UserDataManager, ComboSetter):
 		model.clear()
 		for f in profiles:
 			name = f.get_basename()
+			if type(name) is not unicode:
+				try:
+					name = name.decode("utf-8")
+				except Exception:
+					continue
 			if name.endswith(".mod"):
 				continue
 			if name.endswith(".sccprofile"):
@@ -830,8 +835,10 @@ class GlobalSettings(Editor, UserDataManager, ComboSetter):
 				if filename.startswith("hid-"):
 					drv, usbid, name = filename.split("-", 2)
 					name = "%s <i>(%s)</i>" % (name[0:-5], usbid.upper())
-				else:
+				elif "-" in filename:
 					drv, name = filename.split("-", 1)
 					name = name[0:-5]
+				else:
+					continue
 				path = os.path.join(get_config_path(), "devices", filename)
 				lstControllers.append((path, name, self._get_gamepad_icon(drv)))

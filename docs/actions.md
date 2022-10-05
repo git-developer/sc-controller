@@ -69,18 +69,18 @@ eleasing button returns emulated axis back to 'min'.
   trigger position is not in middle, but in minimal possible value.
 
 
-#### <a name="dpad"></a> dpad([diagonal_rage,] up, down, left, right)
+#### <a name="dpad"></a> dpad([diagonal_range,] up, down, left, right)
 Emulates dpad. Touchpad is divided into 8 triangular parts. When the user
 touches the touchpad, action is executed depending on finger position.
 
-'diagonal_rage' is specified in degrees (1 to 89). If not set, all parts are
+'diagonal_range' is specified in degrees (1 to 89). If not set, all parts are
 sized equally, otherwise, diagonal parts are taking specified portion of pad
 and rest is assigned to up/left/right/down portions.
 
 Available only for pads and sticks.
 
 
-#### <a name="dpad8"></a> dpad8([diagonal_rage,] up, down, left, right, upleft, upright, downleft, downright)
+#### <a name="dpad8"></a> dpad8([diagonal_range,] up, down, left, right, upleft, upright, downleft, downright)
 Same as dpad, with more directions.
 
 
@@ -380,7 +380,7 @@ Rotates input pad or stick input by given angle.
 #### <a name="feedback"></a> feedback(side, [amplitude=256 [, frequency=4 [, period=100 [, count=1 ]]]], action)
 Enables haptic feedback for specified action, if action supports it.
 Side has to be one of LEFT, RIGHT or BOTH. All remaining numbers can be anything
-from 1 to 32768, but note that setting count to large number will start long
+from 1 to 32767, but note that setting count to large number will start long
 running feedback that you may not be able to stop.
 
 'frequency' is used only when emulating touchpad and describes how many pixels

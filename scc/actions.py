@@ -875,7 +875,7 @@ class MouseAction(WholeHapticAction, Action):
 		self.change(mapper, position * MouseAbsAction.MOUSE_FACTOR, 0, what)
 		mapper.force_event.add(FE_STICK)
 	
-		
+	
 	def pad(self, mapper, position, what):
 		if mapper.is_touched(what):
 			# Initial pad touch
@@ -1260,7 +1260,7 @@ class GyroAbsAction(HapticEnabledAction, GyroAction):
 		if mapper.get_controller().flags & ControllerFlags.EUREL_GYROS:
 			pyr = [q1 / 10430.37, q2 / 10430.37, q3 / 10430.37]	# 2**15 / PI
 		else:
-			pyr = list(quat2euler(q1 / 32768.0, q2 / 32768.0, q3 / 32768.0, q4 / 32768.0))
+			pyr = list(quat2euler(q1 / 32767.0, q2 / 32767.0, q3 / 32767.0, q4 / 32767.0))
 		for i in self.GYROAXES:
 			self.ir[i] = self.ir[i] or pyr[i]
 			pyr[i] = anglediff(self.ir[i], pyr[i]) * (2**15) * self.speed[2] * 2 / PI
@@ -1386,7 +1386,7 @@ class TiltAction(MultichildAction):
 	
 	def gyro(self, mapper, *pyr):
 		q1, q2, q3, q4 = pyr[-4:]
-		pyr = quat2euler(q1 / 32768.0, q2 / 32768.0, q3 / 32768.0, q4 / 32768.0)
+		pyr = quat2euler(q1 / 32767.0, q2 / 32767.0, q3 / 32767.0, q4 / 32767.0)
 		for j in (0, 1, 2):
 			i = j * 2
 			if self.actions[i]:
