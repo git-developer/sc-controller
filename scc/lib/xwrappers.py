@@ -331,6 +331,9 @@ def get_window_prop(dpy, window, prop_name, max_size=2):
 	Returns (nitems, property) of specified window or (-1, None) if anything fails.
 	Returned 'property' is POINTER(c_void_p) and has to be freed using X.free().
 	"""
+	if type(prop_name) is str:
+		prop_name = prop_name.encode("utf-8")
+
 	prop_atom = intern_atom(dpy, prop_name, False)
 	type_return, format_return = Atom(), Atom()
 	nitems, bytes_after = c_ulong(), c_ulong()
