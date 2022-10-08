@@ -467,7 +467,9 @@ class ControllerManager(GObject.GObject):
 				button = SCButtons.__members__[button]
 			index = BUTTON_ORDER.index(button)
 			name = ControllerManager.DEFAULT_ICONS[index]
-			name = config['gui']['buttons'][index]
+			btn_index = config['gui']['buttons'].index(name)
+			if btn_index != -1:
+				name = config['gui']['buttons'][btn_index]
 		except: pass
 		return name
 	
