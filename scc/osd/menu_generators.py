@@ -123,8 +123,8 @@ class WindowListMenuGenerator(MenuGenerator):
 		dpy = X.Display(hash(GdkX11.x11_get_default_xdisplay()))	# Magic
 		root = X.get_default_root_window(dpy)
 		
-		count, wlist = X.get_window_prop(dpy, root, "_NET_CLIENT_LIST", 1024)
-		skip_taskbar = X.intern_atom(dpy, "_NET_WM_STATE_SKIP_TASKBAR", True)
+		count, wlist = X.get_window_prop(dpy, root, b"_NET_CLIENT_LIST", 1024)
+		skip_taskbar = X.intern_atom(dpy, b"_NET_WM_STATE_SKIP_TASKBAR", True)
 		wlist = cast(wlist, POINTER(X.XID))[0:count]
 		for win in wlist:
 			if not skip_taskbar in X.get_wm_state(dpy, win):
