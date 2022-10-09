@@ -53,7 +53,7 @@ set -ex		# display commands, terminate after 1st failure
 
 # Download deps
 download_dep "python-evdev-0.7.0" "https://github.com/gvalkov/python-evdev/archive/v0.7.0.tar.gz"
-download_dep "pylibacl-0.5.3" "https://github.com/iustin/pylibacl/releases/download/pylibacl-v0.5.3/pylibacl-0.5.3.tar.gz"
+download_dep "pylibacl-0.6.0" "https://github.com/iustin/pylibacl/releases/download/v0.6.0/pylibacl-0.6.0.tar.gz"
 download_dep "python-gobject-3.36.1" "https://archive.archlinux.org/packages/p/python-gobject/python-gobject-3.36.1-1-x86_64.pkg.tar.zst"
 download_dep "python-vdf-3.4" "https://github.com/ValvePython/vdf/archive/v3.4.tar.gz"
 download_dep "libpng-1.6.34" "https://archive.archlinux.org/packages/l/libpng/libpng-1.6.34-2-x86_64.pkg.tar.xz"
@@ -63,7 +63,7 @@ download_dep "libxml2-2.9.10" "https://archive.archlinux.org/packages/l/libxml2/
 download_dep "librsvg-2.48.7" "https://archive.archlinux.org/packages/l/librsvg/librsvg-2%3A2.48.7-1-x86_64.pkg.tar.zst"
 download_dep "icu-67.1" "https://archive.archlinux.org/packages/i/icu/icu-67.1-1-x86_64.pkg.tar.zst"
 download_dep "zlib-1:1.2.12" "https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.12-2-x86_64.pkg.tar.zst"
-download_dep "libffi-3.3" "https://archive.archlinux.org/packages/l/libffi/libffi-3.3-3-x86_64.pkg.tar.zst"
+download_dep "libffi-3.4.3" "https://archive.archlinux.org/packages/l/libffi/libffi-3.4.3-1-x86_64.pkg.tar.zst"
 
 # Prepare & build deps
 export PYTHONPATH=${BUILD_APPDIR}/usr/lib/python${PYTHON_VERSION}/site-packages/
@@ -76,17 +76,17 @@ if [[ $(grep ID_LIKE /etc/os-release) == *"suse"* ]] ; then
 fi
 
 build_dep "python-evdev-0.7.0"
-build_dep "pylibacl-0.5.3"
+build_dep "pylibacl-0.6.0"
 build_dep "python-vdf-3.4"
-unpack_dep "libpng-1.6.34"
 unpack_dep "python-gobject-3.36.1"
+unpack_dep "libpng-1.6.34"
 unpack_dep "gdk-pixbuf-2.36.9"
 unpack_dep "libcroco-0.6.13"
 unpack_dep "libxml2-2.9.10"
 unpack_dep "librsvg-2.48.7"
 unpack_dep "icu-67.1"
 unpack_dep "zlib-1:1.2.12"
-unpack_dep "libffi-3.3"
+unpack_dep "libffi-3.4.3"
 
 # Remove uneeded files
 rm -f "${BUILD_APPDIR}/usr/${LIB}/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-ani.so"
