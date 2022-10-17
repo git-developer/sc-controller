@@ -7,10 +7,18 @@ Extends HID driver with DS5-specific options.
 
 import ctypes
 import logging
-import sys
+import os, sys
+import zlib
 from datetime import datetime
+import time
+import binascii
 
-from scc.constants import ControllerFlags, HapticPos, SCButtons, STICK_PAD_MAX, STICK_PAD_MIN
+
+from scc.constants import (
+    ControllerFlags, HapticPos, SCButtons,
+    STICK_PAD_MAX, STICK_PAD_MIN, STICK_PAD_RES,
+    OUTPUT_360_STICK_MAX, OUTPUT_360_STICK_MIN, OUTPUT_360_STICK_RES,
+)
 from scc.drivers.evdevdrv import (
     EvdevController,
     HAVE_EVDEV,
@@ -35,6 +43,8 @@ from scc.drivers.hiddrv import (
 from scc.drivers.usb import register_hotplug_device
 from scc.lib import IntEnum, usb1
 from scc.tools import init_logging, set_logging_level
+from scc.controller import Controller
+from scc.lib.hidraw import HIDRaw
 
 log = logging.getLogger("DS5")
 
@@ -42,9 +52,12 @@ VENDOR_ID = 0x054c
 PRODUCT_ID = 0x0ce6
 
 
+OPERATING_MODE_DS5_BT = 0x31
+
 class OperatingMode(IntEnum):
     DS4_COMPATIBILITY_MODE = 1 << 0
     DS5_MODE = 1 << 1
+    DS5_MODE_BT = 1 << 5 | 1 << 4 | 1 << 0
 
 
 class PhysicalEffectControl(IntEnum):
@@ -88,6 +101,75 @@ class DualSenseHIDOutput(ctypes.Structure):
         ('lightbar_blue', ctypes.c_ubyte),
     ]
 
+class DualSenseHIDOutputBT(ctypes.Structure):
+    _fields_ = [
+        ('operating_mode', ctypes.c_byte),
+        ('data_id_byte', ctypes.c_byte),
+        ('physical_effect_control', ctypes.c_byte),
+        ('light_effect_control', ctypes.c_byte),
+
+        ('motor_right', ctypes.c_byte),
+        ('motor_left', ctypes.c_byte),
+
+        ('unknown2', ctypes.c_byte * 4),
+        ('mute_button_led', ctypes.c_byte),
+        ('power_save_control', ctypes.c_byte),
+        ('right_trigger_effect', ctypes.c_byte * 11),
+        ('left_trigger_effect', ctypes.c_byte * 11),
+
+        ('unknown3', ctypes.c_byte * 6),
+
+        ('brightlite', ctypes.c_byte),
+        ('unknown6', ctypes.c_byte * 2),
+
+        ('lightbar_control', ctypes.c_byte),
+        #('lightbar_setup', ctypes.c_byte),
+        ('led_brightness', ctypes.c_byte),
+
+        ('player_leds', ctypes.c_byte),
+        ('lightbar_red', ctypes.c_byte),
+        ('lightbar_green', ctypes.c_byte),
+        ('lightbar_blue', ctypes.c_byte),
+
+        ('unknown4', ctypes.c_byte * 25),
+        #('unknown5', ctypes.c_byte * 4),
+        ('crc32', ctypes.c_byte * 4),
+        #('crc32', ctypes.c_uint16),
+    ]
+
+class DualSenseHIDInputBT(ctypes.Structure):
+    _fields_ = [
+        ('report_id', ctypes.c_byte),
+        ('unknown1', ctypes.c_byte),
+        ('lx', ctypes.c_ubyte),
+        ('ly', ctypes.c_ubyte),
+    ]
+
+class DualSenseBTControllerInput(ctypes.Structure):
+	_fields_ = [
+        ('type', ctypes.c_uint16),
+        ('buttons', ctypes.c_uint32),
+        ('ltrig', ctypes.c_uint8),
+        ('rtrig', ctypes.c_uint8),
+        ('stick_x', ctypes.c_int32),
+        ('stick_y', ctypes.c_int32),
+        ('lpad_x', ctypes.c_int32),
+        ('lpad_y', ctypes.c_int32),
+        ('rpad_x', ctypes.c_int32),
+        ('rpad_y', ctypes.c_int32),
+        ('accel_x', ctypes.c_int32),
+        ('accel_y', ctypes.c_int32),
+        ('accel_z', ctypes.c_int32),
+        ('gpitch', ctypes.c_int32),
+        ('groll', ctypes.c_int32),
+        ('gyaw', ctypes.c_int32),
+        ('q1', ctypes.c_int32),
+        ('q2', ctypes.c_int32),
+        ('q3', ctypes.c_int32),
+        ('q4', ctypes.c_int32),
+        ('cpad_x', ctypes.c_uint16),
+        ('cpad_y', ctypes.c_uint16),
+	]
 
 ICON_COLORS = [
     (0.0, 1.0, 0.0),  # 0
@@ -372,6 +454,483 @@ class DS5Controller(HIDController):
             self.handle.interruptWrite(3, data)
 
 
+class DS5HidRawDriver:
+    def __init__(self, daemon, config):
+        self.config = config
+        self.daemon = daemon
+        daemon.get_device_monitor().add_callback("bluetooth", VENDOR_ID, PRODUCT_ID, self.make_bt_hidraw_callback, None)
+
+    def retry(self, syspath):
+        pass
+
+    def make_bt_hidraw_callback(self, syspath, *whatever):
+        hidrawname = self.daemon.get_device_monitor().get_hidraw(syspath)
+        if hidrawname is None:
+            return None
+
+        #log.debug(whatever)
+        try:
+            dev = HIDRaw(open(os.path.join("/dev/", hidrawname), "w+b"))
+            return DS5HidRawController(self, syspath, dev)
+        except Exception as e:
+            log.exception(e)
+            return None
+
+
+class DS5HidRawController(Controller):
+    class _DPadOutputValues:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+    """# (x, y) values
+    DPAD_STATE_TYPES = {
+        0: (0, STICK_PAD_MAX), # Up
+        1: (STICK_PAD_MAX, STICK_PAD_MAX), # UpRight
+        2: (STICK_PAD_MAX, 0), # Right
+        3: (STICK_PAD_MAX, STICK_PAD_MIN), # DownRight
+        4: (0, STICK_PAD_MIN), # Down
+        5: (STICK_PAD_MIN, STICK_PAD_MIN), # DownLeft
+        6: (STICK_PAD_MIN, 0), # Left
+        7: (STICK_PAD_MIN, STICK_PAD_MAX), # UpLeft
+        8: (0, 0) # Centered
+    }
+    """
+
+    # (x, y) values
+    DPAD_STATE_TYPES = {
+        0: _DPadOutputValues(0, STICK_PAD_MAX), # Up
+        1: _DPadOutputValues(STICK_PAD_MAX, STICK_PAD_MAX), # UpRight
+        2: _DPadOutputValues(STICK_PAD_MAX, 0), # Right
+        3: _DPadOutputValues(STICK_PAD_MAX, STICK_PAD_MIN), # DownRight
+        4: _DPadOutputValues(0, STICK_PAD_MIN), # Down
+        5: _DPadOutputValues(STICK_PAD_MIN, STICK_PAD_MIN), # DownLeft
+        6: _DPadOutputValues(STICK_PAD_MIN, 0), # Left
+        7: _DPadOutputValues(STICK_PAD_MIN, STICK_PAD_MAX), # UpLeft
+        8: _DPadOutputValues(0, 0) # Centered
+    }
+
+    DPAD_CENTERED_STATE = _DPadOutputValues(0, 0)
+    # Leading byte not included in sent output report data.
+    # Needed to add for proper CRC32 computation that controller
+    # will accept
+    BT_CRC32_HEAD = b"\xA2"
+    # Leading byte not included in feature report data.
+    # Needed if performing CRC32 computation on returned feature
+    # report data (for IMU calibration data)
+    BT_CALIBRATION_CRC32_HEAD = b"\xA3"
+
+    flags = ( ControllerFlags.EUREL_GYROS
+			| ControllerFlags.HAS_RSTICK
+			| ControllerFlags.HAS_CPAD
+			| ControllerFlags.HAS_DPAD
+			| ControllerFlags.SEPARATE_STICK
+			| ControllerFlags.NO_GRIPS
+	)
+
+    #def __init__(self, device, daemon, handle, config_file, config, test_mode=False):
+    def __init__(self, driver, syspath, hidrawdev):
+        self.driver = driver
+        self.daemon = driver.daemon
+        self.syspath = syspath
+
+        super().__init__()
+        #super().__init__(device, daemon, handle, config_file, config, test_mode=False)
+
+        self._feedback_output = DualSenseHIDOutputBT(
+            operating_mode=OperatingMode.DS5_MODE_BT,
+            data_id_byte = 0x02,
+            physical_effect_control=PhysicalEffectControl.ENABLE_HAPTICS,
+            motor_left=0,
+            motor_right=0,
+        )
+        self._feedback_cancel_task = None
+        self._outputs = {}
+        # Use empty struct for starting state
+        self._old_state = DualSenseBTControllerInput()
+
+        self._device_name = hidrawdev.getName()
+        self._hidrawdev = hidrawdev
+        self._fileno = hidrawdev._device.fileno()
+        self._id = self._generate_id() if driver else "-"
+
+        #time.sleep(1)
+        self._set_operational()
+        self.read_serial()
+        #self.configure()
+        self._poller = self.daemon.get_poller()
+        if self._poller:
+            self._poller.register(self._fileno, self._poller.POLLIN, self._input)
+        self.daemon.get_device_monitor().add_remove_callback(syspath, self.close)
+        self.daemon.add_controller(self)
+
+    def get_device_name(self):
+        return "DualSense over Bluetooth HIDRaw"
+
+    def get_type(self):
+        return "ds5bt_hidraw"
+
+    def apply_config(self, config):
+        icon = config['icon']
+        led_level = config['led_level']
+        self.configure(icon=icon, led_level=led_level)
+
+    def configure(self, icon=None, led_level=100):
+        #log.debug("CALLED CONFIGURE")
+        #return
+
+        lightbar_color = (0.0, 0.0, 1.0)  # blue by default
+        if icon:
+            basename, ext = icon.rsplit('.', 1)
+            parts = basename.rsplit('-', 1)
+            if parts:
+                raw_idx = parts[-1]
+                try:
+                    icon_idx = int(raw_idx)
+                except ValueError:
+                    pass
+                else:
+                    if icon_idx < len(ICON_COLORS):
+                        lightbar_color = ICON_COLORS[icon_idx]
+
+        led_level_norm = float(led_level) / 100
+        lightbar_color_bytes = tuple(
+            int(color_norm * led_level_norm * 255)
+            for color_norm in lightbar_color
+        )
+
+        #print(lightbar_color_bytes)
+        #lightbar_red=lightbar_color_bytes[0],
+        #lightbar_green=lightbar_color_bytes[1],
+        #lightbar_blue=lightbar_color_bytes[2],
+        output = DualSenseHIDOutputBT(
+            operating_mode=OperatingMode.DS5_MODE_BT,
+            data_id_byte = 0x02,
+            light_effect_control=LightEffectControl.LIGHTBAR_CONTROL_ENABLE,
+            lightbar_red=lightbar_color_bytes[0],
+            lightbar_green=lightbar_color_bytes[1],
+            lightbar_blue=lightbar_color_bytes[2],
+        )
+
+        tempbuffer = bytearray(output)
+        #print("ITS A BLUE: {}".format(output.lightbar_blue))
+        self._prepare_buffer_crc(tempbuffer)
+        self.schedule_output('lightbar', tempbuffer)
+        #time.sleep(2)
+        self.flush()
+        #self._hidrawdev.read(78)
+        #feature_data = self._hidrawdev.getFeatureReport(9)
+        #time.sleep(2)
+        #self._hidrawdev.read(78)
+
+    def _set_operational(self):
+        #log.debug("CALLING SET_OPERATIONAL")
+        # Get feature report for serial performs initial switch
+        # to DS5 mode
+        feature_data = self._hidrawdev.getFeatureReport(9)
+
+        init_output = DualSenseHIDOutputBT(
+            operating_mode = OperatingMode.DS5_MODE_BT,
+            data_id_byte = 0x02,
+            light_effect_control=0x55,
+            lightbar_red=0,
+            lightbar_green=0,
+            lightbar_blue=200,
+        )
+
+        tempman = bytearray(init_output)
+        """calcCrc32 = zlib.crc32(b"\xA2") & 0xFFFFFFFF
+        calcCrc32 = zlib.crc32(tempman[0:74], calcCrc32) & 0xFFFFFFFF
+        tempman[74] = calcCrc32 & 0xFF
+        tempman[75] = (calcCrc32 >> 8) & 0xFF
+        tempman[76] = (calcCrc32 >> 16) & 0xFF
+        tempman[77] = (calcCrc32 >> 24) & 0xFF
+        """
+        #self._hidrawdev.write(tempman)
+        #time.sleep(1)
+        self._prepare_buffer_crc(tempman)
+        self.schedule_output("init", tempman)
+        self.flush()
+        # Seems to not register until the next device read. Need
+        # to see if there is a way around that
+        self._hidrawdev.read(78)
+        #feature_data = self._hidrawdev.getFeatureReport(9)
+        #time.sleep(2)
+
+    def _prepare_buffer_crc(self, buf):
+        calcCrc32 = zlib.crc32(b"\xA2") & 0xFFFFFFFF
+        calcCrc32 = zlib.crc32(buf[0:74], calcCrc32) & 0xFFFFFFFF
+        buf[74] = calcCrc32 & 0xFF
+        buf[75] = (calcCrc32 >> 8) & 0xFF
+        buf[76] = (calcCrc32 >> 16) & 0xFF
+        buf[77] = (calcCrc32 >> 24) & 0xFF
+
+    def feedback(self, data):
+        position, amplitude, period, count = data.data
+
+        normalized_amp = float(amplitude) / 0x8000
+        clamped_amp = int(normalized_amp * 0xff)
+        half_amp = int(normalized_amp * 0x80)
+
+        if position == HapticPos.LEFT:
+            # NOTE: the left motor is heavier, so we must give it less oomph
+            self._feedback_output.motor_left = half_amp
+        elif position == HapticPos.RIGHT:
+            self._feedback_output.motor_right = clamped_amp
+        elif position == HapticPos.BOTH:
+            self._feedback_output.motor_right = clamped_amp
+            self._feedback_output.motor_left = half_amp
+
+        duration = float(period) * count / 0x10000
+        # The motors don't seem to perform reliably when shut off under 50ms
+        duration = max(duration, 0.05)
+
+        tempman = bytearray(self._feedback_output)
+        self._prepare_buffer_crc(tempman)
+        self.schedule_output('feedback', tempman)
+        self.flush()
+
+        def clear_feedback(mapper):
+            self._feedback_output.motor_right = self._feedback_output.motor_left = 0
+            tempman = bytearray(self._feedback_output)
+            self._prepare_buffer_crc(tempman)
+            self.schedule_output('feedback', tempman)
+            self.flush()
+
+        if self._feedback_cancel_task:
+            self._feedback_cancel_task.cancel()
+        self._feedback_cancel_task = self.mapper.schedule(duration, clear_feedback)
+
+    def _input(self, *a):
+        #log.debug("FOUND INPUT")
+        #log.debug(type(a))
+        #log.debug(a)
+        tempdata = self._hidrawdev.read(78)
+        # Skip over packet if not a DS5 mode input packet
+        if tempdata[0] != 0x31:
+            return
+
+        #log.debug(tempdata)
+        old_state = self._old_state
+        #hamtaro = DualSenseHIDInputBT.from_buffer_copy(tempdata)
+        #log.debug("LX: {} {}".format(hamtaro.lx, tempdata[2]))
+        state_data = self._convert_input_data(tempdata)
+        #print(state_data)
+        #print(state_data.stick_x)
+        #log.debug("LX: {}".format(tempdata[2]))
+        """print("INPUT [", end="")
+        for index, value in enumerate(tempdata):
+            print("[{},{}]".format(index, value), end=", ")
+
+        print("")
+        """
+
+        #log.debug(self._hidrawdev._device)
+        #self.flush()
+        #self.close()
+        if self.mapper:
+            self.mapper.input(self, old_state, state_data)
+
+        self._old_state = old_state
+        # Check for pending output data
+        self.flush()
+
+    def _convert_input_data(self, data):
+        state = DualSenseBTControllerInput()
+        state.stick_x = self._stick_axis_scale(data[2], False)
+        state.stick_y = self._stick_axis_scale(data[3], True)
+        state.rpad_x = self._stick_axis_scale(data[4], False)
+        state.rpad_y = self._stick_axis_scale(data[5], True)
+        state.ltrig = data[6]
+        state.rtrig = data[7]
+        tempbyte = data[9]
+        if (tempbyte & (1 << 7)) != 0:
+            state.buttons |= SCButtons.Y
+        if (tempbyte & (1 << 6)) != 0:
+            state.buttons |= SCButtons.B
+        if (tempbyte & (1 << 5)) != 0:
+            state.buttons |= SCButtons.A
+        if (tempbyte & (1 << 4)) != 0:
+            state.buttons |= SCButtons.X
+        dpad_state = data[9] & 0x0F
+        if (dpad_state != 8):
+            state.buttons |= SCButtons.LPAD | SCButtons.LPADTOUCH
+            tempDPad = DS5HidRawController.DPAD_STATE_TYPES.get(dpad_state,
+                DS5HidRawController.DPAD_CENTERED_STATE)
+            state.lpad_x = tempDPad.x
+            state.lpad_y = tempDPad.y
+
+        tempbyte = data[10]
+        if (tempbyte & (1 << 7)) != 0:
+            state.buttons |= SCButtons.RPAD
+        if (tempbyte & (1 << 6)) != 0:
+            state.buttons |= SCButtons.STICKPRESS
+        if (tempbyte & (1 << 5)) != 0:
+            state.buttons |= SCButtons.START
+        if (tempbyte & (1 << 4)) != 0:
+            state.buttons |= SCButtons.BACK
+        if (tempbyte & (1 << 3)) != 0:
+            state.buttons |= SCButtons.RT
+        if (tempbyte & (1 << 2)) != 0:
+            state.buttons |= SCButtons.LT
+        if (tempbyte & (1 << 1)) != 0:
+            state.buttons |= SCButtons.RB
+        if (tempbyte & (1 << 0)) != 0:
+            state.buttons |= SCButtons.LB
+
+        tempbyte = data[11]
+        if (tempbyte & (1 << 0)) != 0:
+            state.buttons |= SCButtons.C
+        if (tempbyte & (1 << 1)) != 0:
+            state.buttons |= SCButtons.CPADPRESS
+
+        state.gyro_gpitch = (data[18] << 8) | data[17]
+        state.gyro_gyaw = (data[20] << 8) | data[19]
+        state.gyro_groll = (data[22] << 8) | data[21]
+        state.accel_x = (data[24] << 8) | data[23]
+        state.accel_y = (data[26] << 8) | data[25]
+        state.accel_z = (data[28] << 8) | data[27]
+
+        # Check for CPAD touch
+        if (data[34] & 0x80) == 0:
+            state.buttons |= SCButtons.CPADTOUCH
+
+        state.cpad_x = ((data[36] & 0x0F) << 8) | data[35]
+        state.cpad_y = ((data[37] & 0x0F) << 4) | ((data[36] & 0xF0) >> 4)
+
+        return state
+
+    def _stick_axis_scale(self, value, invert=False, test=False):
+        result = value - 128
+        tempRatio = (result / 127.0) if (value >= 128) else (result / (128.0))
+        if invert:
+            tempRatio = -tempRatio
+
+        tempRatio = (tempRatio + 1.0) * 0.5
+
+        """if test:
+            print(tempRatio)
+            print("RES {}".format(STICK_PAD_RES))
+            print(tempRatio * STICK_PAD_RES + STICK_PAD_MIN)
+        """
+        result = int(tempRatio * STICK_PAD_RES + STICK_PAD_MIN)
+        return result
+
+    def close(self):
+        if self._poller:
+            self._poller.unregister(self._fileno)
+
+        self.daemon.remove_controller(self)
+        self._hidrawdev._device.close()
+        #log.debug("CLOSING")
+
+    def read_serial(self):
+        self._serial = (self._hidrawdev
+            .getPhysicalAddress().replace(b":", b""))
+
+    def schedule_output(self, output_id, output):
+        self._outputs[output_id] = output
+
+    def flush(self):
+        while self._outputs:
+            output_id, output = self._outputs.popitem()
+            #print("PAYLOAD {} {}".format(output_id, output))
+            self._hidrawdev.write(output)
+            #time.sleep(0.1)
+            #print("")
+
+        #print("SLEEPING")
+        #time.sleep(0.5)
+
+    # TODO: Remove. Temporarily keep as a reference to the nonsense
+    # I went through to figure out how to compute valid CRC32 that
+    # the controller would accept
+    def flushni(self):
+        output = []
+        print(hex(zlib.crc32(b"hello-world") & 0xffffffff))
+
+        feedback_output2 = DualSenseHIDOutputBT(
+            operating_mode = 0x31,
+            data_id_byte = 0x02,
+            physical_effect_control = 0x0F,
+            light_effect_control=0x55,
+            motor_right = 0x00,
+            brightlite = 0x06,
+            lightbar_control = 0x02,
+            led_brightness = 0x02,
+            lightbar_red=200,
+            lightbar_green=90,
+            lightbar_blue=211,
+        )
+
+        calcCrc32 = zlib.crc32(b"\xA2") & 0xFFFFFFFF
+        #calcCrc32 = ~zlib.crc32(b"\x31", calcCrc32)
+        log.debug("CRC BETA")
+        log.debug(calcCrc32)
+
+        log.debug(len(bytearray(feedback_output2)[0:74]))
+        damn = [int(i) for i in bytearray(feedback_output2)[0:78]]
+        log.debug(damn)
+        # Working
+        #tempman = bytearray([0x31, 0x02, 0x0f, 0x55, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x02, 0x02, 0x00, 0x14, 0x14, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
+        tempman = bytearray(feedback_output2)
+        # Working
+        #calcCrc32 = binascii.crc32(bytearray([0x31, 0x02, 0x0f, 0x55, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x02, 0x02, 0x00, 0x14, 0xFF, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]), ~calcCrc32)
+        #calcCrc32 = binascii.crc32(tempman[0:74], ~calcCrc32)
+        calcCrc32 = zlib.crc32(tempman[0:74], calcCrc32) & 0xFFFFFFFF
+        #_feedback_output.crc32 = calcCrc32
+        #_feedback_output.crc32[0] = calcCrc32
+        #_feedback_output.crc32[1] = calcCrc32 >> 8
+        #_feedback_output.crc32[2] = calcCrc32 >> 16
+        #_feedback_output.crc32[3] = calcCrc32 >> 24
+        tempman[74] = calcCrc32 & 0xFF
+        tempman[75] = (calcCrc32 >> 8) & 0xFF
+        tempman[76] = (calcCrc32 >> 16) & 0xFF
+        tempman[77] = (calcCrc32 >> 24) & 0xFF
+        log.debug("CRC")
+        log.debug(calcCrc32)
+
+        print("RADIO EDIT")
+        #print(bytearray(_feedback_output))
+        """print("[", end="")
+        for index, value in enumerate(tempman):
+            print("[{},{}]".format(index, value), end=", ")
+
+        print("")
+        """
+
+        #_test = bytes(_feedback_output)
+        #_test = bytearray([0x31, 0x02, 0x0f, 0x55, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x02, 0x02, 0x00, 0x14, 0x14, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
+        #_test[74] = calcCrc32 & 0xFF
+        #_test[75] = (calcCrc32 >> 8) & 0xFF
+        #_test[76] = (calcCrc32 >> 16) & 0xFF
+        #_test[77] = (calcCrc32 >> 24) & 0xFF
+        #print(len(_test))
+        #print("THE THING {} {} {}".format(_test[40], _test[46], _test[77]))
+
+        result = self._hidrawdev.write(tempman)
+        time.sleep(0.1)
+        print(result)
+
+    def get_type(self):
+        return "ds5"
+
+    def get_gui_config_file(self):
+        return "ds5-config.json"
+
+    def _generate_id(self):
+        """
+        ID is generated as 'ds5' or 'ds5:X' where 'X' starts as 1 and increases
+        as controllers with same ids are connected.
+        """
+        magic_number = 1
+        id = "ds5"
+        while id in self.daemon.get_active_ids():
+            id = "ds5:%s" % (magic_number,)
+            magic_number += 1
+        return id
+
+
 class DS5EvdevController(EvdevController):
     TOUCH_FACTOR_X = STICK_PAD_MAX / 940.0
     TOUCH_FACTOR_Y = STICK_PAD_MAX / 470.0
@@ -618,11 +1177,16 @@ def init(daemon, config):
 
     if config["drivers"].get("hiddrv") or (HAVE_EVDEV and config["drivers"].get("evdevdrv")):
         register_hotplug_device(hid_callback, VENDOR_ID, PRODUCT_ID, on_failure=fail_cb)
-        if HAVE_EVDEV and config["drivers"].get("evdevdrv"):
-            daemon.get_device_monitor().add_callback(
-                "bluetooth",
-                VENDOR_ID, PRODUCT_ID, make_evdev_device, None
-            )
+        if config["drivers"].get("hiddrv"):
+            # Only enable HIDRaw support for BT connections if hiddrv is enabled
+            _drv = DS5HidRawDriver(daemon, config)
+        else:
+            # Attempt evdev as a backup
+            if HAVE_EVDEV and config["drivers"].get("evdevdrv"):
+                daemon.get_device_monitor().add_callback(
+                    "bluetooth",
+                    VENDOR_ID, PRODUCT_ID, make_evdev_device, None
+                )
         return True
     else:
         log.warning("Neither HID nor Evdev driver is enabled, DS5 support cannot be enabled.")
