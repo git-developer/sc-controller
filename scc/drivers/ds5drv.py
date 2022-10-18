@@ -793,9 +793,9 @@ class DS5HidRawController(Controller):
             state.buttons |= SCButtons.CPADPRESS
 
         # Change gyro dir values to match Steam Controller
-        state.gpitch = ctypes.c_int16((data[18] << 8) | data[17]).value * -1
-        state.gyaw = ctypes.c_int16((data[20] << 8) | data[19]).value
-        state.groll = ctypes.c_int16((data[22] << 8) | data[21]).value
+        state.gpitch = ctypes.c_int16((data[18] << 8) | data[17]).value
+        state.gyaw = ctypes.c_int16((data[20] << 8) | data[19]).value * -1
+        state.groll = ctypes.c_int16((data[22] << 8) | data[21]).value * -1
 
         # TODO: Check against Steam Controller axis dirs
         state.accel_x = ctypes.c_int16((data[24] << 8) | data[23]).value
