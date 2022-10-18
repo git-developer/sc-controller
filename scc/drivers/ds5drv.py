@@ -12,6 +12,7 @@ import zlib
 from datetime import datetime
 import time
 import binascii
+import math
 
 
 from scc.constants import (
@@ -553,6 +554,9 @@ class DS5HidRawController(Controller):
         self._hidrawdev = hidrawdev
         self._fileno = hidrawdev._device.fileno()
         self._id = self._generate_id() if driver else "-"
+        self._previous_quat = [1.0, 0.0, 0.0, 0.0]
+        self._delta_time = time.time()
+        self._previous_time = time.time()
 
         #time.sleep(1)
         self._set_operational()
@@ -712,6 +716,8 @@ class DS5HidRawController(Controller):
 
         #log.debug(tempdata)
         old_state = self._old_state
+        current_time = time.time()
+        self._delta_time = current_time - self._previous_time
         #hamtaro = DualSenseHIDInputBT.from_buffer_copy(tempdata)
         #log.debug("LX: {} {}".format(hamtaro.lx, tempdata[2]))
         state_data = self._convert_input_data(tempdata)
@@ -734,6 +740,8 @@ class DS5HidRawController(Controller):
         self._old_state = old_state
         # Check for pending output data
         self.flush()
+
+        self._previous_time = current_time
 
     def _convert_input_data(self, data):
         state = DualSenseBTControllerInput()
@@ -784,12 +792,18 @@ class DS5HidRawController(Controller):
         if (tempbyte & (1 << 1)) != 0:
             state.buttons |= SCButtons.CPADPRESS
 
-        state.gyro_gpitch = (data[18] << 8) | data[17]
-        state.gyro_gyaw = (data[20] << 8) | data[19]
-        state.gyro_groll = (data[22] << 8) | data[21]
-        state.accel_x = (data[24] << 8) | data[23]
-        state.accel_y = (data[26] << 8) | data[25]
-        state.accel_z = (data[28] << 8) | data[27]
+        # Change gyro dir values to match Steam Controller
+        state.gpitch = ctypes.c_int16((data[18] << 8) | data[17]).value * -1
+        state.gyaw = ctypes.c_int16((data[20] << 8) | data[19]).value
+        state.groll = ctypes.c_int16((data[22] << 8) | data[21]).value
+
+        # TODO: Check against Steam Controller axis dirs
+        state.accel_x = ctypes.c_int16((data[24] << 8) | data[23]).value
+        state.accel_y = ctypes.c_int16((data[26] << 8) | data[25]).value
+        state.accel_z = ctypes.c_int16((data[28] << 8) | data[27]).value
+        #print("GYRO: {} {} {}".format(state.gyaw, state.gpitch, state.groll))
+        # Calculate quaternion for gyro data
+        #self._calculate_quaternion(state)
 
         # Check for CPAD touch
         if (data[34] & 0x80) == 0:
@@ -815,6 +829,48 @@ class DS5HidRawController(Controller):
         """
         result = int(tempRatio * STICK_PAD_RES + STICK_PAD_MIN)
         return result
+
+    def _calculate_quaternion(self, state):
+        # Convert raw gyro values to degress per second
+        GYRO_RES_IN_DEG_SEC = 16
+        (yaw, pitch, roll) = ((state.gyaw / GYRO_RES_IN_DEG_SEC),
+            (state.gpitch / GYRO_RES_IN_DEG_SEC),
+            (state.groll / GYRO_RES_IN_DEG_SEC))
+
+        # Remove time delta element to get gyro angles and convert to radians
+        old_yaw = yaw
+        yaw = yaw * self._delta_time
+        yaw_rad = yaw * math.pi / 180.0
+        pitch = pitch * self._delta_time
+        pitch_rad = pitch *  math.pi / 180.0
+        roll = roll * self._delta_time
+        roll_rad = roll * math.pi / 180.0
+        #print("GYRO: {} {} {}".format(yaw, pitch, roll))
+        #print("GYRO: {} | {} | {} | {} | {}".format(state.gyaw, old_yaw, yaw, yaw_rad, self._delta_time))
+
+        # Obtain current quaternion
+        qx = math.sin(roll_rad/2) * math.cos(pitch_rad/2) * math.cos(yaw_rad/2) - math.cos(roll_rad/2) * math.sin(pitch_rad/2) * math.sin(yaw_rad/2)
+        qy = math.cos(roll_rad/2) * math.sin(pitch_rad/2) * math.cos(yaw_rad/2) + math.sin(roll_rad/2) * math.cos(pitch_rad/2) * math.sin(yaw_rad/2)
+        qz = math.cos(roll_rad/2) * math.cos(pitch_rad/2) * math.sin(yaw_rad/2) - math.sin(roll_rad/2) * math.sin(pitch_rad/2) * math.cos(yaw_rad/2)
+        qw = math.cos(roll_rad/2) * math.cos(pitch_rad/2) * math.cos(yaw_rad/2) + math.sin(roll_rad/2) * math.sin(pitch_rad/2) * math.sin(yaw_rad/2)
+
+        # Multiply previous calculated quaternion by new quaternion
+        (old_qw, old_qx, old_qy, old_qz) = self._previous_quat
+        Q0Q1_w = old_qw * qw - old_qx * qx - old_qy * qy - old_qz * qz
+        Q0Q1_x = old_qw * qx + old_qx * qw + old_qy * qz - old_qz * qy
+        Q0Q1_y = old_qw * qy - old_qx * qz + old_qy * qw + old_qz * qx
+        Q0Q1_z = old_qw * qz + old_qx * qy - old_qy * qx + old_qz * qw
+
+        # Convert normalized values to mapper expected range and store
+        # in state object
+        state.q1 = int(Q0Q1_w * 32767.0)
+        state.q2 = int(Q0Q1_x * 32767.0)
+        state.q3 = int(Q0Q1_y * 32767.0)
+        state.q4 = int(Q0Q1_z * 32767.0)
+        # Store calculated quaternion for next poll
+        self._previous_quat = [Q0Q1_w, Q0Q1_x, Q0Q1_y, Q0Q1_z]
+        #print("TEST QUAT: {}".format(self._previous_quat))
+        #print("TEST QUAT Z: {}".format(self._previous_quat[3]))
 
     def close(self):
         if self._poller:
@@ -929,6 +985,11 @@ class DS5HidRawController(Controller):
             id = "ds5:%s" % (magic_number,)
             magic_number += 1
         return id
+
+    def get_gyro_enabled(self):
+        # Cannot be actually turned off, so it's always active
+        # TODO: Maybe emulate turning off?
+        return True
 
 
 class DS5EvdevController(EvdevController):
