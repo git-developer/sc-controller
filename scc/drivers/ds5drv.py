@@ -797,11 +797,14 @@ class DS5HidRawController(Controller):
         state.gyaw = ctypes.c_int16((data[20] << 8) | data[19]).value * -1
         state.groll = ctypes.c_int16((data[22] << 8) | data[21]).value * -1
 
-        # TODO: Check against Steam Controller axis dirs
-        state.accel_x = ctypes.c_int16((data[24] << 8) | data[23]).value
-        state.accel_y = ctypes.c_int16((data[26] << 8) | data[25]).value
-        state.accel_z = ctypes.c_int16((data[28] << 8) | data[27]).value
+        # Change accel axes to match Steam Controller (flip pitch and roll)
+        # Scale values for 2G instead of 1G
+        state.accel_x = ctypes.c_int16((data[24] << 8) | data[23]).value * 2
+        # Invert pitch
+        state.accel_y = ctypes.c_int16((data[28] << 8) | data[27]).value * -2
+        state.accel_z = ctypes.c_int16((data[26] << 8) | data[25]).value * 2
         #print("GYRO: {} {} {}".format(state.gyaw, state.gpitch, state.groll))
+        #print("ACCEL: {} | {} | {}".format(state.accel_x, state.accel_y, state.accel_z))
         # Calculate quaternion for gyro data
         #self._calculate_quaternion(state)
 
@@ -849,6 +852,7 @@ class DS5HidRawController(Controller):
         #print("GYRO: {} | {} | {} | {} | {}".format(state.gyaw, old_yaw, yaw, yaw_rad, self._delta_time))
 
         # Obtain current quaternion
+        # qx (Roll), qy (Pitch), qz (Yaw), qw (Theta)
         qx = math.sin(roll_rad/2) * math.cos(pitch_rad/2) * math.cos(yaw_rad/2) - math.cos(roll_rad/2) * math.sin(pitch_rad/2) * math.sin(yaw_rad/2)
         qy = math.cos(roll_rad/2) * math.sin(pitch_rad/2) * math.cos(yaw_rad/2) + math.sin(roll_rad/2) * math.cos(pitch_rad/2) * math.sin(yaw_rad/2)
         qz = math.cos(roll_rad/2) * math.cos(pitch_rad/2) * math.sin(yaw_rad/2) - math.sin(roll_rad/2) * math.sin(pitch_rad/2) * math.cos(yaw_rad/2)
@@ -863,14 +867,16 @@ class DS5HidRawController(Controller):
 
         # Convert normalized values to mapper expected range and store
         # in state object
+        # q1 (Theta), q2 (Pitch), q3 (Roll), q4 (Yaw)
         state.q1 = int(Q0Q1_w * 32767.0)
-        state.q2 = int(Q0Q1_x * 32767.0)
-        state.q3 = int(Q0Q1_y * 32767.0)
-        state.q4 = int(Q0Q1_z * 32767.0)
+        state.q2 = int(Q0Q1_y * 32767.0)
+        state.q3 = int(Q0Q1_x * 32767.0)
+        # Invert Yaw to match Steam Controller
+        state.q4 = int(Q0Q1_z * -32767.0)
         # Store calculated quaternion for next poll
         self._previous_quat = [Q0Q1_w, Q0Q1_x, Q0Q1_y, Q0Q1_z]
         #print("TEST QUAT: {}".format(self._previous_quat))
-        #print("TEST QUAT Z: {}".format(self._previous_quat[3]))
+        #print("TEST QUAT Z: {}".format(self._previous_quat[3] * -1))
 
     def close(self):
         if self._poller:
