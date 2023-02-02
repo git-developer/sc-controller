@@ -11,6 +11,9 @@ from scc.lib.enum import IntEnum
 from ctypes import c_uint32, c_int, c_bool, c_char_p, c_size_t, c_float
 from ctypes import create_string_buffer
 import logging, socket
+from threading import Thread
+from time import sleep
+from datetime import datetime, timedelta
 log = logging.getLogger("CemuHook")
 
 BUFFER_SIZE = 1024
@@ -28,6 +31,7 @@ class MessageType(IntEnum):
 
 class CemuhookServer:
 	C_DATA_T = c_float * 6
+	timeout = timedelta(seconds=1)
 	
 	def __init__(self, daemon):
 		self._lib = find_library('libcemuhook')
@@ -37,6 +41,7 @@ class CemuhookServer:
 		self._lib.cemuhook_feed.restype = None
 		self._lib.cemuhook_socket_enable.argtypes = []
 		self._lib.cemuhook_socket_enable.restype = c_bool
+		self.last_signal = datetime.now()
 		
 		if not self._lib.cemuhook_socket_enable():
 			raise OSError("cemuhook_socket_enable failed")
@@ -49,7 +54,16 @@ class CemuhookServer:
 		
 		self.socket.bind(('127.0.0.1', 26760))
 		log.info("Created CemuHookUDP Motion Provider")
+
+		Thread(target=self._keepalive).start()
+
 	
+	def _keepalive(self):
+		while True:
+			if datetime.now() - self.last_signal >= self.timeout:
+				# feed all zeroes to indicate the gyro has not changed
+				self.feed((0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
+			sleep(1)
 	
 	def on_data_recieved(self, fd, event_type):
 		if fd != self.socket.fileno(): return
@@ -59,6 +73,7 @@ class CemuhookServer:
 	
 	
 	def feed(self, data):
+		self.last_signal = datetime.now()
 		c_data = CemuhookServer.C_DATA_T()
 		#log.debug(data)
 		c_data[0:6] = data[0:6]
