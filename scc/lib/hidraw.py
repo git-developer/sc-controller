@@ -63,6 +63,9 @@ class HIDRaw(object):
     def read(self, size):
         return self._device.read(size)
 
+    def write(self, buf):
+        return self._device.write(buf)
+
     def getRawReportDescriptor(self):
         """
         Return a binary string containing the raw HID report descriptor.
