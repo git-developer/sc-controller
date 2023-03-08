@@ -1099,7 +1099,7 @@
             <property name="relief">none</property>
             <property name="popup">mnuDaemon</property>
             <child>
-              <object class="GtkBox">
+              <object class="GtkBox" id="boxDaemon">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
@@ -1116,7 +1116,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel">
+                  <object class="GtkLabel" id="lblDaemon">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Menu</property>
