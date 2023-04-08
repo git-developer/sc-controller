@@ -1,0 +1,28 @@
+name: SCC Linux CI
+
+on:
+  push:
+    branches:
+    - main
+    - master
+    - python3
+  pull_request:
+    branches:
+    - main
+    - master
+    - python3
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.11' 
+    # Install dependencies
+    - run: pip install pytest vdf
+    # Build
+    - run: python setup.py build 
+    # Test
+    - run: python -m pytest tests
