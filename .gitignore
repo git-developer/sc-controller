@@ -18,3 +18,5 @@ appimage/
 *.vdf
 .kateconfig
 
+dist/
+sccontroller.egg-info/
