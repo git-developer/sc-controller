@@ -211,8 +211,8 @@ class RadialMenu(Menu):
 		X.set_background(self.xdisplay, gc, 1)
 		
 		r = int(width * 0.985)
-		x = (width - r) / 2
-		
+		x = int((width - r) / 2)
+
 		X.fill_arc(self.xdisplay, pixmap, gc,
 			x, x, r, r, 0, 360*64)
 		

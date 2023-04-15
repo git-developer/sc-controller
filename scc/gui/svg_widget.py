@@ -283,7 +283,10 @@ class SVGEditor(object):
 		#	self._tree = ET.fromstring(svgw.encode("utf-8"))
 		else:
 			self._svgw = svgw
-			self._tree = ET.fromstring(svgw.current_svg.encode("utf-8"))
+			if type(svgw.current_svg) == bytes:
+				self._tree = ET.fromstring(svgw.current_svg.decode("utf-8"))
+			else:
+				self._tree = ET.fromstring(svgw.current_svg)
 	
 	
 	def commit(self):

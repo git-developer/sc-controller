@@ -548,8 +548,8 @@ class Menu(OSDWindow):
 				self.f.move(self.cursor, int(x), int(y))
 				
 				for i in self.items:
-					if point_in_gtkrect(i.widget.get_allocation(), x, y):
-						self.select(self.items.index(i))
+					#if point_in_gtkrect(i.widget.get_allocation(), x, y):
+					#	self.select(self.items.index(i))
 			else:
 				self._scon.set_stick(x, y)
 		elif what == self._confirm_with:
