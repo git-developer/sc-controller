@@ -50,7 +50,7 @@ class Mapper(object):
 		# Setup emulation
 		self.keypress_list = []
 		self.keyrelease_list = []
-		self.mouse_movements = [0, 0, 0, 0]		# mouse x, y, wheel vertical, horisontal
+		self.mouse_movements = [0, 0, 0, 0, 0, 0]		# mouse x, y, wheel vertical, horisontal, stick mouse x, stick mouse y
 		self.feedbacks = [ None, None ]			# left, right
 		self.pressed = {}						# for ButtonAction, holds number of times virtual button was pressed without releasing it first
 		self.syn_list = set()
@@ -209,7 +209,7 @@ class Mapper(object):
 		"""
 		self.mouse_movements[0] += dx
 		self.mouse_movements[1] += dy
-	
+
 	
 	def mouse_wheel(self, wx, wy):
 		"""
@@ -218,6 +218,15 @@ class Mapper(object):
 		"""
 		self.mouse_movements[2] += wx
 		self.mouse_movements[3] += wy
+
+
+	def mouse_move_stick(self, dx, dy):
+		"""
+		Schedules mouse movement to be done at end of processing callback.
+		Called from actions while callback is being processed.
+		"""
+		self.mouse_movements[4] += dx
+		self.mouse_movements[5] += dy
 	
 	
 	def send_feedback(self, hapticdata):
@@ -494,14 +503,20 @@ class Mapper(object):
 			self.keyboard.releaseEvent(self.keyrelease_list)
 			self.keyrelease_list = []
 		# Generate events - mouse
-		mx, my, wx, wy = self.mouse_movements
+		mx, my, wx, wy, sx, sy = self.mouse_movements
 		if mx != 0 or my != 0:
 			self.mouse.moveEvent(int(mx), int(my * -1), self.time_elapsed)
 			self.syn_list.add(self.mouse)
 		if wx != 0 or wy != 0:
 			self.mouse.scrollEvent(wx, wy)
 			self.syn_list.add(self.mouse)
-		self.mouse_movements = [ 0, 0, 0, 0 ]
+		if sx != 0 or sy != 0:
+			#log.debug("STARTING")
+			#log.debug(f"{sx} {sy}")
+			self.mouse.moveStickEvent(sx, sy * -1, self.time_elapsed)
+			self.syn_list.add(self.mouse)
+
+		self.mouse_movements = [ 0, 0, 0, 0, 0, 0 ]
 		self.sync()
 	
 	

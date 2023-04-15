@@ -152,4 +152,4 @@ TRIGGER_MIN = 0
 TRIGGER_HALF = 50
 TRIGGER_CLICK = 254 # Values under this are generated until trigger clicks
 TRIGGER_MAX = 255
-
+BASE_STICK_MOUSE_SPEED = 1000 # Pixels per second

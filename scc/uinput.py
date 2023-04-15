@@ -492,6 +492,42 @@ class Mouse(UInput):
 		self._dx += dx * self._xscale * baseFactor
 		self._dy += dy * self._yscale * baseFactor
 		#self._factorDeadzone(dx, dy, time_elapsed)
+
+		if int(self._dx):
+			self._dx = self._dx - (fmod(self._dx * 100.0, 1.0) / 100.0)
+			self.relEvent(rel=Rels.REL_X, val=int(self._dx))
+			self._dx -= int(self._dx)
+			_syn = True
+		if int(self._dy):
+			self._dy = self._dy - (fmod(self._dy * 100.0, 1.0) / 100.0)
+			self.relEvent(rel=Rels.REL_Y, val=int(self._dy))
+			self._dy -= int(self._dy)
+			_syn = True
+		if _syn:
+			self.synEvent()
+
+	def moveStickEvent(self, dx=0, dy=0, time_elapsed=0.0):
+		"""
+		Generate move events from parametters and displacement
+
+		@param float dx		   delta movement from last call on x axis
+		@param float dy		   delta movement from last call on y axis
+
+		"""
+		_syn = False
+
+		# Clear mouse axis remainders if axis direction has changed
+		if (dx == 0 or ((dx > 0) != (self._dx > 0))):
+			self._dx = 0
+
+		# Clear mouse axis remainders if axis direction has changed
+		if (dy == 0 or ((dy > 0) != (self._dy > 0))):
+			self._dy = 0
+
+		self._dx += dx
+		self._dy += dy
+		#self._factorDeadzone(dx, dy, time_elapsed)
+
 		if int(self._dx):
 			self._dx = self._dx - (fmod(self._dx * 100.0, 1.0) / 100.0)
 			self.relEvent(rel=Rels.REL_X, val=int(self._dx))

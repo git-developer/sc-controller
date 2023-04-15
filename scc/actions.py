@@ -21,9 +21,9 @@ from scc.constants import LEFT, RIGHT, CPAD, STICK, PITCH, YAW, ROLL
 from scc.constants import PARSER_CONSTANTS, ControllerFlags
 from scc.constants import FE_STICK, FE_TRIGGER, FE_PAD
 from scc.constants import TRIGGER_CLICK, TRIGGER_MAX
-from scc.constants import SCButtons
+from scc.constants import SCButtons, BASE_STICK_MOUSE_SPEED
 from scc.aliases import ALL_BUTTONS as GAMEPAD_BUTTONS
-from math import sqrt, sin, cos, atan2, pi as PI
+from math import copysign, sqrt, sin, cos, atan2, pi as PI
 
 import sys, time, logging, inspect
 log = logging.getLogger("Actions")
@@ -918,7 +918,12 @@ class MouseAction(WholeHapticAction, Action):
 			mapper.mouse_move(x * self.speed[0] * 0.01, y * self.speed[1] * 0.01)
 			mapper.force_event.add(FE_STICK)
 		elif what == RIGHT and mapper.controller_flags() & ControllerFlags.HAS_RSTICK:
-			mapper.mouse_move(x * self.speed[0] * 0.01, y * self.speed[1] * 0.01)
+			ratio_x = x / (STICK_PAD_MAX if x > 0 else STICK_PAD_MIN) * copysign(1, x)
+			ratio_y = y / (STICK_PAD_MAX if y > 0 else STICK_PAD_MIN) * copysign(1, y)
+			mouse_dx = ratio_x * (mapper.time_elapsed * BASE_STICK_MOUSE_SPEED) * self.speed[0]
+			mouse_dy = ratio_y * (mapper.time_elapsed * BASE_STICK_MOUSE_SPEED) * self.speed[1]
+			#mapper.mouse_move_stick(x * self.speed[0] * 0.01, y * self.speed[1] * 0.01)
+			mapper.mouse_move_stick(mouse_dx, mouse_dy)
 			mapper.force_event.add(FE_PAD)
 		else:	# left or right pad
 			if mapper.is_touched(what):
