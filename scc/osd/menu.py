@@ -547,7 +547,7 @@ class Menu(OSDWindow):
 				y = clamp(pad_h, (pad_h + max_h) * 0.5 + y * max_h * -1, max_h - pad_h)
 				self.f.move(self.cursor, int(x), int(y))
 				
-				for i in self.items:
+				#for i in self.items:
 					#if point_in_gtkrect(i.widget.get_allocation(), x, y):
 					#	self.select(self.items.index(i))
 			else:
