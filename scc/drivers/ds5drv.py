@@ -241,7 +241,7 @@ class DS5Controller(HIDController):
             mode=AxisMode.AXIS, byte_offset=1, size=8,
             data=AxisDataUnion(
                 axis=AxisModeData(
-                    scale=1.0, offset=-127.5, clamp_max=257, deadzone=10
+                    scale=1.0, offset=-127.5, clamp_max=257, deadzone=2
                 )
             )
         )
@@ -249,7 +249,7 @@ class DS5Controller(HIDController):
             mode=AxisMode.AXIS, byte_offset=2, size=8,
             data=AxisDataUnion(
                 axis=AxisModeData(
-                    scale=-1.0, offset=127.5, clamp_max=257, deadzone=10
+                    scale=-1.0, offset=127.5, clamp_max=257, deadzone=2
                 )
             )
         )
@@ -258,7 +258,7 @@ class DS5Controller(HIDController):
             data=AxisDataUnion(
                 axis=AxisModeData(
                     button=SCButtons.RPADTOUCH,
-                    scale=1.0, offset=-127.5, clamp_max=257, deadzone=10
+                    scale=1.0, offset=-127.5, clamp_max=257, deadzone=2
                 )
             )
         )
@@ -267,7 +267,7 @@ class DS5Controller(HIDController):
             data=AxisDataUnion(
                 axis=AxisModeData(
                     button=SCButtons.RPADTOUCH,
-                    scale=-1.0, offset=127.5, clamp_max=257, deadzone=10
+                    scale=-1.0, offset=127.5, clamp_max=257, deadzone=2
                 )
             )
         )
