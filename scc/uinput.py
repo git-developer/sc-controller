@@ -506,7 +506,7 @@ class Mouse(UInput):
 		if _syn:
 			self.synEvent()
 
-	def moveStickEvent(self, dx=0, dy=0, time_elapsed=0.0):
+	def moveStickEvent(self, dx=0.0, dy=0.0, time_elapsed=0.0):
 		"""
 		Generate move events from parametters and displacement
 
