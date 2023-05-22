@@ -805,8 +805,9 @@ class DS5HidRawController(Controller):
         state.accel_z = ctypes.c_int16((data[26] << 8) | data[25]).value * 2
         #print("GYRO: {} {} {}".format(state.gyaw, state.gpitch, state.groll))
         #print("ACCEL: {} | {} | {}".format(state.accel_x, state.accel_y, state.accel_z))
-        # Calculate quaternion for gyro data
-        #self._calculate_quaternion(state)
+        # Calculate quaternion for gyro data. Needed for tilt controls output.
+        # TODO: Try to add sensor fusion and complementary filter later
+        self._calculate_quaternion(state)
 
         # Check for CPAD touch
         if (data[34] & 0x80) == 0:
