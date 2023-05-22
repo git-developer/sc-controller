@@ -108,8 +108,11 @@ rm -R "${BUILD_APPDIR}/usr/share/thumbnailers"
 rm -R "${BUILD_APPDIR}/usr/share/vala"
 rm -R "${BUILD_APPDIR}/usr/share/icu"
 
-# Build important part
-python3 setup.py build
+# Build important part. Need executable flag to place custom interpreter line.
+# Setuptools overrrides original #! line in scripts with /usr/bin/python.
+# Ubuntu 22.04 LTS does not provide an executable at /usr/bin/python
+# by default.
+python3 setup.py build --executable "/usr/bin/env python3"
 
 # Need to use single-version-externally-managed due to setuptools behavior
 python3 setup.py install --single-version-externally-managed --prefix ${BUILD_APPDIR}/usr --record /dev/null
