@@ -626,7 +626,7 @@ class AxisAction(Action):
 		are localized and Negative/Positive may be switched over depending on
 		axis.
 		"""
-		if id in Axes or id in Rels:
+		if id in Axes.__members__.values() or id in Rels.__members__.values():
 			axis, neg, pos = "%s %s" % (id.name, _("Axis")), _("Negative"), _("Positive")
 			if id in AxisAction.AXIS_NAMES:
 				axis, neg, pos = [ _(x) for x in AxisAction.AXIS_NAMES[id] ]
