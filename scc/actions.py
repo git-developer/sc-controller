@@ -1225,7 +1225,7 @@ class GyroAction(Action):
 		if self.name : return self.name
 		rv = []
 		
-		if self.axes[0] in Rels:
+		if self.axes[0] in Rels.__members__.values():
 			return _("Mouse")
 		
 		for x in self.axes:
@@ -1291,7 +1291,7 @@ class GyroAbsAction(HapticEnabledAction, GyroAction):
 				pyr[i] = int(clamp(STICK_PAD_MIN, pyr[i], STICK_PAD_MAX))
 		for i in self.GYROAXES:
 			axis = self.axes[i]
-			if axis in Axes or type(axis) == int:
+			if axis in Axes.__members__.values() or type(axis) == int:
 				val = AxisAction.clamp_axis(axis, pyr[i] * self.speed[i])
 				if self._deadzone_fn:
 					val, trash = self._deadzone_fn(val, 0, STICK_PAD_MAX)
@@ -1525,12 +1525,12 @@ class ButtonAction(HapticEnabledAction, Action):
 		elif context == Action.AC_OSK:
 			if button in ButtonAction.MODIFIERS_NAMES:
 				return _(ButtonAction.MODIFIERS_NAMES[button])
-			elif button in Keys:
+			elif button in Keys.__members__.values():
 				return button.name.split("_", 1)[-1].title()
 			return ""
 		elif button is None: # or isinstance(button, NoAction):
 			return "None"
-		elif button in Keys:
+		elif button in Keys.__members__.values():
 			return button.name.split("_", 1)[-1]
 		else:
 			return _("Button %i") % (button,)
