@@ -830,7 +830,7 @@ class DS5HidRawController(Controller):
         return result
 
     def _calculate_quaternion(self, state):
-        # Convert raw gyro values to degress per second
+        # Convert raw gyro values to degrees per second
         GYRO_RES_IN_DEG_SEC = 16
         (yaw, pitch, roll) = ((state.gyaw / GYRO_RES_IN_DEG_SEC),
             (state.gpitch / GYRO_RES_IN_DEG_SEC),
