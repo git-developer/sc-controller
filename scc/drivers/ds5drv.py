@@ -737,7 +737,7 @@ class DS5HidRawController(Controller):
         if self.mapper:
             self.mapper.input(self, old_state, state_data)
 
-        self._old_state = old_state
+        self._old_state = state_data
         # Check for pending output data
         self.flush()
 
