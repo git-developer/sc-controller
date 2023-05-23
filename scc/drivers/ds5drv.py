@@ -707,8 +707,6 @@ class DS5HidRawController(Controller):
 
     def _input(self, *a):
         #log.debug("FOUND INPUT")
-        #log.debug(type(a))
-        #log.debug(a)
         tempdata = self._hidrawdev.read(78)
         # Skip over packet if not a DS5 mode input packet
         if tempdata[0] != 0x31:
@@ -721,9 +719,6 @@ class DS5HidRawController(Controller):
         #hamtaro = DualSenseHIDInputBT.from_buffer_copy(tempdata)
         #log.debug("LX: {} {}".format(hamtaro.lx, tempdata[2]))
         state_data = self._convert_input_data(tempdata)
-        #print(state_data)
-        #print(state_data.stick_x)
-        #log.debug("LX: {}".format(tempdata[2]))
         """print("INPUT [", end="")
         for index, value in enumerate(tempdata):
             print("[{},{}]".format(index, value), end=", ")
