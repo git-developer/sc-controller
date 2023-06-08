@@ -224,7 +224,7 @@ class Deck(USBDevice, SCController):
 		self._input.rstick_y = apply_deadzone(self._input.rstick_y, STICK_DEADZONE)
 
 		# Invert Gyro Roll to match Steam Controller coordinate system
-		self._input.groll = self._input.groll
+		self._input.groll = -self._input.groll
 		
 		m = self.get_mapper()
 		if m:
