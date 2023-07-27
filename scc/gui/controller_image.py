@@ -151,7 +151,7 @@ class ControllerImage(SVGWidget):
 	
 	def _fill_button_images(self, buttons):
 		e = self.edit()
-		SVGEditor.update_parents(e)
+		#SVGEditor.update_parents(e)
 		target = SVGEditor.get_element(e, "controller")
 		target_x, target_y = SVGEditor.get_translation(target)
 		for i in range(len(ControllerImage.BUTTONS_WITH_IMAGES)):

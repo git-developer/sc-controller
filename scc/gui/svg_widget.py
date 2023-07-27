@@ -9,15 +9,15 @@ from __future__ import unicode_literals
 from scc.tools import _
 
 from gi.repository import Gtk, Gdk, GObject, GdkPixbuf, Rsvg
-#from xml.etree import ElementTree as ET
+from xml.etree import ElementTree as ET
 from math import sin, cos, pi as PI
 from collections import OrderedDict
 import os, sys, re, logging
 import importlib
 
-sys.modules.pop('xml.etree.ElementTree', None)
-sys.modules['_elementtree'] = None
-ET = importlib.import_module('xml.etree.ElementTree')
+#sys.modules.pop('xml.etree.ElementTree', None)
+#sys.modules['_elementtree'] = None
+#ET = importlib.import_module('xml.etree.ElementTree')
 
 log = logging.getLogger("Background")
 ET.register_namespace('', "http://www.w3.org/2000/svg")
@@ -172,7 +172,7 @@ class SVGWidget(Gtk.EventBox):
 		"""
 		if type(element) == str:
 			tree = ET.fromstring(self.current_svg.encode("utf-8"))
-			SVGEditor.update_parents(tree)
+			#SVGEditor.update_parents(tree)
 			element = SVGEditor.get_element(tree, element)
 		width, height = 0, 0
 		x, y = SVGEditor.get_translation(element, absolute=True)
@@ -326,12 +326,14 @@ class SVGEditor(object):
 		
 		Returns None if element cannot be found
 		"""
-		SVGEditor.update_parents(self)
+		#SVGEditor.update_parents(self)
 		e = SVGEditor.get_element(self, id)
 		if e is not None:
 			copy = SVGEditor._deep_copy(e)
-			e.parent.append(copy)
-			copy.parent = e.parent
+			parent = e.find("..")
+			if parent: parent.append(copy)
+			#e.parent.append(copy)
+			#copy.parent = e.parent
 			return copy
 		return None
 	
@@ -565,13 +567,13 @@ class SVGEditor(object):
 		if isinstance(elm_or_matrix, ET.Element):
 			elm = elm_or_matrix
 			matrix = SVGEditor.parse_transform(elm)
-			parent = elm.parent
+			parent = elm.find("..")
 			while parent is not None:
 				matrix = SVGEditor.matrixmul(matrix, SVGEditor.parse_transform(parent))
-				parent = parent.parent
+				parent = parent.find("..")
 		else:
 			matrix = elm_or_matrix
-		
+
 		return matrix[0][2], matrix[1][2]
 	
 	

@@ -121,7 +121,8 @@ class KeyboardImage(Gtk.DrawingArea):
 	def get_limit(self, id):
 		a = SVGEditor.find_by_id(self.tree, id)
 		width, height = 0, 0
-		if not hasattr(a, "parent"): a.parent = None
+		#if not hasattr(a, "parent"): a.parent = None
+
 		x, y = SVGEditor.get_translation(a, absolute=True)
 		if 'width' in a.attrib:  width = float(a.attrib['width'])
 		if 'height' in a.attrib: height = float(a.attrib['height'])
