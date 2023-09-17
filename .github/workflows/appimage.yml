@@ -37,7 +37,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           platforms: ${{ matrix.platform }}
-          outputs: AppDir
+          outputs: .
           build-args: |
             UBUNTU_RELEASE
 
@@ -47,8 +47,8 @@ jobs:
         shell: bash
         run: |
           set -eua
-          . build/.build-metadata.env
-          rm build/.build-metadata.env
+          . .build-metadata.env
+          rm .build-metadata.env
           APPIMAGE_SOURCE=build
           APPIMAGE_VERSION="${GITHUB_REF_SLUG}"
           APPIMAGE_APT_ARCH="${TARGETARCH}"
