@@ -13,8 +13,8 @@ AppDir:
     name: SC Controller
     version: "{{APPIMAGE_VERSION}}"
     icon: sc-controller
-    exec: usr/bin/scc
-    exec_args: gui
+    exec: bin/sh
+    exec_args: -c 'usr/bin/scc gui'
 
   apt:
     arch:
