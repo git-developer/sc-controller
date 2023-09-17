@@ -20,3 +20,4 @@ appimage/
 
 dist/
 sccontroller.egg-info/
+!.github
