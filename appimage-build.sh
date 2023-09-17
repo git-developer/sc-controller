@@ -3,7 +3,7 @@ APP="sc-controller"
 EXEC="scc"
 LIB="lib"
 
-EVDEV_VERSION=0.7.0
+EVDEV_VERSION=1.6.1
 [ x"$BUILD_APPDIR" == "x" ] && BUILD_APPDIR=$(pwd)/appimage
 PYTHON_VERSION=$(python3 -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}".format(*version))')
 SITE_PACKAGES_PATH=$(python3 -c "import os,sys; print([p for p in sys.path if p.endswith('site-packages') and sys.prefix in p][0])")
@@ -24,7 +24,7 @@ function download_dep() {
 	elif [ -e /tmp/${NAME}.tar.gz ] ; then
 		echo "/tmp/${NAME}.tar.gz already downloaded"
 	else
-		wget -c "${URL}" -O /tmp/${NAME}.tar.gz
+		curl -sSL -C - -o "/tmp/${NAME}.tar.gz" "${URL}"
 	fi
 }
 
@@ -52,7 +52,7 @@ function unpack_dep() {
 set -ex		# display commands, terminate after 1st failure
 
 # Download deps
-download_dep "python-evdev-0.7.0" "https://github.com/gvalkov/python-evdev/archive/v0.7.0.tar.gz"
+download_dep "python-evdev-${EVDEV_VERSION}" "https://github.com/gvalkov/python-evdev/archive/refs/tags/v${EVDEV_VERSION}.tar.gz"
 download_dep "pylibacl-0.6.0" "https://github.com/iustin/pylibacl/releases/download/v0.6.0/pylibacl-0.6.0.tar.gz"
 download_dep "python-gobject-3.36.1" "https://archive.archlinux.org/packages/p/python-gobject/python-gobject-3.36.1-1-x86_64.pkg.tar.zst"
 download_dep "python-vdf-3.4" "https://github.com/ValvePython/vdf/archive/v3.4.tar.gz"
@@ -64,6 +64,7 @@ download_dep "librsvg-2.48.7" "https://archive.archlinux.org/packages/l/librsvg/
 download_dep "icu-67.1" "https://archive.archlinux.org/packages/i/icu/icu-67.1-1-x86_64.pkg.tar.zst"
 download_dep "zlib-1:1.2.12" "https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.12-2-x86_64.pkg.tar.zst"
 download_dep "libffi-3.4.3" "https://archive.archlinux.org/packages/l/libffi/libffi-3.4.3-1-x86_64.pkg.tar.zst"
+download_dep "cairo-1.17.6" "https://archive.archlinux.org/packages/c/cairo/cairo-1.17.6-2-x86_64.pkg.tar.zst"
 
 # Prepare & build deps
 export PYTHONPATH=${BUILD_APPDIR}/usr/lib/python${PYTHON_VERSION}/site-packages/
@@ -75,7 +76,7 @@ if [[ $(grep ID_LIKE /etc/os-release) == *"suse"* ]] ; then
 	LIB=lib64
 fi
 
-build_dep "python-evdev-0.7.0"
+build_dep "python-evdev-${EVDEV_VERSION}"
 build_dep "pylibacl-0.6.0"
 build_dep "python-vdf-3.4"
 unpack_dep "python-gobject-3.36.1"
@@ -87,6 +88,7 @@ unpack_dep "librsvg-2.48.7"
 unpack_dep "icu-67.1"
 unpack_dep "zlib-1:1.2.12"
 unpack_dep "libffi-3.4.3"
+unpack_dep "cairo-1.17.6"
 
 # Remove uneeded files
 rm -f "${BUILD_APPDIR}/usr/${LIB}/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-ani.so"
@@ -137,15 +139,19 @@ mkdir -p ${BUILD_APPDIR}/usr/share/metainfo/
 cp scripts/${APP}.appdata.xml ${BUILD_APPDIR}/usr/share/metainfo/${APP}.appdata.xml
 
 # Make symlinks
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libcemuhook.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libcemuhook.so
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libhiddrv.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}//libhiddrv.so
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libremotepad.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libremotepad.so
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libsc_by_bt.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libsc_by_bt.so
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libuinput.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libuinput.so
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/posix1e.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/posix1e.so
+python_version="$(echo "${PYTHON_VERSION}" | tr -d .)"
+ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libcemuhook.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libcemuhook.so
+ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libhiddrv.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}//libhiddrv.so
+ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libremotepad.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libremotepad.so
+ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libsc_by_bt.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libsc_by_bt.so
+ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libuinput.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libuinput.so
+ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/posix1e.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/posix1e.so
 
 # Copy AppRun script
-cp scripts/appimage-AppRun.sh ${BUILD_APPDIR}/AppRun
+SITE_PACKAGES64_PATH="$(echo "${SITE_PACKAGES_PATH}" | sed 's:/lib/:/lib64/:g')"
+sed -e "s:/usr/lib/python3.10/site-packages:${SITE_PACKAGES_PATH}:g" \
+    -e "s:/usr/lib64/python3.10/site-packages:${SITE_PACKAGES64_PATH}:g" \
+    scripts/appimage-AppRun.sh >"${BUILD_APPDIR}/AppRun"
 chmod +x ${BUILD_APPDIR}/AppRun
 
 echo "Run appimagetool -n ${BUILD_APPDIR} to finish prepared appimage"
