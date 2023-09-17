@@ -64,6 +64,7 @@ download_dep "librsvg-2.48.7" "https://archive.archlinux.org/packages/l/librsvg/
 download_dep "icu-67.1" "https://archive.archlinux.org/packages/i/icu/icu-67.1-1-x86_64.pkg.tar.zst"
 download_dep "zlib-1:1.2.12" "https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.12-2-x86_64.pkg.tar.zst"
 download_dep "libffi-3.4.3" "https://archive.archlinux.org/packages/l/libffi/libffi-3.4.3-1-x86_64.pkg.tar.zst"
+download_dep "cairo-1.17.6" "https://archive.archlinux.org/packages/c/cairo/cairo-1.17.6-2-x86_64.pkg.tar.zst"
 
 # Prepare & build deps
 export PYTHONPATH=${BUILD_APPDIR}/usr/lib/python${PYTHON_VERSION}/site-packages/
@@ -87,6 +88,7 @@ unpack_dep "librsvg-2.48.7"
 unpack_dep "icu-67.1"
 unpack_dep "zlib-1:1.2.12"
 unpack_dep "libffi-3.4.3"
+unpack_dep "cairo-1.17.6"
 
 # Remove uneeded files
 rm -f "${BUILD_APPDIR}/usr/${LIB}/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-ani.so"
