@@ -52,7 +52,7 @@ function unpack_dep() {
 set -ex		# display commands, terminate after 1st failure
 
 # Download deps
-download_dep "python-evdev-0.7.0" "https://github.com/gvalkov/python-evdev/archive/v0.7.0.tar.gz"
+download_dep "python-evdev-1.6.1" "https://github.com/gvalkov/python-evdev/archive/refs/tags/v1.6.1.tar.gz"
 download_dep "pylibacl-0.6.0" "https://github.com/iustin/pylibacl/releases/download/v0.6.0/pylibacl-0.6.0.tar.gz"
 download_dep "python-gobject-3.36.1" "https://archive.archlinux.org/packages/p/python-gobject/python-gobject-3.36.1-1-x86_64.pkg.tar.zst"
 download_dep "python-vdf-3.4" "https://github.com/ValvePython/vdf/archive/v3.4.tar.gz"
@@ -75,7 +75,7 @@ if [[ $(grep ID_LIKE /etc/os-release) == *"suse"* ]] ; then
 	LIB=lib64
 fi
 
-build_dep "python-evdev-0.7.0"
+build_dep "python-evdev-1.6.1"
 build_dep "pylibacl-0.6.0"
 build_dep "python-vdf-3.4"
 unpack_dep "python-gobject-3.36.1"
