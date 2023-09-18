@@ -24,7 +24,7 @@ function download_dep() {
 	elif [ -e /tmp/${NAME}.tar.gz ] ; then
 		echo "/tmp/${NAME}.tar.gz already downloaded"
 	else
-		wget -c "${URL}" -O /tmp/${NAME}.tar.gz
+		curl -sSL -C - -o "/tmp/${NAME}.tar.gz" "${URL}"
 	fi
 }
 
