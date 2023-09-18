@@ -139,15 +139,19 @@ mkdir -p ${BUILD_APPDIR}/usr/share/metainfo/
 cp scripts/${APP}.appdata.xml ${BUILD_APPDIR}/usr/share/metainfo/${APP}.appdata.xml
 
 # Make symlinks
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libcemuhook.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libcemuhook.so
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libhiddrv.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}//libhiddrv.so
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libremotepad.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libremotepad.so
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libsc_by_bt.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libsc_by_bt.so
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libuinput.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libuinput.so
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/posix1e.cpython-310-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/posix1e.so
+python_version="$(echo "${PYTHON_VERSION}" | tr -d .)"
+ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libcemuhook.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libcemuhook.so
+ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libhiddrv.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}//libhiddrv.so
+ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libremotepad.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libremotepad.so
+ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libsc_by_bt.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libsc_by_bt.so
+ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libuinput.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libuinput.so
+ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/posix1e.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/posix1e.so
 
 # Copy AppRun script
-cp scripts/appimage-AppRun.sh ${BUILD_APPDIR}/AppRun
+SITE_PACKAGES64_PATH="$(echo "${SITE_PACKAGES_PATH}" | sed 's:/lib/:/lib64/:g')"
+sed -e "s:/usr/lib/python3.10/site-packages:${SITE_PACKAGES_PATH}:g" \
+    -e "s:/usr/lib64/python3.10/site-packages:${SITE_PACKAGES64_PATH}:g" \
+    scripts/appimage-AppRun.sh >"${BUILD_APPDIR}/AppRun"
 chmod +x ${BUILD_APPDIR}/AppRun
 
 echo "Run appimagetool -n ${BUILD_APPDIR} to finish prepared appimage"
