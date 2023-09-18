@@ -38,8 +38,8 @@ jobs:
           platforms: ${{ matrix.platform }}
           outputs: build
           build-args: |
-            APPIMAGE_VERSION=${GITHUB_REF_SLUG}
-            REPO_OWNER=${GITHUB_REPOSITORY_OWNER}
+            APPIMAGE_VERSION=${{ env.GITHUB_REF_SLUG }}
+            REPO_OWNER=${{ env.GITHUB_REPOSITORY_OWNER }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
