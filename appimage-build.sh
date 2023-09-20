@@ -6,7 +6,8 @@ LIB="lib"
 EVDEV_VERSION=1.6.1
 [ x"$BUILD_APPDIR" == "x" ] && BUILD_APPDIR=$(pwd)/appimage
 PYTHON_VERSION=$(python3 -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}".format(*version))')
-SITE_PACKAGES_PATH=$(python3 -c "import os,sys; print([p for p in sys.path if p.endswith('site-packages') and sys.prefix in p][0])")
+SITE_PACKAGES_PATH="/usr/${LIB}/python${PYTHON_VERSION}/site-packages"
+SITE_PACKAGES64_PATH="$(echo "${SITE_PACKAGES_PATH}" | sed 's:/lib/:/lib64/:g')"
 
 if [ -z ${SITE_PACKAGES_PATH} ]; then
   echo "Could not determine global site-packages path. Exiting";
@@ -33,10 +34,10 @@ function build_dep() {
 	mkdir -p /tmp/${NAME}
 	pushd /tmp/${NAME}
 	tar --extract --strip-components=1 -f /tmp/${NAME}.tar.gz
-	PYTHONPATH=${BUILD_APPDIR}/usr/lib/python${PYTHON_VERSION}/site-packages python3 \
+	PYTHONPATH=${BUILD_APPDIR}/${SITE_PACKAGES_PATH} python3 \
 		setup.py install --optimize=1 \
 		--prefix="/usr/" --root="${BUILD_APPDIR}"
-	mkdir -p "${BUILD_APPDIR}/usr/lib/python${PYTHON_VERSION}/site-packages/"
+	mkdir -p "${BUILD_APPDIR}/${SITE_PACKAGES_PATH}"
 	python3 setup.py install --prefix="/usr/" --root="${BUILD_APPDIR}"
 	popd
 }
@@ -67,13 +68,14 @@ download_dep "libffi-3.4.3" "https://archive.archlinux.org/packages/l/libffi/lib
 download_dep "cairo-1.17.6" "https://archive.archlinux.org/packages/c/cairo/cairo-1.17.6-2-x86_64.pkg.tar.zst"
 
 # Prepare & build deps
-export PYTHONPATH=${BUILD_APPDIR}/usr/lib/python${PYTHON_VERSION}/site-packages/
+export PYTHONPATH=${BUILD_APPDIR}/${SITE_PACKAGES_PATH}
 mkdir -p "$PYTHONPATH"
 if [[ $(grep ID_LIKE /etc/os-release) == *"suse"* ]] ; then
 	# Special handling for OBS
 	ln -s lib64 ${BUILD_APPDIR}/usr/lib
-	export PYTHONPATH="$PYTHONPATH":${BUILD_APPDIR}/usr/lib64/python${PYTHON_VERSION}/site-packages/
+	export PYTHONPATH="${PYTHONPATH}:${BUILD_APPDIR}/${SITE_PACKAGES64_PATH}"
 	LIB=lib64
+	SITE_PACKAGES_PATH="usr/${LIB}/python${PYTHON_VERSION}/site-packages"
 fi
 
 build_dep "python-evdev-${EVDEV_VERSION}"
@@ -123,8 +125,8 @@ python3 setup.py install --single-version-externally-managed --prefix ${BUILD_AP
 mv ${BUILD_APPDIR}/usr/lib/udev/rules.d/69-${APP}.rules ${BUILD_APPDIR}/
 rmdir ${BUILD_APPDIR}/usr/lib/udev/rules.d/
 rmdir ${BUILD_APPDIR}/usr/lib/udev/
-mkdir -p ${BUILD_APPDIR}/usr/${LIB}/python${PYTHON_VERSION}/site-packages/scc/
-cp "/usr/include/linux/input-event-codes.h" ${BUILD_APPDIR}/usr/${LIB}/python${PYTHON_VERSION}/site-packages/scc/
+mkdir -p ${BUILD_APPDIR}/${SITE_PACKAGES_PATH}/scc/
+cp "/usr/include/linux/input-event-codes.h" ${BUILD_APPDIR}/${SITE_PACKAGES_PATH}/scc/
 
 # Move & patch desktop file
 mv ${BUILD_APPDIR}/usr/share/applications/${APP}.desktop ${BUILD_APPDIR}/
@@ -139,16 +141,13 @@ mkdir -p ${BUILD_APPDIR}/usr/share/metainfo/
 cp scripts/${APP}.appdata.xml ${BUILD_APPDIR}/usr/share/metainfo/${APP}.appdata.xml
 
 # Make symlinks
-python_version="$(echo "${PYTHON_VERSION}" | tr -d .)"
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libcemuhook.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libcemuhook.so
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libhiddrv.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}//libhiddrv.so
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libremotepad.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libremotepad.so
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libsc_by_bt.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libsc_by_bt.so
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libuinput.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/libuinput.so
-ln -sfr ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/posix1e.cpython-${python_version}-x86_64-linux-gnu.so ${BUILD_APPDIR}${SITE_PACKAGES_PATH}/posix1e.so
+for lib in libcemuhook libhiddrv libremotepad libsc_by_bt libuinput posix1e; do
+  find "${BUILD_APPDIR}" -type f -name "${lib}.cpython-*-$(uname -m)-linux-gnu.so" | while read -r path; do
+    ln -sfr "${path}" "$(dirname "${path}")/${lib}.so"
+  done
+done
 
 # Copy AppRun script
-SITE_PACKAGES64_PATH="$(echo "${SITE_PACKAGES_PATH}" | sed 's:/lib/:/lib64/:g')"
 sed -e "s:/usr/lib/python3.10/site-packages:${SITE_PACKAGES_PATH}:g" \
     -e "s:/usr/lib64/python3.10/site-packages:${SITE_PACKAGES64_PATH}:g" \
     scripts/appimage-AppRun.sh >"${BUILD_APPDIR}/AppRun"
