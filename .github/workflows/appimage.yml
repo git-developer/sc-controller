@@ -3,7 +3,7 @@ name: Build and publish AppImages
 on:
   pull_request:
   push:
-    branches: [ 'main', 'fix-appimage' ]
+    branches: [ 'main', 'fix-appimage', 'dev/appimage' ]
   release:
     types: published
 
