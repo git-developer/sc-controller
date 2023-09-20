@@ -150,7 +150,7 @@ cp scripts/${APP}.appdata.xml ${BUILD_APPDIR}/usr/share/metainfo/${APP}.appdata.
 
 # Make symlinks
 for lib in libcemuhook libhiddrv libremotepad libsc_by_bt libuinput posix1e; do
-  find "${BUILD_APPDIR}" -type f -name "${lib}.cpython-*-$(uname -r)-linux-gnu.so" | while read -r path; do
+  find "${BUILD_APPDIR}" -type f -name "${lib}.cpython-*-$(uname -m)-linux-gnu.so" | while read -r path; do
     ln -sfr "${path}" "$(dirname "${path}")/${lib}.so"
   done
 done
