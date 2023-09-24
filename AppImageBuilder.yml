@@ -77,8 +77,8 @@ AppDir:
       # maybe required: xpm pnm xbm 
 
   runtime:
-#    path_mappings:
-#      - ...
+    path_mappings:
+      - '/sbin/ldconfig.real:${APPDIR}/sbin/ldconfig.real'
     env:
       PYTHONPATH: '${APPDIR}/usr/lib/python3/dist-packages:${PYTHONPATH}'
       GI_TYPELIB_PATH: '${APPDIR}/usr/lib/x86_64-linux-gnu/girepository-1.0'
