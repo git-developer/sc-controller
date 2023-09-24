@@ -37,7 +37,7 @@ AppDir:
     include:
       - bash
       - gir1.2-rsvg-2.0
-      - libc-bin
+      - binutils
       - libbluetooth3
       - librsvg2-common
       - python3-gi-cairo
@@ -74,8 +74,6 @@ AppDir:
       - usr/lib/*/gdk-pixbuf-2.0/*/loaders/libpixbufloader-[!s]*.so
 
   runtime:
-    path_mappings:
-      - '/sbin/ldconfig.real:${APPDIR}/sbin/ldconfig.real'
     env:
       PYTHONPATH: '${APPDIR}/usr/lib/python3/dist-packages:${PYTHONPATH}'
       GI_TYPELIB_PATH: '${APPDIR}/usr/lib/{{APPIMAGE_ARCH}}-linux-gnu/girepository-1.0'
