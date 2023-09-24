@@ -65,8 +65,8 @@ jobs:
         with:
           name: appimages
           path: |
-            ./build/*.AppImage
-            ./build/*.AppImage.zsync
+            ./*.AppImage
+            ./*.AppImage.zsync
           if-no-files-found: error
 
   release:
