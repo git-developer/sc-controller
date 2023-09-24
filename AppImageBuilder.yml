@@ -17,6 +17,15 @@ AppDir:
     exec: bin/bash
     exec_args: entrypoint $@
 
+  after_runtime: |
+    cat - >>"${TARGET_APPDIR}/org.ryochan7.sc-controller.desktop" <<EOF
+    Comment=Edits controller mappings
+    Comment[ru]=Настройка контроллера
+    Categories=GTK;Settings;HardwareSettings;
+    MimeType=application/x-steamcontrollerdb-profile;application/x-scc-profile;application/x-scc-profile-package;
+    StartupWMClass=SC Controller
+    EOF
+
   apt:
     arch:
       - "{{APPIMAGE_APT_ARCH}}"
@@ -68,8 +77,9 @@ AppDir:
       - usr/share/icu
       - usr/lib/*/glib-2.0
       - usr/lib/*/gdk-pixbuf-2.0/*/loaders/libpixbufloader-*.so
-      # ani bmp gif icns ico jasper jpeg qtif tga tiff
-      - usr/lib/cmake
+      # not existing: jasper jpeg
+      # maybe required: xpm pnm xbm 
+#      - usr/lib/cmake
 
   runtime:
 #    path_mappings:

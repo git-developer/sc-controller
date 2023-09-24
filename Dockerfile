@@ -10,11 +10,33 @@ RUN apt-get update && \
 
 COPY . /work
 WORKDIR /work
-RUN if [ ! -d /usr/include/linux ]; then \
-      ln -s "$(find /usr -xdev -type f -name 'input-event-codes.h' -exec dirname '{}' \; -quit)" /usr/include/linux; \
-    fi
-RUN ./appimage-build.sh
+ARG TARGET=/work/appimage
 
+# Build and install
+RUN python3 setup.py build --executable "/usr/bin/env python3" && \
+    python3 setup.py install --single-version-externally-managed --prefix "${TARGET}/usr" --record /dev/null
+
+# Provide input-event-codes.h as fallback for runtime systems without linux headers
+RUN cp -a \
+      "$(find /usr -type f -name input-event-codes.h -print -quit)" \
+      "$(find "${TARGET}" -type f -name uinput.py -printf '%h\n' -quit)"
+
+# Create symlinks with short names for static libraries
+RUN suffix=".cpython-*-$(uname -m)-linux-gnu.so" && \
+    find "${TARGET}/usr" -type f -path "*/site-packages/*${suffix}" \
+    | while read -r path; do ln -sfr "${path}" "${path%${suffix}}.so"; done
+
+# Put AppStream metadata into required location
+RUN mkdir -p ${TARGET}/usr/share/metainfo && \
+    cp scripts/sc-controller.appdata.xml "${TARGET}/usr/share/metainfo/"
+
+# Convert icon to PNG (required for icons in .desktop file)
+RUN convert -background none "${TARGET}/usr/share/pixmaps/sc-controller.svg" "${TARGET}/sc-controller.png"
+
+# Copy start script
+RUN cp -a scripts/appimage-AppRun.sh "${TARGET}/entrypoint"
+
+# Store build metadata
 ARG TARGETOS TARGETARCH TARGETVARIANT
 RUN export "TARGETMACHINE=$(uname -m)" && printenv | grep ^TARGET >>.build-metadata.env
 
