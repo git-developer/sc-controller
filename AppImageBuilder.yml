@@ -72,16 +72,13 @@ AppDir:
       - usr/share/icu
       - usr/lib/*/glib-2.0
       - usr/lib/*/gdk-pixbuf-2.0/*/loaders/libpixbufloader-[!s]*.so
-      # not existing: jasper jpeg
-      # maybe required: xpm pnm xbm 
 
   runtime:
     path_mappings:
       - '/sbin/ldconfig.real:${APPDIR}/sbin/ldconfig.real'
     env:
       PYTHONPATH: '${APPDIR}/usr/lib/python3/dist-packages:${PYTHONPATH}'
-      GI_TYPELIB_PATH: '${APPDIR}/usr/lib/x86_64-linux-gnu/girepository-1.0'
-#      APPDIR_LIBRARY_PATH: '${APPDIR}/usr/lib/x86_64-linux-gnu:${APPDIR}/lib/x86_64-linux-gnu:${APPDIR}/usr/lib:${APPDIR}/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders'
+      GI_TYPELIB_PATH: '${APPDIR}/usr/lib/{{APPIMAGE_ARCH}}-linux-gnu/girepository-1.0'
 
 AppImage:
   arch: "{{APPIMAGE_ARCH}}"
