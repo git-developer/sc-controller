@@ -1,5 +1,9 @@
 name: Build and publish AppImages
 
+env:
+  UBUNTU_RELEASE: jammy
+  UBUNTU_PUBKEY: 871920D1991BC93C
+
 on:
   pull_request:
   push:
@@ -16,6 +20,7 @@ jobs:
       matrix:
         platform:
           - linux/amd64
+          - linux/arm64
 
     steps:
       - uses: actions/checkout@v4
@@ -34,16 +39,34 @@ jobs:
           platforms: ${{ matrix.platform }}
           outputs: build
           build-args: |
-            APPIMAGE_VERSION=${{ env.GITHUB_REF_SLUG }}
-            REPO_OWNER=${{ env.GITHUB_REPOSITORY_OWNER }}
+            UBUNTU_RELEASE
+
+      - name: Prepare environment for building AppImage
+        env:
+          TARGET_PLATFORM: ${{ matrix.platform }}
+        shell: bash
+        run: |
+          set -eua
+          . build/.build-metadata.env
+          rm build/.build-metadata.env
+          APPIMAGE_SOURCE=build
+          APPIMAGE_VERSION="${GITHUB_REF_SLUG}"
+          APPIMAGE_APT_ARCH="${TARGETARCH}"
+          APPIMAGE_APT_DISTRO="${UBUNTU_RELEASE}"
+          APPIMAGE_APT_PUBKEY="${UBUNTU_PUBKEY}"
+          APPIMAGE_ARCH="${TARGETMACHINE}"
+          printenv | grep ^APPIMAGE_ >>"${GITHUB_ENV}"
+
+      - name: Build AppImage
+        uses: AppImageCrafters/build-appimage@v1.3
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: appimages
           path: |
-            ./build/*.AppImage
-            ./build/*.AppImage.zsync
+            ./*.AppImage
+            ./*.AppImage.zsync
           if-no-files-found: error
 
   release:

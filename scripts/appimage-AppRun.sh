@@ -2,8 +2,8 @@
 export PATH=${APPDIR}:${APPDIR}/usr/bin:$PATH
 export LD_LIBRARY_PATH=${APPDIR}/usr/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=${APPDIR}/usr/lib64:$LD_LIBRARY_PATH
-export GI_TYPELIB_PATH=${APPDIR}/usr/lib/girepository-1.0
-export GDK_PIXBUF_MODULEDIR=${APPDIR}/usr/lib/gdk-pixbuf-2.0/2.10.0/loaders
+export GI_TYPELIB_PATH="${APPDIR}/usr/lib/girepository-1.0:${GI_TYPELIB_PATH}"
+export GDK_PIXBUF_MODULEDIR="${GDK_PIXBUF_MODULEDIR:-${APPDIR}/usr/lib/gdk-pixbuf-2.0/2.10.0/loaders}"
 export PYTHONPATH=${APPDIR}/usr/lib/python3.10/site-packages:$PYTHONPATH
 export PYTHONPATH=${APPDIR}/usr/lib64/python3.10/site-packages:$PYTHONPATH
 export SCC_SHARED=${APPDIR}/usr/share/scc

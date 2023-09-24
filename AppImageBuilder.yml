@@ -1,0 +1,85 @@
+version: 1
+
+script:
+- |
+  mv "{{APPIMAGE_SOURCE}}" "${TARGET_APPDIR}"
+  # Manual installation is required until fix of https://github.com/AppImageCrafters/build-appimage/issues/5
+  if ! command -v mksquashfs >/dev/null; then
+    apt-get update && apt-get install -y --no-install-recommends squashfs-tools
+  fi
+
+AppDir:
+  app_info:
+    id: org.ryochan7.sc-controller
+    name: sc-controller
+    version: "{{APPIMAGE_VERSION}}"
+    icon: sc-controller
+    exec: bin/bash
+    exec_args: entrypoint $@
+
+  after_runtime: |
+    source="${TARGET_APPDIR}/usr/share/applications/sc-controller.desktop"
+    target="${TARGET_APPDIR}/org.ryochan7.sc-controller.desktop"
+    sed -i -E '/^(Comment|Categories)=.*$/d' "${target}"
+    grep -v -P '^(\[Desktop Entry\])|(Name|Exec|Type|Icon)=.*$' "${source}" >>"${target}"
+
+  apt:
+    arch:
+      - "{{APPIMAGE_APT_ARCH}}"
+    sources:
+      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ "{{APPIMAGE_APT_DISTRO}}" main universe
+        key_url: "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x{{APPIMAGE_APT_PUBKEY}}"
+      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ "{{APPIMAGE_APT_DISTRO}}"-updates main universe
+      - sourceline: deb [arch=amd64] http://security.ubuntu.com/ubuntu/ "{{APPIMAGE_APT_DISTRO}}"-security main universe
+      - sourceline: deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ "{{APPIMAGE_APT_DISTRO}}" main universe
+      - sourceline: deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ "{{APPIMAGE_APT_DISTRO}}"-updates main universe
+      - sourceline: deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ "{{APPIMAGE_APT_DISTRO}}"-security main universe
+    include:
+      - bash
+      - gir1.2-rsvg-2.0
+      - libc-bin
+      - libbluetooth3
+      - librsvg2-common
+      - python3-gi-cairo
+      - python3-evdev
+      - python3-pylibacl
+      - python3-vdf
+    exclude:
+      - 'gcc*'
+      - 'libblkid*'
+      - 'libc6*'
+      - 'libdb*'
+      - 'libgcc*'
+      - 'libicu*'
+      - 'libmount*'
+      - 'libncurses*'
+      - 'libreadline*'
+      - 'libssl*'
+      - 'libstdc*'
+      - 'libtirpc*'
+      - 'readline*'
+      - '*crypt*'
+      - '*krb*'
+      - '*sqlite*'
+
+  files:
+    exclude:
+      - usr/share/man
+      - usr/share/doc
+      - usr/share/gtk-doc
+      - usr/share/local
+      - usr/share/thumbnailers
+      - usr/share/icu
+      - usr/lib/*/glib-2.0
+      - usr/lib/*/gdk-pixbuf-2.0/*/loaders/libpixbufloader-[!s]*.so
+
+  runtime:
+    path_mappings:
+      - '/sbin/ldconfig.real:${APPDIR}/sbin/ldconfig.real'
+    env:
+      PYTHONPATH: '${APPDIR}/usr/lib/python3/dist-packages:${PYTHONPATH}'
+      GI_TYPELIB_PATH: '${APPDIR}/usr/lib/{{APPIMAGE_ARCH}}-linux-gnu/girepository-1.0'
+
+AppImage:
+  arch: "{{APPIMAGE_ARCH}}"
+  update-information: "gh-releases-zsync|Ryochan7|sc-controller|latest|sc-controller-*.glibc-{{APPIMAGE_ARCH}}.AppImage.zsync"
