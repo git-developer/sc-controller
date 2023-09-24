@@ -6,9 +6,9 @@ EXEC="scc"
 LIB="lib"
 
 BUILD_APPDIR="${BUILD_APPDIR:-${PWD}/appimage}"
+target="${BUILD_APPDIR}/usr"
 PYTHON_VERSION=$(python3 -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}".format(*version))')
-SITE_PACKAGES_PATH=$(python3 -c "import os,sys; print([p for p in sys.path if p.endswith('-packages') and sys.prefix in p][0])")
-#SITE_PACKAGES_PATH="/usr/${LIB}/python${PYTHON_VERSION}/site-packages"
+SITE_PACKAGES_PATH="${target#${BUILD_APPDIR}}/${LIB}/python${PYTHON_VERSION}/site-packages"
 SITE_PACKAGES64_PATH="$(echo "${SITE_PACKAGES_PATH}" | sed 's:/lib/:/lib64/:g')"
 
 set -x		# display commands
@@ -18,10 +18,10 @@ export PYTHONPATH=${BUILD_APPDIR}/${SITE_PACKAGES_PATH}
 mkdir -p "$PYTHONPATH"
 if [[ $(grep ID_LIKE /etc/os-release) == *"suse"* ]] ; then
 	# Special handling for OBS
-	ln -s lib64 ${BUILD_APPDIR}/usr/lib
+	ln -s lib64 "${target}/${LIB}"
 	export PYTHONPATH="${PYTHONPATH}:${BUILD_APPDIR}/${SITE_PACKAGES64_PATH}"
 	LIB=lib64
-	SITE_PACKAGES_PATH="usr/${LIB}/python${PYTHON_VERSION}/site-packages"
+	SITE_PACKAGES_PATH="${target#${BUILD_APPDIR}}/${LIB}/python${PYTHON_VERSION}/site-packages"
 fi
 
 # Build important part. Need executable flag to place custom interpreter line.
@@ -31,26 +31,26 @@ fi
 python3 setup.py build --executable "/usr/bin/env python3"
 
 # Need to use single-version-externally-managed due to setuptools behavior
-python3 setup.py install --single-version-externally-managed --prefix ${BUILD_APPDIR}/usr --record /dev/null
+python3 setup.py install --single-version-externally-managed --prefix "${target}" --record /dev/null
 
 # Move udev stuff
-mv ${BUILD_APPDIR}/usr/lib/udev/rules.d/69-${APP}.rules ${BUILD_APPDIR}/
-rmdir ${BUILD_APPDIR}/usr/lib/udev/rules.d/
-rmdir ${BUILD_APPDIR}/usr/lib/udev/
+mv ${target}/${LIB}/udev/rules.d/69-${APP}.rules ${BUILD_APPDIR}/
+rmdir ${target}/${LIB}/udev/rules.d/
+rmdir ${target}/${LIB}/udev/
 mkdir -p ${BUILD_APPDIR}/${SITE_PACKAGES_PATH}/scc/
 cp "/usr/include/linux/input-event-codes.h" ${BUILD_APPDIR}/${SITE_PACKAGES_PATH}/scc/
 
 # Move & patch desktop file
-mv ${BUILD_APPDIR}/usr/share/applications/${APP}.desktop ${BUILD_APPDIR}/
+mv ${target}/share/applications/${APP}.desktop ${BUILD_APPDIR}/
 sed -i "s/Icon=.*/Icon=${APP}/g" ${BUILD_APPDIR}/${APP}.desktop
 sed -i "s/Exec=.*/Exec=.\/usr\/bin\/scc gui/g" ${BUILD_APPDIR}/${APP}.desktop
 
 # Convert icon
-convert -background none ${BUILD_APPDIR}/usr/share/pixmaps/${APP}.svg ${BUILD_APPDIR}/${APP}.png
+convert -background none ${target}/share/pixmaps/${APP}.svg ${BUILD_APPDIR}/${APP}.png
 
 # Copy appdata.xml
-mkdir -p ${BUILD_APPDIR}/usr/share/metainfo/
-cp scripts/${APP}.appdata.xml ${BUILD_APPDIR}/usr/share/metainfo/${APP}.appdata.xml
+mkdir -p ${target}/share/metainfo/
+cp scripts/${APP}.appdata.xml ${target}/share/metainfo/${APP}.appdata.xml
 
 # Make symlinks
 for lib in libcemuhook libhiddrv libremotepad libsc_by_bt libuinput posix1e; do
@@ -60,7 +60,4 @@ for lib in libcemuhook libhiddrv libremotepad libsc_by_bt libuinput posix1e; do
 done
 
 # Copy AppRun script
-sed -e "s:/usr/lib/python3.10/site-packages:${SITE_PACKAGES_PATH}:g" \
-    -e "s:/usr/lib64/python3.10/site-packages:${SITE_PACKAGES64_PATH}:g" \
-    scripts/appimage-AppRun.sh >"${BUILD_APPDIR}/entrypoint"
-chmod +x ${BUILD_APPDIR}/entrypoint
+cp -a scripts/appimage-AppRun.sh "${BUILD_APPDIR}/entrypoint"
