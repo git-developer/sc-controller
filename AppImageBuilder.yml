@@ -71,12 +71,12 @@ AppDir:
       # ani bmp gif icns ico jasper jpeg qtif tga tiff
       - usr/lib/cmake
 
-#  runtime:
+  runtime:
 #    path_mappings:
 #      - ...
-#    env:
-#      PYTHONPATH: '${APPDIR}/usr/lib/python3/dist-packages:${APPDIR}/usr/lib/python3.10/site-packages:$PYTHONPATH'
-#      GI_TYPELIB_PATH: '${APPDIR}/usr/lib/x86_64-linux-gnu/girepository-1.0'
+    env:
+      PYTHONPATH: '${APPDIR}/usr/lib/python3/dist-packages:${PYTHONPATH}'
+      GI_TYPELIB_PATH: '${APPDIR}/usr/lib/x86_64-linux-gnu/girepository-1.0'
 #      APPDIR_LIBRARY_PATH: '${APPDIR}/usr/lib/x86_64-linux-gnu:${APPDIR}/lib/x86_64-linux-gnu:${APPDIR}/usr/lib:${APPDIR}/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders'
 
 AppImage:
