@@ -39,6 +39,7 @@ AppDir:
       - gir1.2-rsvg-2.0
       - libc-bin
       - libbluetooth3
+      - librsvg2-common
       - python3-gi-cairo
       - python3-evdev
       - python3-pylibacl
@@ -53,12 +54,10 @@ AppDir:
       - 'libmount*'
       - 'libncurses*'
       - 'libreadline*'
-      - 'librsvg*'
       - 'libssl*'
       - 'libstdc*'
       - 'libtirpc*'
       - 'readline*'
-      - '*brotli*'
       - '*crypt*'
       - '*krb*'
       - '*sqlite*'
@@ -72,7 +71,7 @@ AppDir:
       - usr/share/thumbnailers
       - usr/share/icu
       - usr/lib/*/glib-2.0
-      - usr/lib/*/gdk-pixbuf-2.0/*/loaders/libpixbufloader-*.so
+      - usr/lib/*/gdk-pixbuf-2.0/*/loaders/libpixbufloader-[!s]*.so
       # not existing: jasper jpeg
       # maybe required: xpm pnm xbm 
 
