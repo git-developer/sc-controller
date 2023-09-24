@@ -18,6 +18,7 @@ AppDir:
     exec_args: entrypoint $@
 
   after_runtime: |
+    mkdir -p "${TARGET_APPDIR}/opt/scripts" && cp -a scripts/gcc-dummy "${TARGET_APPDIR}/opt/scripts/gcc"
     cat - >>"${TARGET_APPDIR}/org.ryochan7.sc-controller.desktop" <<EOF
     Comment=Edits controller mappings
     Comment[ru]=Настройка контроллера
@@ -39,6 +40,7 @@ AppDir:
       - sourceline: deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ "{{APPIMAGE_APT_DISTRO}}"-security main universe
     include:
       - bash
+      - binutils
       - gir1.2-rsvg-2.0
       - libbluetooth3
       - python3-gi-cairo
@@ -46,9 +48,9 @@ AppDir:
       - python3-pylibacl
       - python3-vdf
     exclude:
-      - libc6
       - 'gcc*'
       - 'libblkid*'
+      - 'libc6*'
       - 'libdb*'
       - 'libgcc*'
       - 'libicu*'
@@ -56,7 +58,6 @@ AppDir:
       - 'libncurses*'
       - 'libreadline*'
       - 'librsvg*'
-      - 'libselinux*'
       - 'libssl*'
       - 'libstdc*'
       - 'libtinfo*'
@@ -79,7 +80,6 @@ AppDir:
       - usr/lib/*/gdk-pixbuf-2.0/*/loaders/libpixbufloader-*.so
       # not existing: jasper jpeg
       # maybe required: xpm pnm xbm 
-#      - usr/lib/cmake
 
   runtime:
 #    path_mappings:
