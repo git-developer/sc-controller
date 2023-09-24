@@ -39,10 +39,6 @@ else
 	shift
 fi
 
-if ! command -v gcc >/dev/null; then
-  export PATH="${PATH}:${APPDIR}/opt/scripts"
-fi
-
 # Start
 export GDK_PIXBUF_MODULE_FILE=${APPDIR}/../$$-gdk-pixbuf-loaders.cache
 gdk-pixbuf-query-loaders >"$GDK_PIXBUF_MODULE_FILE"
