@@ -3,7 +3,8 @@ version: 1
 script:
 - |
   mv "{{APPIMAGE_SOURCE}}" "${TARGET_APPDIR}"
-  # Manual installation is required until fix of https://github.com/AppImageCrafters/build-appimage/issues/5
+  # Manual installation of squashfs-tools is required
+  # until https://github.com/AppImageCrafters/build-appimage/issues/5 is fixed
   if ! command -v mksquashfs >/dev/null; then
     apt-get update && apt-get install -y --no-install-recommends squashfs-tools
   fi
@@ -15,13 +16,28 @@ AppDir:
     version: "{{APPIMAGE_VERSION}}"
     icon: sc-controller
     exec: bin/bash
-    exec_args: entrypoint $@
+    exec_args: '${APPDIR}/usr/bin/appimage-AppRun.sh ${@}'
 
-  after_runtime: |
-    source="${TARGET_APPDIR}/usr/share/applications/sc-controller.desktop"
-    target="${TARGET_APPDIR}/org.ryochan7.sc-controller.desktop"
-    sed -i -E '/^(Comment|Categories)=.*$/d' "${target}"
-    grep -v -P '^(\[Desktop Entry\])|(Name|Exec|Type|Icon)=.*$' "${source}" >>"${target}"
+  after_bundle: |
+    # Add missing commands that are used in shebangs of bundled files
+    [ -e "${TARGET_APPDIR}/bin/sh" ] || ln -sfr "${TARGET_APPDIR}/bin/bash" "${TARGET_APPDIR}/bin/sh"
+    [ -e "${TARGET_APPDIR}/bin/dash" ] || ln -sfr "${TARGET_APPDIR}/bin/bash" "${TARGET_APPDIR}/bin/dash"
+    if [ ! -e "${TARGET_APPDIR}/usr/local/bin/python" ]; then
+      mkdir -p "${TARGET_APPDIR}/usr/local/bin"
+      ln -sfr "${TARGET_APPDIR}/usr/bin/python3" "${TARGET_APPDIR}/usr/local/bin/python"
+    fi
+
+    # appimage-builder expects utf-8 when patching shebangs
+    file="${TARGET_APPDIR}/usr/bin/pygettext3.10"
+    encoding="ISO-8859-1"
+    if file -bi "${file}" | grep -iq "${encoding}"; then
+      <"${file}" iconv -f "${encoding}" -t utf-8 -o "${file}"
+    fi
+
+  before_runtime: |
+    # Name of .desktop file is expected to start with appinfo id
+    path="${TARGET_APPDIR}/usr/share/applications"
+    ln -sr "${path}/sc-controller.desktop" "${path}/org.ryochan7.sc-controller.desktop"
 
   apt:
     arch:
@@ -36,18 +52,18 @@ AppDir:
       - sourceline: deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ "{{APPIMAGE_APT_DISTRO}}"-security main universe
     include:
       - bash
+      - binutils         # required for detection of bluetooth library
+      - coreutils        # provides /usr/bin/env
       - gir1.2-rsvg-2.0
-      - binutils
       - libbluetooth3
       - librsvg2-common
-      - python3-gi-cairo
       - python3-evdev
+      - python3-gi-cairo
       - python3-pylibacl
       - python3-vdf
     exclude:
       - 'gcc*'
       - 'libblkid*'
-      - 'libc6*'
       - 'libdb*'
       - 'libgcc*'
       - 'libicu*'
@@ -71,7 +87,7 @@ AppDir:
       - usr/share/thumbnailers
       - usr/share/icu
       - usr/lib/*/glib-2.0
-      - usr/lib/*/gdk-pixbuf-2.0/*/loaders/libpixbufloader-[!s]*.so
+      - usr/lib/*/gdk-pixbuf-2.0/*/loaders/libpixbufloader-[!s]*.so # only svg is required
 
   runtime:
     env:
