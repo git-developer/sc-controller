@@ -41,14 +41,16 @@ jobs:
           build-args: |
             UBUNTU_RELEASE
 
-      - name: Prepare environment for building AppImage
+      - name: Prepare environment to build AppImage
         env:
           TARGET_PLATFORM: ${{ matrix.platform }}
         shell: bash
         run: |
           set -eua
-          . build/.build-metadata.env
-          rm build/.build-metadata.env
+          if [ -r build/.build-metadata.env ]; then
+            . build/.build-metadata.env
+            rm build/.build-metadata.env
+          fi
           APPIMAGE_SOURCE=build
           APPIMAGE_VERSION="${GITHUB_REF_SLUG}"
           APPIMAGE_APT_ARCH="${TARGETARCH}"
