@@ -97,6 +97,7 @@ AppDir:
       # It must precede an existing $PYTHONPATH to work.
       PYTHONPATH: "${APPDIR}/usr/lib/python3/dist-packages:${PATH}:${PYTHONPATH}"
       GI_TYPELIB_PATH: "${APPDIR}/usr/lib/girepository-1.0:${APPDIR}/usr/lib/{{APPIMAGE_ARCH}}-linux-gnu/girepository-1.0"
+      XDG_DATA_DIRS: "${XDG_DATA_DIRS}:/usr/share"
 
 AppImage:
   arch: "{{APPIMAGE_ARCH}}"
