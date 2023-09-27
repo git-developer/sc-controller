@@ -5,7 +5,7 @@ FROM ubuntu:$UBUNTU_RELEASE AS build-stage
 RUN apt-get update && apt-get install -y --no-install-recommends \
       gcc librsvg2-bin linux-headers-generic python3-dev python3-setuptools
 
-# Prepare working directory
+# Prepare working directory and target
 COPY . /work
 WORKDIR /work
 ARG TARGET=/build/usr

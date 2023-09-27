@@ -2,7 +2,9 @@ version: 1
 
 script:
 - |
-  mv "{{APPIMAGE_SOURCE}}" "${TARGET_APPDIR}"
+  if [ "{{APPIMAGE_SOURCE}}" != "${TARGET_APPDIR}" ]; then
+    mv "{{APPIMAGE_SOURCE}}" "${TARGET_APPDIR}"
+  fi
   # Manual installation of squashfs-tools is required
   # until https://github.com/AppImageCrafters/build-appimage/issues/5 is fixed
   if ! command -v mksquashfs >/dev/null; then
@@ -25,11 +27,13 @@ AppDir:
     path="${TARGET_APPDIR}/usr/share/applications"
     ln -sr "${path}/sc-controller.desktop" "${path}/org.ryochan7.sc-controller.desktop"
 
-    # appimage-builder expects utf-8 encoding when patching shebangs
+    # appimage-builder expects utf-8 encoding when patching shebangs,
+    # but pygettext3 has iso-8859-1 encoding
     find "${TARGET_APPDIR}/usr/bin" -name 'pygettext*' | while read -r file; do
       encoding="ISO-8859-1"
       if file -bi "${file}" | grep -iq "${encoding}"; then
         <"${file}" iconv -f "${encoding}" -t utf-8 -o "${file}"
+        sed -i -E '1,2 s|^(\s*#.*coding[=:]\s*)([[:alnum:].-]+)|\1utf-8|g' "${file}"
       fi
     done
 
@@ -37,13 +41,13 @@ AppDir:
     arch:
       - "{{APPIMAGE_APT_ARCH}}"
     sources:
-      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ "{{APPIMAGE_APT_DISTRO}}" main universe
-        key_url: "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x{{APPIMAGE_APT_PUBKEY}}"
-      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ "{{APPIMAGE_APT_DISTRO}}"-updates main universe
-      - sourceline: deb [arch=amd64] http://security.ubuntu.com/ubuntu/ "{{APPIMAGE_APT_DISTRO}}"-security main universe
-      - sourceline: deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ "{{APPIMAGE_APT_DISTRO}}" main universe
-      - sourceline: deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ "{{APPIMAGE_APT_DISTRO}}"-updates main universe
-      - sourceline: deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ "{{APPIMAGE_APT_DISTRO}}"-security main universe
+      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ {{APPIMAGE_APT_DISTRO}} main universe
+        key_url: http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x{{APPIMAGE_APT_PUBKEY}}
+      - sourceline: deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ {{APPIMAGE_APT_DISTRO}}-updates main universe
+      - sourceline: deb [arch=amd64] http://security.ubuntu.com/ubuntu/ {{APPIMAGE_APT_DISTRO}}-security main universe
+      - sourceline: deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ {{APPIMAGE_APT_DISTRO}} main universe
+      - sourceline: deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ {{APPIMAGE_APT_DISTRO}}-updates main universe
+      - sourceline: deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ {{APPIMAGE_APT_DISTRO}}-security main universe
     include:
       - binutils         # required for detection of bluetooth library
       - coreutils        # provides /usr/bin/env
@@ -55,21 +59,21 @@ AppDir:
       - python3-pylibacl
       - python3-vdf
     exclude:
-      - 'gcc*'
-      - 'libblkid*'
-      - 'libdb*'
-      - 'libgcc*'
-      - 'libicu*'
-      - 'libmount*'
-      - 'libncurses*'
-      - 'libreadline*'
-      - 'libssl*'
-      - 'libstdc*'
-      - 'libtirpc*'
-      - 'readline*'
-      - '*crypt*'
-      - '*krb*'
-      - '*sqlite*'
+      - gcc*
+      - libblkid*
+      - libdb*
+      - libgcc*
+      - libicu*
+      - libmount*
+      - libncurses*
+      - libreadline*
+      - libssl*
+      - libstdc*
+      - libtirpc*
+      - readline*
+      - "*crypt*"
+      - "*krb*"
+      - "*sqlite*"
 
   files:
     exclude:
@@ -87,9 +91,12 @@ AppDir:
 
   runtime:
     env:
-      # ${PATH} is required before ${PYTHONPATH}
+      # `usr/lib/python3.*/site-packages` is required in $PYTHONPATH,
+      # but the python version and hence the actual location is unknown here.
+      # Fortunately the site-packages directory is on the $PATH, so we add $PATH instead.
+      # It must precede an existing $PYTHONPATH to work.
       PYTHONPATH: "${APPDIR}/usr/lib/python3/dist-packages:${PATH}:${PYTHONPATH}"
-      GI_TYPELIB_PATH: '${APPDIR}/usr/lib/girepository-1.0:${APPDIR}/usr/lib/{{APPIMAGE_ARCH}}-linux-gnu/girepository-1.0'
+      GI_TYPELIB_PATH: "${APPDIR}/usr/lib/girepository-1.0:${APPDIR}/usr/lib/{{APPIMAGE_ARCH}}-linux-gnu/girepository-1.0"
 
 AppImage:
   arch: "{{APPIMAGE_ARCH}}"
