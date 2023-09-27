@@ -15,29 +15,23 @@ AppDir:
     name: sc-controller
     version: "{{APPIMAGE_VERSION}}"
     icon: sc-controller
-    exec: bin/bash
-    exec_args: '${APPDIR}/usr/bin/appimage-AppRun.sh ${@}'
+    exec: usr/bin/python3
+    exec_args: "${APPDIR}/usr/bin/scc ${@}"
 
   after_bundle: |
-    # Add missing commands that are used in shebangs of bundled files
-    [ -e "${TARGET_APPDIR}/bin/sh" ] || ln -sfr "${TARGET_APPDIR}/bin/bash" "${TARGET_APPDIR}/bin/sh"
-    [ -e "${TARGET_APPDIR}/bin/dash" ] || ln -sfr "${TARGET_APPDIR}/bin/bash" "${TARGET_APPDIR}/bin/dash"
-    if [ ! -e "${TARGET_APPDIR}/usr/local/bin/python" ]; then
-      mkdir -p "${TARGET_APPDIR}/usr/local/bin"
-      ln -sfr "${TARGET_APPDIR}/usr/bin/python3" "${TARGET_APPDIR}/usr/local/bin/python"
-    fi
+    set -eu
 
-    # appimage-builder expects utf-8 when patching shebangs
-    file="${TARGET_APPDIR}/usr/bin/pygettext3.10"
-    encoding="ISO-8859-1"
-    if file -bi "${file}" | grep -iq "${encoding}"; then
-      <"${file}" iconv -f "${encoding}" -t utf-8 -o "${file}"
-    fi
-
-  before_runtime: |
-    # Name of .desktop file is expected to start with appinfo id
+    # appimage-builder expects .desktop file to start with appinfo-id
     path="${TARGET_APPDIR}/usr/share/applications"
     ln -sr "${path}/sc-controller.desktop" "${path}/org.ryochan7.sc-controller.desktop"
+
+    # appimage-builder expects utf-8 encoding when patching shebangs
+    find "${TARGET_APPDIR}/usr/bin" -name 'pygettext*' | while read -r file; do
+      encoding="ISO-8859-1"
+      if file -bi "${file}" | grep -iq "${encoding}"; then
+        <"${file}" iconv -f "${encoding}" -t utf-8 -o "${file}"
+      fi
+    done
 
   apt:
     arch:
@@ -51,7 +45,6 @@ AppDir:
       - sourceline: deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ "{{APPIMAGE_APT_DISTRO}}"-updates main universe
       - sourceline: deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ "{{APPIMAGE_APT_DISTRO}}"-security main universe
     include:
-      - bash
       - binutils         # required for detection of bluetooth library
       - coreutils        # provides /usr/bin/env
       - gir1.2-rsvg-2.0
@@ -80,20 +73,24 @@ AppDir:
 
   files:
     exclude:
-      - usr/share/man
+      - usr/lib/*/gdk-pixbuf-2.0/*/loaders/libpixbufloader-[!s]*.so # only svg is required
+      - usr/lib/*/glib-2.0
+      - usr/lib/python*/cgi.py
       - usr/share/doc
       - usr/share/gtk-doc
-      - usr/share/local
-      - usr/share/thumbnailers
       - usr/share/icu
-      - usr/lib/*/glib-2.0
-      - usr/lib/*/gdk-pixbuf-2.0/*/loaders/libpixbufloader-[!s]*.so # only svg is required
+      - usr/share/local
+      - usr/share/man
+      - usr/share/python3/runtime.d
+      - usr/share/thumbnailers
+      - usr/share/glib-2.0
 
   runtime:
     env:
-      PYTHONPATH: '${APPDIR}/usr/lib/python3/dist-packages:${PYTHONPATH}'
-      GI_TYPELIB_PATH: '${APPDIR}/usr/lib/{{APPIMAGE_ARCH}}-linux-gnu/girepository-1.0'
+      # ${PATH} is required before ${PYTHONPATH}
+      PYTHONPATH: "${APPDIR}/usr/lib/python3/dist-packages:${PATH}:${PYTHONPATH}"
+      GI_TYPELIB_PATH: '${APPDIR}/usr/lib/girepository-1.0:${APPDIR}/usr/lib/{{APPIMAGE_ARCH}}-linux-gnu/girepository-1.0'
 
 AppImage:
   arch: "{{APPIMAGE_ARCH}}"
-  update-information: "gh-releases-zsync|Ryochan7|sc-controller|latest|sc-controller-*.glibc-{{APPIMAGE_ARCH}}.AppImage.zsync"
+  update-information: "gh-releases-zsync|Ryochan7|sc-controller|latest|sc-controller-*-{{APPIMAGE_ARCH}}.AppImage.zsync"

@@ -33,9 +33,6 @@ RUN iconpath="${TARGET}/share/icons/hicolor/512x512/apps" && \
     mkdir -p "${iconpath}" && \
     rsvg-convert --background-color none -o "${iconpath}/sc-controller.png" "${TARGET}/share/pixmaps/sc-controller.svg"
 
-# Copy start script
-RUN cp -a scripts/appimage-AppRun.sh "${TARGET}/bin/"
-
 # Store build metadata
 ARG TARGETOS TARGETARCH TARGETVARIANT
 RUN export "TARGETMACHINE=$(uname -m)" && printenv | grep ^TARGET >>/build/.build-metadata.env
