@@ -58,6 +58,7 @@ AppDir:
       - python3-gi-cairo
       - python3-pylibacl
       - python3-vdf
+      - shared-mime-info # required for gui
     exclude:
       - gcc*
       - libblkid*
