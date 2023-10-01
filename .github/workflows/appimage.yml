@@ -3,7 +3,7 @@ name: Build and publish AppImages
 env:
   BASE_OS: debian
   BASE_CODENAME: stable
-  APT_PUBKEY: 871920D1991BC93C
+  APT_PUBKEY: 0E98404D386FA1D9
 
 on:
   pull_request:
