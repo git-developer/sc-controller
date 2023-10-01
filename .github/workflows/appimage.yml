@@ -1,8 +1,8 @@
 name: Build and publish AppImages
 
 env:
-  BASE_OS: ubuntu
-  BASE_CODENAME: jammy
+  BASE_OS: debian
+  BASE_CODENAME: stable-slim
   APT_PUBKEY: 871920D1991BC93C
 
 on:
