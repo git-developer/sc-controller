@@ -42,6 +42,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           outputs: build
           build-args: |
+            BASE_OS
             BASE_CODENAME
 
       - name: Prepare environment to build AppImage
