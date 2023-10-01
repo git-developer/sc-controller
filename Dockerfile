@@ -1,5 +1,6 @@
-ARG UBUNTU_RELEASE=latest
-FROM ubuntu:$UBUNTU_RELEASE AS build-stage
+ARG BASE_OS=ubuntu
+ARG BASE_CODENAME=jammy
+FROM $BASE_OS:$BASE_CODENAME AS build-stage
 
 # Download build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
