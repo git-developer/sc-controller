@@ -1,10 +1,13 @@
 name: Build and publish AppImages
 
 env:
-  BASE_OS: ubuntu
-  BASE_CODENAME: jammy
-  APT_PUBKEY: 871920D1991BC93C
-  #APT_SECURITY_PUBKEY:
+  BASE_OS: debian
+  BASE_CODENAME: stable
+  APT_PUBKEY: 0E98404D386FA1D9
+  APT_SECURITY_PUBKEY: 54404762BBB6E853
+#  BASE_OS: ubuntu
+#  BASE_CODENAME: jammy
+#  APT_PUBKEY: 871920D1991BC93C
 
 on:
   pull_request:
