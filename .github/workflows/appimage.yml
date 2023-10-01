@@ -2,7 +2,7 @@ name: Build and publish AppImages
 
 env:
   BASE_OS: debian
-  BASE_CODENAME: stable-slim
+  BASE_CODENAME: stable
   APT_PUBKEY: 871920D1991BC93C
 
 on:
