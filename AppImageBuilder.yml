@@ -24,8 +24,8 @@ AppDir:
     set -eu
 
     # appimage-builder expects .desktop file to start with appinfo-id
-    path="${TARGET_APPDIR}/usr/share/applications"
-    ln -sr "${path}/sc-controller.desktop" "${path}/org.ryochan7.sc-controller.desktop"
+    desktop="$(find "${TARGET_APPDIR}/usr" -name sc-controller.desktop)"
+    ln -sr "${desktop}" "${TARGET_APPDIR}/usr/share/applications/org.ryochan7.sc-controller.desktop"
 
     # appimage-builder expects utf-8 encoding when patching shebangs,
     # but pygettext3 has iso-8859-1 encoding
@@ -48,9 +48,8 @@ AppDir:
       - sourceline: deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ {{APPIMAGE_APT_DISTRO}} main universe
       - sourceline: deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ {{APPIMAGE_APT_DISTRO}}-updates main universe
       - sourceline: deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ {{APPIMAGE_APT_DISTRO}}-security main universe
+
     include:
-      - binutils         # required for detection of bluetooth library
-      - coreutils        # provides /usr/bin/env
       - gir1.2-rsvg-2.0
       - libbluetooth3
       - librsvg2-common
@@ -58,37 +57,65 @@ AppDir:
       - python3-gi-cairo
       - python3-pylibacl
       - python3-vdf
-      - shared-mime-info # required for gui
+      - binutils         # required for detection of bluetooth library
+      - coreutils        # provides /usr/bin/env
+      - shared-mime-info # required for gui if host provides no MIME info, e.g. when XDG_DATA_DIRS is missing
     exclude:
-      - gcc*
-      - libblkid*
-      - libdb*
-      - libgcc*
-      - libicu*
-      - libmount*
-      - libncurses*
-      - libreadline*
-      - libssl*
-      - libstdc*
-      - libtirpc*
-      - readline*
-      - "*crypt*"
-      - "*krb*"
-      - "*sqlite*"
+      - gcc*            # development
+      - libgcc*         # development
+      - libpcre*        # development
+      - libstdc*        # development
+      - libtirpc*       # development
+      - libuuid*        # development
+      - libattr*        # filesystem
+      - libblkid*       # filesystem
+      - libmount*       # filesystem
+      - libbz*          # codec
+      - libjpeg*        # codec
+      - liblzma*        # codec
+      - libtiff*        # codec
+      - libxml*         # codec
+      - libwebp*        # codec
+      - media-types     # codec
+      - libpixman*      # X
+      - libxext*        # X
+      - libxrender*     # X
+      - libfontconfig*  # fonts
+      - libfreetype*    # fonts
+      - libfribidi*     # i18n
+      - libicu*         # i18n
+      - libgmp*         # arithmetics
+      - libmpdec*       # arithmetics
+      - libncurses*     # terminal
+      - libreadline*    # terminal
+      - readline*       # terminal
+      - libssl*         # security
+      - "*crypt*"       # security
+      - "*krb*"         # security
+      - libdb*          # database
+      - "*sqlite*"      # database
+      - libnsl*         # network
+
 
   files:
     exclude:
+      - usr/bin/*gold*              # alternative for ld
+      - usr/bin/*gp-display-html*   # since Ubuntu Lunatic, requires perl
+      - usr/lib/*/gconv             # unicode
       - usr/lib/*/gdk-pixbuf-2.0/*/loaders/libpixbufloader-[!s]*.so # only svg is required
       - usr/lib/*/glib-2.0
       - usr/lib/python*/cgi.py
+      - usr/lib/python*/email
+      - usr/lib/python*/test
+      - usr/lib/python*/unittest
       - usr/share/doc
+      - usr/share/glib-2.0
       - usr/share/gtk-doc
       - usr/share/icu
-      - usr/share/local
+      - usr/share/locale
       - usr/share/man
       - usr/share/python3/runtime.d
       - usr/share/thumbnailers
-      - usr/share/glib-2.0
 
   runtime:
     env:
@@ -97,7 +124,7 @@ AppDir:
       # Fortunately the site-packages directory is on the $PATH, so we add $PATH instead.
       # It must precede an existing $PYTHONPATH to work.
       PYTHONPATH: "${APPDIR}/usr/lib/python3/dist-packages:${PATH}:${PYTHONPATH}"
-      GI_TYPELIB_PATH: "${APPDIR}/usr/lib/girepository-1.0:${APPDIR}/usr/lib/{{APPIMAGE_ARCH}}-linux-gnu/girepository-1.0"
+      SCC_SHARED: "${APPDIR}/usr/share/scc"
 
 AppImage:
   arch: "{{APPIMAGE_ARCH}}"
