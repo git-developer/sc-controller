@@ -18,7 +18,7 @@ AppDir:
     version: "{{APPIMAGE_VERSION}}"
     icon: sc-controller
     exec: usr/bin/python3
-    exec_args: "${APPDIR}/usr/bin/scc ${@}"
+    exec_args: -c "import os, sys; os.execvp('$APPDIR/usr/bin/scc', ['$APPDIR/usr/bin/scc'] + (sys.argv[1:] if len(sys.argv) > 1 else ['gui']))" $@
 
   after_bundle: |
     set -eu
