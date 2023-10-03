@@ -64,7 +64,6 @@ AppDir:
     exclude:
       - gcc*            # development
       - libgcc*         # development
-      - libpcre*        # development
       - libstdc*        # development
       - libtirpc*       # development
       - libuuid*        # development
