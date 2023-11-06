@@ -440,7 +440,10 @@ class Mapper(object):
 			
 			# Check pads
 			# RPAD
-			if controller.flags & ControllerFlags.HAS_RSTICK:
+			if controller.flags & ControllerFlags.IS_DECK:
+				if FE_PAD in fe or self.old_state.rpad_x != state.rpad_x or self.old_state.rpad_y != state.rpad_y:
+					self.profile.pads[RIGHT].whole(self, state.rpad_x, state.rpad_y, RIGHT)
+			elif controller.flags & ControllerFlags.HAS_RSTICK:
 				if FE_PAD in fe or self.old_state.rpad_x != state.rpad_x or self.old_state.rpad_y != state.rpad_y:
 					self.profile.pads[RIGHT].whole(self, state.rpad_x, state.rpad_y, RIGHT)
 			elif FE_PAD in fe or self.buttons & SCButtons.RPADTOUCH or SCButtons.RPADTOUCH & btn_rem:
