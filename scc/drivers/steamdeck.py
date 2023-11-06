@@ -133,6 +133,7 @@ class Deck(USBDevice, SCController):
 		| ControllerFlags.SEPARATE_STICK
 		| ControllerFlags.HAS_DPAD
 		| ControllerFlags.IS_DECK
+		| ControllerFlags.HAS_RSTICK
 	)
 	
 	def __init__(self, device, handle, daemon):
