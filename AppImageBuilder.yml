@@ -128,4 +128,4 @@ AppDir:
 
 AppImage:
   arch: "{{APPIMAGE_ARCH}}"
-  update-information: "gh-releases-zsync|Ryochan7|sc-controller|latest|sc-controller-*-{{APPIMAGE_ARCH}}.AppImage.zsync"
+  update-information: "gh-releases-zsync|Ryochan7|sc-controller|latest|sc-controller-*-{{APPIMAGE_APT_DISTRO}}-{{APPIMAGE_ARCH}}.AppImage.zsync"
