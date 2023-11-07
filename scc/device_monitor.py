@@ -128,8 +128,13 @@ class DeviceMonitor(Monitor):
 					node_addr = str.upper(node_addr)
 			except IOError:
 				continue
-			if node_addr == addr:
-				return node
+			try:
+				# SteamOS 3 "Holo" return caps
+				if node_addr.lower() == addr.lower():
+					return node
+			# None
+			except AttributeError:
+				pass
 		return None
 	
 	
