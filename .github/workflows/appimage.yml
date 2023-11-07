@@ -2,7 +2,6 @@ name: Build and publish AppImages
 
 env:
   BASE_OS: ubuntu
-  BASE_CODENAME: jammy
   APT_PUBKEY: 871920D1991BC93C
 
 on:
@@ -22,6 +21,10 @@ jobs:
         platform:
           - linux/amd64
           - linux/arm64
+        codename:
+          - jammy
+          - lunar
+          - mantic
 
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +44,7 @@ jobs:
           outputs: build
           build-args: |
             BASE_OS
-            BASE_CODENAME
+            BASE_CODENAME=${{ matrix.codename }}
 
       - name: Prepare environment to build AppImage
         env:
@@ -54,9 +57,9 @@ jobs:
             rm build/.build-metadata.env
           fi
           APPIMAGE_SOURCE=build
-          APPIMAGE_VERSION="${GITHUB_REF_SLUG}"
+          APPIMAGE_VERSION="${GITHUB_REF_SLUG}-${{ matrix.codename }}"
           APPIMAGE_APT_ARCH="${TARGETARCH}"
-          APPIMAGE_APT_DISTRO="${BASE_CODENAME}"
+          APPIMAGE_APT_DISTRO="${{ matrix.codename }}"
           APPIMAGE_APT_PUBKEY="${APT_PUBKEY}"
           APPIMAGE_ARCH="${TARGETMACHINE}"
           printenv | grep ^APPIMAGE_ >>"${GITHUB_ENV}"
