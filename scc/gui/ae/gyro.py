@@ -169,14 +169,15 @@ class GyroComponent(AEComponent):
 		absolute, a_set  = [ None, None, None ], False
 		
 		for i in range(0, 3):
-			if self.axes[i]:
+			# Fix case when axis id is zero (ABS_X)
+			if self.axes[i] != None:
 				if self.cbs[i].get_active():
 					absolute[i] = self.axes[i]
 					a_set = True
 				else:
 					normal[i] = self.axes[i]
 					n_set = True
-		
+
 		if n_set and a_set:
 			action = MultiAction(GyroAction(*normal), GyroAbsAction(*absolute))
 		elif n_set:
