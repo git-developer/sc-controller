@@ -1,7 +1,9 @@
 name: Build and publish AppImages
 
 on:
-  workflow_dispatch
+  push:
+    tags:
+      - "v*"
 
 env:
   BASE_OS: ubuntu
