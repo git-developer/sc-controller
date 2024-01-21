@@ -1,15 +1,11 @@
 name: Build and publish AppImages
 
+on:
+  workflow_dispatch
+
 env:
   BASE_OS: ubuntu
   APT_PUBKEY: 871920D1991BC93C
-
-on:
-  pull_request:
-  push:
-    branches: [ 'main' ]
-  release:
-    types: published
 
 jobs:
   build:
