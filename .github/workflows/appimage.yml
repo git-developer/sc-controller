@@ -1,9 +1,9 @@
 name: Build and publish AppImages
 
 on:
-  push:
-    tags:
-      - "v*"
+  release:
+    types: [published]
+  workflow_dispatch:
 
 env:
   BASE_OS: ubuntu
@@ -23,6 +23,7 @@ jobs:
           - jammy
           - lunar
           - mantic
+          - noble
 
     steps:
       - uses: actions/checkout@v4
