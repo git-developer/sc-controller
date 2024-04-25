@@ -91,7 +91,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: appimage-*
+          pattern: appimage-*
           path: assets
           merge-multiple: true
       - name: Create checksum for release assets
