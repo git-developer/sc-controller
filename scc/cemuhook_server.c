@@ -302,10 +302,10 @@ const int cemuhook_module_version(void) {
 	return CEMUHOOK_MODULE_VERSION;
 }
 
-void cemuhook_data_recieved(int fd, int port, const char* buffer, size_t size) {
+void cemuhook_data_received(int fd, const char* ip, int port, const char* buffer, size_t size) {
 	struct sockaddr_in source;
 	source.sin_family = AF_INET;
-	source.sin_addr.s_addr = inet_addr("127.0.0.1");
+	source.sin_addr.s_addr = inet_addr(ip);
 	source.sin_port = htons(port);
 	
 	parse_message(fd, buffer, size, &source);
@@ -321,7 +321,7 @@ bool cemuhook_socket_enable() {
 
 #else
 
-static void on_data_recieved(Daemon* d, int fd, void* userdata) {
+static void on_data_received(Daemon* d, int fd, void* userdata) {
 	char buffer[BUFFER_SIZE];
 	struct sockaddr_in source;
 	socklen_t len = sizeof(struct sockaddr_in);
@@ -345,7 +345,11 @@ bool sccd_cemuhook_socket_enable() {
 	struct sockaddr_in server_addr;
 	memset(&server_addr, 0, sizeof(struct sockaddr_in));
 	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	if (const char* custom_ip = getenv("SCC_SERVER_IP")) {
+		server_addr.sin_addr.s_addr = inet_addr(custom_ip);
+	} else {
+		server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	}
 	if (const char* custom_port = getenv("SCC_SERVER_PORT")) {
 		server_addr.sin_port = atoi(custom_port);
 	} else {
@@ -381,7 +385,7 @@ bool sccd_cemuhook_socket_enable() {
 		return false;
 	}
 	
-	if (!sccd_poller_add(sock, &on_data_recieved, NULL)) {
+	if (!sccd_poller_add(sock, &on_data_received, NULL)) {
 		LERROR("sccd_poller_add failed to add listening socket");
 		return false;
 	}
