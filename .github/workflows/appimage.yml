@@ -32,7 +32,7 @@ jobs:
       - uses: rlespinasse/github-slug-action@v4
 
       - name: Setup qemu for docker
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         if: matrix.target.platform != 'linux/amd64'
 
       - name: Setup buildx for docker
