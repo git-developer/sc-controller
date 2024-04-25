@@ -16,9 +16,11 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        architecture:
-          - amd64
-          - arm64
+        target:
+          - platform: linux/amd64
+            arch: amd64
+          - platform: linux/arm64
+            arch: arm64
         codename:
           - jammy
           - lunar
@@ -31,7 +33,7 @@ jobs:
 
       - name: Setup qemu for docker
         uses: docker/setup-qemu-action@v2
-        if: matrix.architecture != 'amd64'
+        if: matrix.target.platform != 'linux/amd64'
 
       - name: Setup buildx for docker
         uses: docker/setup-buildx-action@v3
@@ -39,7 +41,7 @@ jobs:
       - name: Compile in docker
         uses: docker/build-push-action@v5
         with:
-          platforms: linux/${{ matrix.architecture }}
+          platforms: ${{ matrix.target.platform }}
           outputs: build
           build-args: |
             BASE_OS
@@ -47,7 +49,7 @@ jobs:
 
       - name: Prepare environment to build AppImage
         env:
-          TARGET_PLATFORM: linux/${{ matrix.architecture }}
+          TARGET_PLATFORM: ${{ matrix.target.platform }}
         shell: bash
         run: |
           set -eua
@@ -69,7 +71,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: appimage-${{ matrix.codename }}-${{ matrix.architecture }}
+          name: appimage-${{ matrix.codename }}-${{ matrix.target.arch }}
           path: |
             ./*.AppImage
             ./*.AppImage.zsync
