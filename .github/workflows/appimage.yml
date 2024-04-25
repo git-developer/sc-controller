@@ -69,7 +69,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: appimage-{{ matrix.codename }}
+          name: appimage-${{ matrix.codename }}-${{ matrix.platform }}
           path: |
             ./*.AppImage
             ./*.AppImage.zsync
