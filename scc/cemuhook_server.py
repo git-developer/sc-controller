@@ -72,7 +72,7 @@ class CemuhookServer:
 		if fd != self.socket.fileno(): return
 		message, (ip, port) = self.socket.recvfrom(BUFFER_SIZE)
 		buffer = create_string_buffer(BUFFER_SIZE)
-		self._lib.cemuhook_data_received(fd, ip, port, message, len(message), buffer)
+		self._lib.cemuhook_data_received(fd, ip.encode('utf-8'), port, message, len(message), buffer)
 	
 	
 	def feed(self, data):
