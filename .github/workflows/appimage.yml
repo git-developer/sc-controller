@@ -1,9 +1,9 @@
 name: Build and publish AppImages
 
 on:
-  push:
-    tags:
-      - "v*"
+  release:
+    types: [published]
+  workflow_dispatch:
 
 env:
   BASE_OS: ubuntu
@@ -16,29 +16,31 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        platform:
-          - linux/amd64
-          - linux/arm64
+        target:
+          - platform: linux/amd64
+            arch: amd64
+          - platform: linux/arm64
+            arch: arm64
         codename:
           - jammy
-          - lunar
           - mantic
+          - noble
 
     steps:
       - uses: actions/checkout@v4
       - uses: rlespinasse/github-slug-action@v4
 
       - name: Setup qemu for docker
-        uses: docker/setup-qemu-action@v2
-        if: matrix.platform != 'linux/amd64'
+        uses: docker/setup-qemu-action@v3
+        if: matrix.target.platform != 'linux/amd64'
 
       - name: Setup buildx for docker
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Compile in docker
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
-          platforms: ${{ matrix.platform }}
+          platforms: ${{ matrix.target.platform }}
           outputs: build
           build-args: |
             BASE_OS
@@ -46,7 +48,7 @@ jobs:
 
       - name: Prepare environment to build AppImage
         env:
-          TARGET_PLATFORM: ${{ matrix.platform }}
+          TARGET_PLATFORM: ${{ matrix.target.platform }}
         shell: bash
         run: |
           set -eua
@@ -66,9 +68,9 @@ jobs:
         uses: AppImageCrafters/build-appimage@v1.3
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: appimages
+          name: appimage-${{ matrix.codename }}-${{ matrix.target.arch }}
           path: |
             ./*.AppImage
             ./*.AppImage.zsync
@@ -86,10 +88,11 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: appimages
+          pattern: appimage-*
           path: assets
+          merge-multiple: true
       - name: Create checksum for release assets
         shell: bash
         run: |
