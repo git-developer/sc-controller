@@ -1,5 +1,4 @@
-# SC Controller [![Build Status](https://travis-ci.org/kozec/sc-controller.svg?branch=master)](https://travis-ci.org/kozec/sc-controller)
-
+# SC Controller
 
 User-mode driver, mapper and GTK3 based GUI for Steam Controller, DS4 and similar controllers.
 
@@ -22,16 +21,16 @@ Based on [Standalone Steam Controller Driver](https://github.com/ynsta/steamcont
 
 ## Like what I'm doing?
 
-[![Help me become filthy rich on Liberapay](https://img.shields.io/badge/Help%20me%20become%20filthy%20rich%20on-Liberapay-yellow.svg)](https://liberapay.com/kozec) <sup>or</sup> [![donate anything with PayPal](https://img.shields.io/badge/donate_anything_with-Paypal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=77DQD3L9K8RPU&lc=SK&item_name=kozec&item_number=scc&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted)
+You can check out the ways to donate on [my website](https://rys.rs/donate), or just go straight to my [Ko-Fi](https://ko-fi.com/martinrys).
+
+Donation links for kozec, who is the original developer, can be found on the [old upstream repository](https://github.com/kozec/sc-controller?tab=readme-ov-file#like-what-im-doing).
 
 ## Packages
 
- - **Ubuntu (deb-based distros):** Found in [openSUSE Build Service](https://software.opensuse.org/download.html?project=home%3Akozec&package=sc-controller).
- - **Fedora, SUSE (rpm-based distros):** Found in [openSUSE Build Service](https://software.opensuse.org/download.html?project=home%3Akozec&package=sc-controller).
- - **Arch, Manjaro (arch-based distros):** Found in [AUR](https://aur.archlinux.org/packages/sc-controller-git/)
- - **Solus:** Search for `sc-controller` in Software Center or run `sudo eopkg it sc-controller` from a terminal.
- - **Exherbo:** Found in [hardware](https://git.exherbo.org/summer/packages/input/sc-controller)
- - **Void Linux:** Run `xbps-install -S sc-controller` in a terminal.
+ - **Arch Linux (and derivatives):** Found in [AUR/sc-controller](https://aur.archlinux.org/packages/sc-controller/) and [AUR/sc-controller-git](https://aur.archlinux.org/packages/sc-controller-git/)
+ - **Ubuntu (and Debian and derivatives):** Packaged as AppImage in [GitHub releases](https://github.com/C0rn3j/sc-controller/releases), ***which may also run fine on other operating systems***
+ - **Gentoo:** Packaged as [game-util/sc-controller](https://packages.gentoo.org/packages/games-util/sc-controller)
+ - **Void Linux:** Packaged as [sc-controller](https://github.com/void-linux/void-packages/blob/master/srcpkgs/sc-controller/template) - Run `xbps-install -S sc-controller` in a terminal, points to archived Ryochan7's fork at the time of writing
 
 
 ## Building the package by yourself
@@ -46,11 +45,11 @@ Based on [Standalone Steam Controller Driver](https://github.com/ynsta/steamcont
   - [gtk-layer-shell](https://github.com/wmww/gtk-layer-shell) (Wayland only)
 
 ### Installing
-  - Download and extract  [latest release](https://github.com/kozec/sc-controller/releases/latest)
+  - Download and extract  [latest release](https://github.com/C0rn3j/sc-controller/releases/latest)
   - `python3 setup.py build`
   - `python3 setup.py install`
 
 
-## Running with non distro-specific package          
-  - Download and extract [latest release](https://github.com/kozec/sc-controller/releases/latest)
+## Running with non distro-specific package
+  - Download and extract [latest release](https://github.com/C0rn3j/sc-controller/releases/latest)
   - Navigate to extracted directory and execute `./run.sh`
