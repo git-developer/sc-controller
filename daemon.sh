@@ -9,7 +9,7 @@ export PATH="$SCRIPTS":"$PATH"
 export PYTHONPATH=".":"$PYTHONPATH"
 export SCC_SHARED="$(pwd)"
 
-if [ x"$1" == x"lldb" ] ; then
+if [ "$1" == "lldb" ] ; then
 	shift
 	lldb python3 -- 'scripts/scc-daemon' debug $@
 else
