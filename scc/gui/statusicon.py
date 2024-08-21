@@ -263,8 +263,15 @@ class StatusIconAppIndicator(StatusIconDBus):
 		StatusIcon.__init__(self, *args, **kwargs)
 		
 		try:
-			from gi.repository import AppIndicator3 as appindicator
-			
+			import gi
+			try:
+				gi.require_version("AyatanaAppIndicator3", "0.1")
+				from gi.repository import AyatanaAppIndicator3 as appindicator
+			except ImportError:
+				log.warning("Failed to import AyatanaAppIndicator3, trying fallback to an old implementation of AppIndicator3!")
+				gi.require_version("AppIndicator3", "0.1")
+				from gi.repository import AppIndicator3 as appindicator
+
 			self._status_active  = appindicator.IndicatorStatus.ACTIVE
 			self._status_passive = appindicator.IndicatorStatus.PASSIVE
 		except ImportError:
