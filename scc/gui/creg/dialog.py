@@ -6,7 +6,6 @@ Dialog that asks a lot of question to create configuration node in config file.
 Most "interesting" thing here may be that this works 100% independently from
 daemon.
 """
-from __future__ import unicode_literals
 from scc.tools import _
 
 from gi.repository import Gtk, GLib, GdkPixbuf

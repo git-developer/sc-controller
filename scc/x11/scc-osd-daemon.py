@@ -5,7 +5,6 @@ SC-Controller - OSD Daemon
 
 Controls stuff displayed as OSD.
 """
-from __future__ import unicode_literals
 from scc.tools import _, set_logging_level
 
 import gi
@@ -46,23 +45,23 @@ class OSDDaemon(object):
 		self._registered = False
 		self._last_profile_change = 0
 		self._recent_profiles_undo = None
-	
-	
+
+
 	def quit(self, code=-1):
 		self.exit_code = code
 		self.mainloop.quit()
-	
-	
+
+
 	def get_exit_code(self):
 		return self.exit_code
-	
-	
+
+
 	def on_daemon_reconfigured(self, *a):
 		log.debug("Reloading config...")
 		self.config.reload()
 		self._check_colorconfig_change()
-	
-	
+
+
 	def on_profile_changed(self, daemon, profile):
 		name = os.path.split(profile)[-1]
 		if name.endswith(".sccprofile") and not name.startswith("."):
@@ -72,7 +71,7 @@ class OSDDaemon(object):
 			if len(recents) and recents[0] == name:
 				# Already first in recent list
 				return
-			
+
 			if time.time() - self._last_profile_change < 2.0:
 				# Profiles are changing too fast, probably because user
 				# is using scroll wheel over profile combobox
@@ -80,7 +79,7 @@ class OSDDaemon(object):
 					recents = [] + self._recent_profiles_undo
 			self._last_profile_change = time.time()
 			self._recent_profiles_undo = [] + recents
-			
+
 			while name in recents:
 				recents.remove(name)
 			recents.insert(0, name)
@@ -90,13 +89,13 @@ class OSDDaemon(object):
 			self.config.save()
 			log.debug("Updated recent profile list")
 			self.clear_messages()
-	
-	
+
+
 	def on_daemon_died(self, *a):
 		log.error("Connection to daemon lost")
 		self.quit(2)
-	
-	
+
+
 	def on_daemon_connected(self, *a):
 		def success(*a):
 			log.info("Sucessfully registered as scc-osd-daemon")
@@ -104,11 +103,11 @@ class OSDDaemon(object):
 		def failure(why):
 			log.error("Failed to registered as scc-osd-daemon: %s", why)
 			self.quit(1)
-		
+
 		if not self._registered:
 			self.daemon.request('Register: osd', success, failure)
-	
-	
+
+
 	def on_menu_closed(self, m):
 		""" Called after OSD menu is hidden from screen """
 		self._window = None
@@ -120,19 +119,19 @@ class OSDDaemon(object):
 				#	m.get_menuid(), m.get_selected_item_id()
 				#])),
 				lambda *a : False, lambda *a : False)
-	
-	
+
+
 	def on_message_closed(self, m):
 		hsh = m.hash()
 		if hsh in self._visible_messages:
 			del self._visible_messages[hsh]
-	
-	
+
+
 	def on_keyboard_closed(self, *a):
 		""" Called after on-screen keyboard is hidden from the screen """
 		self._window = None
-	
-	
+
+
 	def on_gesture_recognized(self, gd):
 		""" Called after on-screen keyboard is hidden from the screen """
 		self._window = None
@@ -141,8 +140,8 @@ class OSDDaemon(object):
 				lambda *a : False, lambda *a : False)
 		else:
 			self.daemon.request('Gestured: x', lambda *a : False, lambda *a : False)
-	
-	
+
+
 	@staticmethod
 	def _is_menu_message(m):
 		"""
@@ -157,8 +156,8 @@ class OSDDaemon(object):
 			or m.startswith("OSD: dialog")
 			or m.startswith("OSD: hmenu")
 		)
-	
-	
+
+
 	def on_unknown_message(self, daemon, message):
 		if not message.startswith("OSD:"):
 			return
@@ -251,15 +250,15 @@ class OSDDaemon(object):
 			self.clear_windows()
 		else:
 			log.warning("Unknown command from daemon: '%s'", message)
-	
-	
+
+
 	def clear_windows(self):
 		if self._window:
 			self._window.quit()
 			self._window = None
 		self.clear_messages(only_long_lasting=False)
-	
-	
+
+
 	def clear_messages(self, only_long_lasting=True):
 		"""
 		Clears all OSD messages from screen.
@@ -270,8 +269,8 @@ class OSDDaemon(object):
 		for m in to_destroy:
 			if not only_long_lasting or m.timeout <= 0 or m.timeout > OSDAction.DEFAULT_TIMEOUT * 2:
 				m.destroy()
-	
-	
+
+
 	def _check_colorconfig_change(self):
 		"""
 		Checks if OSD color configuration is changed and re-applies CSS
@@ -287,8 +286,8 @@ class OSDDaemon(object):
 				self._window.recolor()
 				self._window.update_labels()
 				self._window.redraw_background()
-	
-	
+
+
 	def run(self):
 		self.daemon = DaemonManager()
 		self.config = Config()
@@ -306,7 +305,7 @@ if __name__ == "__main__":
 	from scc.paths import get_share_path
 	init_logging(suffix=" OSD")
 	set_logging_level('debug' in sys.argv, 'debug' in sys.argv)
-	
+
 	d = OSDDaemon()
 	d.run()
 	sys.exit(d.get_exit_code())

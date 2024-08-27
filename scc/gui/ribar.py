@@ -4,7 +4,6 @@ SC-Controller - RIBar
 
 Infobar wrapped in Revealer, looks better than sounds.
 """
-from __future__ import unicode_literals
 from gi.repository import Gtk, GLib, GObject, Pango
 import os
 
@@ -12,7 +11,7 @@ import os
 class RIBar(Gtk.Revealer):
 	"""
 	Infobar wrapped in Revealer
-	
+
 	Signals:
 		Everything from Gtk.Revealer, plus:
 		close()
@@ -24,7 +23,7 @@ class RIBar(Gtk.Revealer):
 			"response"	: (GObject.SignalFlags.RUN_FIRST, None, (int,)),
 			"close"	: (GObject.SignalFlags.RUN_FIRST, None, ()),
 		}
-	
+
 	### Initialization
 	def __init__(self, label, message_type=Gtk.MessageType.INFO,
 														infobar=None, *buttons):
@@ -75,29 +74,29 @@ class RIBar(Gtk.Revealer):
 		# Packing
 		self.add(self._infobar)
 		self.show_all()
-	
+
 	def _cb_close(self, ib):
 		self.emit("close")
-	
+
 	def _cb_response(self, ib, response_id):
 		self.emit("response", response_id)
-	
+
 	def disable_close_button(self):
 		if hasattr(self._infobar, "set_show_close_button"):
 			self._infobar.set_show_close_button(False)
-	
+
 	def add_widget(self, widget, expand=False, fill=True):
 		self._infobar.get_content_area().pack_start(widget, expand, fill, 1)
 		widget.show()
-	
+
 	def add_button(self, button, response_id):
 		self._infobar.add_action_widget(button, response_id)
 		self._infobar.show_all()
-	
+
 	def get_label(self):
 		""" Returns label widget """
 		return self._label
-	
+
 	def close_on_close(self):
 		"""
 		Setups revealer so it will be automaticaly closed, removed and
@@ -105,7 +104,7 @@ class RIBar(Gtk.Revealer):
 		"""
 		self.connect("close", self.close)
 		self.connect("response", self.close)
-	
+
 	def close(self, *a):
 		"""
 		Closes revealer (with animation), removes it from parent and
@@ -113,29 +112,29 @@ class RIBar(Gtk.Revealer):
 		"""
 		self.set_reveal_child(False)
 		GLib.timeout_add(self.get_transition_duration() + 50, self._cb_destroy)
-	
+
 	def _cb_destroy(self, *a):
 		""" Callback used by _cb_close method """
 		if not self.get_parent() is None:
 			self.get_parent().remove(self)
 		self.destroy()
-	
+
 	def set_value(self, key, value):
 		""" Stores some metadata """
 		self._values[key] = value
-	
+
 	def get_value(self, key):
 		""" Retrieves some metadata """
 		return self._values[key]
-	
+
 	def __getitem__(self, key):
 		""" Shortcut to get_value """
 		return self._values[key]
-	
+
 	def __setitem__(self, key, value):
 		""" Shortcut to set_value """
 		self.set_value(key, value)
-	
+
 	@staticmethod
 	def build_button(label, icon_name=None, icon_widget=None, use_stock=False):
 		""" Builds button situable for action area """

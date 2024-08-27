@@ -4,7 +4,6 @@ SC-Controller - Action Editor
 
 Allows to edit button or trigger action.
 """
-from __future__ import unicode_literals
 from scc.tools import _
 
 from gi.repository import Gtk, Gdk, GLib
@@ -22,18 +21,18 @@ AXIS_ACTION_CLASSES = (AxisAction, MouseAction, HatLeftAction, HatRightAction, H
 
 class Chooser(Editor):
 	IMAGES = {}
-	
+
 	ACTIVE_COLOR = "#FF00FF00"	# ARGB
 	HILIGHT_COLOR = "#FFFF0000"	# ARGB
-	
+
 	def __init__(self, app):
 		self.app = app
 		self.active_area = None		# Area that is permanently hilighted on the image
 		self.images = []
 		self.axes_allowed = True
 		self.mouse_allowed = True
-	
-	
+
+
 	def setup_image(self, grid_columns=0):
 		for id in self.IMAGES:
 			parent = self.builder.get_object(id)
@@ -50,8 +49,8 @@ class Chooser(Editor):
 					# Box
 					parent.pack_start(image, True, True, 0)
 				parent.show_all()
-	
-	
+
+
 	def set_active_area(self, a):
 		"""
 		Sets area that is permanently hilighted on image.
@@ -59,8 +58,8 @@ class Chooser(Editor):
 		self.active_area = a
 		for i in self.images:
 			i.hilight({ self.active_area : Chooser.ACTIVE_COLOR })
-	
-	
+
+
 	def on_background_area_hover(self, background, area):
 		if area in AREA_TO_ACTION:
 			if AREA_TO_ACTION[area][0] in AXIS_ACTION_CLASSES:
@@ -72,8 +71,8 @@ class Chooser(Editor):
 			self.active_area : Chooser.ACTIVE_COLOR,
 			area : Chooser.HILIGHT_COLOR
 		})
-	
-	
+
+
 	def on_background_area_click(self, trash, area):
 		"""
 		Called when user clicks on defined area on gamepad image.
@@ -87,17 +86,17 @@ class Chooser(Editor):
 			self.area_action_selected(area, cls(*params))
 		else:
 			log.warning("Click on unknown area: %s" % (area,))
-	
-	
+
+
 	def area_action_selected(self, area, action):
 		raise Exception("Override me!")
-	
-	
+
+
 	def hide_axes(self):
 		""" Prevents user from selecting axes """
 		self.axes_allowed = False
-	
-	
+
+
 	def hide_mouse(self):
 		""" Prevents user from selecting mouse-related stuff """
 		self.mouse_allowed = False

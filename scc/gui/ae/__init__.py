@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """ ae - Action Editor components """
-from __future__ import unicode_literals
 from scc.tools import _
 
 from gi.repository import Gtk, Gdk, GLib
@@ -18,36 +17,36 @@ class AEComponent(ComboSetter):
 	# Bit mask of contexes (Action.AC_BUTTON | Action.AC_TRIGGER...) that this
 	# compoment can handle.
 	CTXS = 0
-	
+
 	def __init__(self, app, editor):
 		self.app = app
 		self.editor = editor
 		self.loaded = False
-	
-	
+
+
 	def get_button_title(self):
 		raise Exception("Implement me!")
-	
-	
+
+
 	# TODO: Rename this to on_shown
 	def shown(self):
 		""" Called after user switches TO page """
 		pass
-	
-	
+
+
 	# TODO: Rename this to on_shown
 	def hidden(self):
 		""" Called after user switches AWAY from page """
 		pass
-	
-	
+
+
 	def on_ok(self, action):
 		"""
 		Called when user presses OK, after action is send to main window
 		"""
 		pass
-	
-	
+
+
 	def load(self):
 		"""
 		Performs whatever component needs to get loaded.
@@ -63,12 +62,12 @@ class AEComponent(ComboSetter):
 		self.builder.connect_signals(self)
 		self.loaded = True
 		return True
-	
-	
+
+
 	def is_loaded(self):
 		return self.loaded
-	
-	
+
+
 	def handles(self, mode, action):
 		"""
 		Returns True if component can display and edit specified action.
@@ -76,22 +75,22 @@ class AEComponent(ComboSetter):
 		higher PRIORITY is used
 		"""
 		return False
-	
-	
+
+
 	def set_action(self, mode, action):
 		"""
 		Setups component widgets to display currently set action.
 		"""
 		pass
-	
-	
+
+
 	def modifier_updated(self):
 		"""
 		Called when values of any modifier is changed.
 		"""
 		pass
-	
-	
+
+
 	def get_widget(self):
 		return self.widget
 

@@ -4,8 +4,6 @@ SC-Controller - Profile
 
 Handles mapping profile stored in json file
 """
-from __future__ import unicode_literals
-
 from scc.constants import LEFT, RIGHT, CPAD, DPAD, WHOLE, STICK, RSTICK, GYRO
 from scc.constants import SCButtons, HapticPos
 from scc.special_actions import MenuAction
@@ -22,7 +20,7 @@ log = logging.getLogger("profile")
 class Profile(object):
 	VERSION = 1.4	# Current profile version. When loading profile file
 					# with version lower than this, auto-conversion may happen
-	
+
 	LEFT  = LEFT
 	RIGHT = RIGHT
 	LPAD = SCButtons.LPAD.name
@@ -38,7 +36,7 @@ class Profile(object):
 	LPAD_AXES  = STICK_AXES
 	RPAD_AXES  = { X : "rpad_x", Y : "rpad_y" }
 	TRIGGERS   = [ LEFT, RIGHT ]
-	
+
 	def __init__(self, parser):
 		self.parser = parser
 		self.clear()
@@ -46,16 +44,16 @@ class Profile(object):
 		# UI-only values
 		self.is_template = False
 		self.description = ""
-	
-	
+
+
 	def save(self, filename):
 		""" Saves profile into file. Returns self """
 		fileobj = open(filename, "w")
 		self.save_fileobj(fileobj)
 		fileobj.close()
 		return self
-	
-	
+
+
 	def save_fileobj(self, fileobj):
 		""" Saves profile into file-like object. Returns self """
 		data = {
@@ -75,30 +73,30 @@ class Profile(object):
 			"is_template"	: self.is_template,
 			"version"		: Profile.VERSION,
 		}
-		
+
 		for i in self.buttons:
 			if self.buttons[i]:
 				data['buttons'][i.name] = self.buttons[i]
-		
+
 		# Generate & save json
 		jstr = Encoder(sort_keys=True, indent=4).encode(data)
 		fileobj.write(jstr)
 		return self
-	
-	
+
+
 	def load(self, filename):
 		""" Loads profile from file. Returns self """
 		fileobj = open(filename, "r")
 		self.load_fileobj(fileobj)
 		self.filename = filename
 		return self
-	
-	
+
+
 	def load_fileobj(self, fileobj):
 		"""
 		Loads profile from file-like object.
 		Filename attribute is not set, what may cause some trouble if used in GUI.
-		
+
 		Returns self.
 		"""
 		data = json.loads(fileobj.read())
@@ -107,7 +105,7 @@ class Profile(object):
 			version = float(data["version"])
 		except:
 			version = 0
-		
+
 		# Settings - Description
 		# (stored in key "_", so it's serialized on top of JSON file)
 		if "_" not in data:
@@ -118,7 +116,7 @@ class Profile(object):
 			self.description = data["_"]
 		# Settings - Template
 		self.is_template = bool(data["is_template"]) if "is_template" in data else False
-		
+
 		# Buttons
 		self.buttons = {}
 		for x in SCButtons:
@@ -128,18 +126,18 @@ class Profile(object):
 		if "STICK" in data["buttons"] and "STICKPRESS" not in data["buttons"]:
 			self.buttons[SCButtons.STICKPRESS] = self.parser.from_json_data(
 					data["buttons"], "STICK")
-		
+
 		# Stick & gyro
 		self.stick = self.parser.from_json_data(data, "stick")
 		self.gyro = self.parser.from_json_data(data, "gyro")
-		
+
 		if "triggers" in data:
 			# Old format
 			# Triggers
 			self.triggers = ({
 				x : self.parser.from_json_data(data["triggers"], x) for x in Profile.TRIGGERS
 			})
-			
+
 			# Pads
 			self.pads = {
 				Profile.LEFT	: self.parser.from_json_data(data, "left_pad"),
@@ -147,7 +145,7 @@ class Profile(object):
 				Profile.CPAD	: NoAction(),
 				Profile.DPAD	: NoAction(),
 			}
-			
+
 			# Rigth stick
 			self.rstick = NoAction()
 		else:
@@ -157,7 +155,7 @@ class Profile(object):
 				Profile.LEFT	: self.parser.from_json_data(data, "trigger_left"),
 				Profile.RIGHT	: self.parser.from_json_data(data, "trigger_right"),
 			}
-			
+
 			# Pads
 			self.pads = {
 				Profile.LEFT	: self.parser.from_json_data(data, "pad_left"),
@@ -165,10 +163,10 @@ class Profile(object):
 				Profile.CPAD	: self.parser.from_json_data(data, "cpad"),
 				Profile.DPAD	: self.parser.from_json_data(data, "dpad"),
 			}
-			
+
 			# Rigth stick
 			self.rstick = self.parser.from_json_data(data, "rstick")
-		
+
 		# Menus
 		self.menus = {}
 		if "menus" in data:
@@ -177,15 +175,15 @@ class Profile(object):
 					if invalid_char in id:
 						raise ValueError("Invalid character '%s' in menu id '%s'" % (invalid_char, id))
 				self.menus[id] = MenuData.from_json_data(data["menus"][id], self.parser)
-		
+
 		# Conversion
 		self.original_version = version		# TODO: This is temporary
 		if version < Profile.VERSION:
 			self._convert(version)
-		
+
 		return self
-	
-	
+
+
 	def clear(self):
 		""" Clears all actions and adds default menu action on center button """
 		self.buttons = { x : NoAction() for x in SCButtons }
@@ -205,17 +203,17 @@ class Profile(object):
 			Profile.DPAD: NoAction(),
 		}
 		self.gyro = NoAction()
-	
-	
+
+
 	def get_all_actions(self):
 		"""
 		Returns generator with every action defined in this profile,
 		including actions in menus.
 		Recursively walks into macros, dpads and everything else that can have
 		nested actions, so both parent and all child actions are yielded.
-		
+
 		May yield NoAction, but shouldn't yield None.
-		
+
 		Used for checks when profile is exported or imported.
 		"""
 		for action in self.get_actions():
@@ -224,8 +222,8 @@ class Profile(object):
 		for id in self.menus:
 			for i in self.menus[id].get_all_actions():
 				yield i
-	
-	
+
+
 	def get_actions(self):
 		"""
 		As get_all_actions, but returns only root actions, without children,
@@ -236,15 +234,15 @@ class Profile(object):
 				yield dct[k]
 		for action in (self.stick, self.rstick, self.gyro):
 			yield action
-	
-	
+
+
 	def get_filename(self):
 		"""
 		Returns filename of last loaded file or None.
 		"""
 		return self.filename
-	
-	
+
+
 	def compress(self):
 		"""
 		Calls compress on every action to throw out some redundant stuff.
@@ -258,8 +256,8 @@ class Profile(object):
 		self.gyro = self.gyro.compress()
 		for menu in self.menus.values():
 			menu.compress()
-	
-	
+
+
 	def _convert(self, from_version):
 		""" Performs conversion from older profile version """
 		if from_version < 1:
@@ -335,7 +333,7 @@ class Profile(object):
 							TriggerAction(numbers[0], numbers[1], ButtonAction(buttons[0])),
 							TriggerAction(numbers[1], TRIGGER_MAX, ButtonAction(buttons[1]))
 						)
-					
+
 					if n:
 						log.info("Converted %s to %s",
 							self.triggers[p].to_string(), n.to_string())

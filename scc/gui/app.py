@@ -4,7 +4,6 @@ SC-Controller - App
 
 Main application window
 """
-from __future__ import unicode_literals
 from scc.tools import _, set_logging_level
 
 from gi.repository import Gtk, Gdk, Gio, GLib

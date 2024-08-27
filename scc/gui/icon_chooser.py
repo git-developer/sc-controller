@@ -2,7 +2,6 @@
 """
 SC-Controller - Icon Chooser
 """
-from __future__ import unicode_literals
 from scc.tools import _
 
 from gi.repository import Gtk, Gdk, Gio, GdkPixbuf, GObject
@@ -24,8 +23,8 @@ class IconChooser(Editor, UserDataManager):
 		self.app = app
 		self.callback = callback
 		self.setup_widgets()
-	
-	
+
+
 	def setup_widgets(self):
 		Editor.setup_widgets(self)
 		clIcon = self.builder.get_object("clIcon")
@@ -39,11 +38,11 @@ class IconChooser(Editor, UserDataManager):
 		clIcon.set_attributes(crIconName, text=0)
 		btUserFolder.set_label("Add icons...")
 		btUserFolder.set_uri("file://%s" % (get_menuicons_path(),))
-		
+
 		headerbar(self.builder.get_object("header"))
 		self.load_menu_icons()
-	
-	
+
+
 	def on_btUserFolder_activate_link(self, *a):
 		for c in DEFAULT_ICON_CATEGORIES:
 			try:
@@ -51,15 +50,15 @@ class IconChooser(Editor, UserDataManager):
 			except:
 				# Dir. exists
 				pass
-	
-	
+
+
 	def on_btOk_clicked(self, *a):
 		icon = self.get_selected()
 		self.window.destroy()
 		if icon:
 			self.callback(icon)
-	
-	
+
+
 	def get_selected(self):
 		"""
 		Returns 'category/name' of currently selected icon.
@@ -76,11 +75,11 @@ class IconChooser(Editor, UserDataManager):
 		except TypeError:
 			# This part may throw TypeError if either list has nothing selected.
 			return None
-	
-	
+
+
 	def on_entName_changed(self, *a): pass
-	
-	
+
+
 	def on_tvItems_cursor_changed(self, view):
 		entName = self.builder.get_object("entName")
 		lblLicense = self.builder.get_object("lblLicense")
@@ -104,22 +103,22 @@ class IconChooser(Editor, UserDataManager):
 						m.group(1), m.group(2), m.group(2), m.group(3))
 				lblLicense.set_markup(_("Free-use icon created by %s" % (license,)))
 			rvLicense.set_reveal_child(bool(license))
-	
-	
+
+
 	def on_tvCategories_cursor_changed(self, view):
 		model, iter = view.get_selection().get_selected()
 		category = model.get_value(iter, 0)
 		self.load_menu_icons(category=category)
-	
-	
+
+
 	@staticmethod
 	def color_icon_exists(model, search_name):
 		for name, pb, has_colors in model:
 			if has_colors and search_name == name:
 				return True
 		return False
-	
-	
+
+
 	def on_menuicons_loaded(self, icons):
 		tvIcons = self.builder.get_object("tvIcons")
 		tvCategories = self.builder.get_object("tvCategories")
@@ -144,10 +143,10 @@ class IconChooser(Editor, UserDataManager):
 					has_colors = False
 					name = name[0:-1]
 				name = ".".join(name)
-				
+
 				if IconChooser.color_icon_exists(model, name):
 					continue
-				
+
 				pb = None
 				try:
 					pb = GdkPixbuf.Pixbuf.new_from_file(f.get_path())
@@ -155,9 +154,9 @@ class IconChooser(Editor, UserDataManager):
 					log.error(e)
 					log.error(traceback.format_exc())
 					continue
-				
+
 				model.append(( name, pb, has_colors ))
-		
+
 		trash, selected = tvCategories.get_selection().get_selected()
 		if not selected:
 			try:
@@ -165,8 +164,8 @@ class IconChooser(Editor, UserDataManager):
 				tvCategories.get_selection().select_path(( 0, ))
 				self.on_tvCategories_cursor_changed(tvCategories)
 			except: pass
-	
-	
+
+
 	@staticmethod
 	def find_license(path, name):
 		""" Parses LICENSE file, if any, and returns license for give file """
@@ -183,15 +182,15 @@ class IconChooser(Editor, UserDataManager):
 class CellRendererMenuIcon(Gtk.CellRenderer):
 	icon = GObject.property(type=GdkPixbuf.Pixbuf)
 	has_colors = GObject.property(type=bool, default=False)
-	
+
 	def __init__(self, size):
 		Gtk.CellRenderer.__init__(self)
 		self.size = size
-	
+
 	def do_get_size(self, *a):
 		return 0, 0, self.size, self.size
-	
-	
+
+
 	def do_render(self, cr, treeview, background_area, cell_area, flags):
 		context = Gtk.Widget.get_style_context(treeview)
 		Gtk.render_background(context, cr,
@@ -199,7 +198,7 @@ class CellRendererMenuIcon(Gtk.CellRenderer):
 				cell_area.x + cell_area.width,
 				cell_area.y + cell_area.height
 		)
-		
+
 		scaled = self.icon.scale_simple(
 				self.size, self.size,
 				GdkPixbuf.InterpType.BILINEAR

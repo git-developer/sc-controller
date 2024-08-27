@@ -4,7 +4,6 @@ SC-Controller - Action Editor - Axis Component
 
 Assigns emulated axis to trigger
 """
-from __future__ import unicode_literals
 from scc.tools import _
 
 from scc.special_actions import ChangeProfileAction, ShellCommandAction
@@ -25,15 +24,15 @@ class SpecialActionComponent(AEComponent, MenuActionCofC):
 	NAME = "special_action"
 	CTXS = Action.AC_BUTTON | Action.AC_MENU
 	PRIORITY = 0
-	
+
 	def __init__(self, app, editor):
 		AEComponent.__init__(self, app, editor)
 		MenuActionCofC.__init__(self)
 		self._userdata_load_started = False
 		self._recursing = False
 		self._current_profile = None
-	
-	
+
+
 	def load(self):
 		if self.loaded : return
 		AEComponent.load(self)
@@ -41,20 +40,20 @@ class SpecialActionComponent(AEComponent, MenuActionCofC):
 		cbCancelWith = self.builder.get_object("cbCancelWith")
 		cbConfirmWith.set_row_separator_func( lambda model, iter : model.get_value(iter, 0) == "-" )
 		cbCancelWith.set_row_separator_func( lambda model, iter : model.get_value(iter, 0)  == "-" )
-	
-	
+
+
 	def shown(self):
 		if not self._userdata_load_started:
 			self._userdata_load_started = True
 			self.load_profile_list()
 			self.load_menu_list()
-	
-	
+
+
 	def confirm_with_same_active(self):
 		cbMenuAutoConfirm = self.builder.get_object("cbMenuAutoConfirm")
 		return cbMenuAutoConfirm.get_active()
-	
-	
+
+
 	def set_action(self, mode, action):
 		if self.handles(mode, action):
 			cb = self.builder.get_object("cbActionType")
@@ -88,8 +87,8 @@ class SpecialActionComponent(AEComponent, MenuActionCofC):
 				self.set_cb(cb, "clearosd")
 			else:
 				self.set_cb(cb, "none")
-	
-	
+
+
 	def on_profiles_loaded(self, profiles):
 		cb = self.builder.get_object("cbProfile")
 		model = cb.get_model()
@@ -107,16 +106,16 @@ class SpecialActionComponent(AEComponent, MenuActionCofC):
 				current_index = i
 			model.append((name, f, None))
 			i += 1
-		
+
 		self._recursing = True
 		cb.set_active(current_index)
 		self._recursing = False
-	
-	
+
+
 	def get_button_title(self):
 		return _("Special Action")
-	
-	
+
+
 	def handles(self, mode, action):
 		if MenuActionCofC.handles(self, mode, action):
 			return True
@@ -124,8 +123,8 @@ class SpecialActionComponent(AEComponent, MenuActionCofC):
 			return True
 		return isinstance(action, (NoAction, TurnOffAction, ShellCommandAction,
 			ChangeProfileAction, KeyboardAction, ClearOSDAction, ResetGyroAction))
-	
-	
+
+
 	def on_cbActionType_changed(self, *a):
 		cbActionType = self.builder.get_object("cbActionType")
 		stActionData = self.builder.get_object("stActionData")
@@ -163,8 +162,8 @@ class SpecialActionComponent(AEComponent, MenuActionCofC):
 			stActionData.set_visible_child(self.builder.get_object("nothing"))
 			if not self._recursing:
 				self.editor.set_action(NoAction())
-	
-	
+
+
 	def on_cbProfile_changed(self, *a):
 		""" Called when user chooses profile in selection combo """
 		if self._recursing : return
@@ -179,14 +178,14 @@ class SpecialActionComponent(AEComponent, MenuActionCofC):
 		if name.endswith(".sccprofile"):
 			name = name[0:-11]
 		self.editor.set_action(ChangeProfileAction(name))
-	
-	
+
+
 	def on_enCommand_changed(self, *a):
 		if self._recursing : return
 		enCommand = self.builder.get_object("enCommand")
 		self.editor.set_action(ShellCommandAction(enCommand.get_text()))
-	
-	
+
+
 	def on_osd_settings_changed(self, *a):
 		if self._recursing : return
 		enOSDText = self.builder.get_object("enOSDText")
@@ -199,18 +198,18 @@ class SpecialActionComponent(AEComponent, MenuActionCofC):
 			size,
 			enOSDText.get_text()
 		))
-	
-	
+
+
 	def on_exMenuControl_activate(self, ex, *a):
 		rvMenuControl = self.builder.get_object("rvMenuControl")
 		rvMenuControl.set_reveal_child(not ex.get_expanded())
-	
-	
+
+
 	def on_exMenuPosition_activate(self, ex, *a):
 		rvMenuPosition = self.builder.get_object("rvMenuPosition")
 		rvMenuPosition.set_reveal_child(not ex.get_expanded())
-	
-	
+
+
 	def on_sclOSDTimeout_format_value(self, scale, value):
 		if value > 60.0:
 			return _("forever")

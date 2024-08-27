@@ -4,8 +4,6 @@ SC-Controller - tools
 
 Various stuff that I don't care to fit anywhere else.
 """
-from __future__ import unicode_literals
-
 from scc.paths import get_controller_icons_path, get_default_controller_icons_path
 from scc.paths import get_menuicons_path, get_default_menuicons_path
 from scc.paths import get_profiles_path, get_default_profiles_path
@@ -34,7 +32,7 @@ def init_logging(prefix="", suffix=""):
 	"""
 	Initializes logging, sets custom logging format and adds one
 	logging level with name and method to call.
-	
+
 	prefix and suffix arguments can be used to modify log level prefixes.
 	"""
 	logging.basicConfig(format=LOG_FORMAT)
@@ -95,7 +93,7 @@ def quat2euler(q0, q1, q2, q3):
 	xn = 2 * (q0 * q2 - q1 * q3)
 	yn = 2 * (q1 * q2 + q0 * q3)
 	zn = qq3 + qq2 - qq0 - qq1
-	
+
 	pitch = atan2(xb , xa)
 	yaw   = atan2(xn , sqrt(1 - xn**2))
 	roll  = atan2(yn , zn)
@@ -192,7 +190,7 @@ def find_profile(name):
 	This is done by searching for name + '.sccprofile' in ~/.config/scc/profiles
 	first and in /usr/share/scc/default_profiles if file is not found in first
 	location.
-	
+
 	Returns None if profile cannot be found.
 	"""
 	filename = "%s.sccprofile" % (name,)
@@ -209,12 +207,12 @@ def find_icon(name, prefer_bw=False, paths=None, extensions=("png", "svg")):
 	This is done by searching for name + '.png' and name + ".bw.png"
 	in user and default menu-icons folders. ".svg" is also supported, but only
 	if no pngs are found.
-	
+
 	If both colored and grayscale version is found, colored is returned, unless
 	prefer_bw is set to True.
-	
+
 	paths defaults to icons for menuicons
-	
+
 	Returns (None, False) if icon cannot be found.
 	"""
 	if name is None:
@@ -269,7 +267,7 @@ def find_menu(name):
 	Returns filename for specified menu name.
 	This is done by searching for name in ~/.config/scc/menus
 	first and in /usr/share/scc/default_menus later.
-	
+
 	Returns None if menu cannot be found.
 	"""
 	for p in (get_menus_path(), get_default_menus_path()):
@@ -284,7 +282,7 @@ def find_controller_icon(name):
 	Returns filename for specified controller icon name.
 	This is done by searching for name in ~/.config/controller-icons
 	first and in /usr/share/scc/images/controller-icons later.
-	
+
 	Returns None if icon cannot be found.
 	"""
 	for p in (get_controller_icons_path(), get_default_controller_icons_path()):
@@ -297,7 +295,7 @@ def find_controller_icon(name):
 def find_binary(name):
 	"""
 	Returns full path to script or binary.
-	
+
 	With some exceptions, this is done simply by searching PATH environment variable.
 	"""
 	if name.startswith("scc-osd-daemon"):
@@ -335,12 +333,12 @@ def find_library(libname):
 			os.path.abspath(os.path.normpath(
 				os.path.join( base_path, '../..', libname + extension )))
 			]
-	
+
 	for path in search_paths:
 		if os.path.exists(path):
 			lib = path
 			break
-	
+
 	if not lib:
 		raise OSError('Cant find %s.so. searched at:\n %s' % (
 			libname, '\n'.join(search_paths)))
@@ -383,7 +381,7 @@ def check_access(filename, write_required=True):
 def strip_gesture(gstr):
 	"""
 	Converts gesture string to version where stroke lenght is ignored.
-	
+
 	That means removing repeating characters and adding 'i' to front.
 	"""
 	last, uniq = None, []
@@ -405,10 +403,10 @@ def circle_to_square(x, y):
 	Projects coordinate in circle (of radius 1.0) to coordinate in square.
 	"""
 	# Adapted from http://theinstructionlimit.com/squaring-the-thumbsticks
-	
+
 	# Determine the theta angle
 	angle = atan2(y, x) + PI
-	
+
 	squared = 0, 0
 	# Scale according to which wall we're clamping to
 	# X+ wall
@@ -425,5 +423,5 @@ def circle_to_square(x, y):
 		squared = x * (-1.0 / sin(angle)), y * (-1.0 / sin(angle))
 	else:
 		raise ValueError("Invalid angle...?")
-	
+
 	return squared

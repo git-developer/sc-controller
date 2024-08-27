@@ -7,7 +7,6 @@ user-editable data - that are profiles, menus and controller-icons.
 
 Main App class interits from this.
 """
-from __future__ import unicode_literals
 from scc.tools import _, set_logging_level
 
 from gi.repository import Gtk, Gio, GLib
@@ -21,7 +20,7 @@ import os, logging
 log = logging.getLogger("UDataManager")
 
 class UserDataManager(object):
-	
+
 	def __init__(self):
 		profiles_path = get_profiles_path()
 		if not os.path.exists(profiles_path):
@@ -31,8 +30,8 @@ class UserDataManager(object):
 		if not os.path.exists(menus_path):
 			log.info("Creting menu directory '%s'" % (menus_path,))
 			os.makedirs(menus_path)
-	
-	
+
+
 	def load_profile(self, giofile):
 		"""
 		Loads profile from 'giofile' into 'profile' object
@@ -42,8 +41,8 @@ class UserDataManager(object):
 		profile = Profile(GuiActionParser())
 		profile.load(giofile.get_path())
 		self.on_profile_loaded(profile, giofile)
-	
-	
+
+
 	def save_profile(self, giofile, profile):
 		"""
 		Saves profile from 'profile' object into 'giofile'.
@@ -53,47 +52,47 @@ class UserDataManager(object):
 		# When user tries to save over built-in profile in /usr/share,
 		# new file with same name is created in ~/.config/scc/profiles and profile
 		# is shaved into it.
-		
+
 		if giofile.get_path().startswith(get_default_profiles_path()):
 			return self._save_profile_local(giofile, profile)
-		
+
 		profile.save(giofile.get_path())
 		self.on_profile_saved(giofile)
-	
-	
+
+
 	def _save_profile_local(self, giofile, profile):
 		filename = os.path.split(giofile.get_path())[-1]
 		localpath = os.path.join(get_profiles_path(), filename)
 		giofile = Gio.File.new_for_path(localpath)
 		self.save_profile(giofile, profile)
-	
-	
+
+
 	def load_profile_list(self, category=None):
 		paths = [ get_default_profiles_path(), get_profiles_path() ]
 		self.load_user_data(paths, "*.sccprofile", category, self.on_profiles_loaded)
-	
-	
+
+
 	def load_menu_list(self, category=None):
 		paths = [ get_default_menus_path(), get_menus_path() ]
 		self.load_user_data(paths, "*.menu", category, self.on_menus_loaded)
-	
-	
+
+
 	def load_menu_icons(self, category=None):
 		paths = [ get_default_menuicons_path(), get_menuicons_path() ]
 		self.load_user_data(paths, "*.png", category, self.on_menuicons_loaded)
-	
-	
+
+
 	def load_user_data(self, paths, pattern, category, callback):
 		"""
 		Loads data such as of profiles. Uses GLib to do it on background.
 		"""
 		if category:
 			paths = [ os.path.join(p, category) for p in paths ]
-		
+
 		# First list is for default stuff, then for user-defined
 		# Number is increased when list is loaded until it reaches 2
 		data = [ None ] * len(paths)
-		
+
 		for i in range(0, len(paths)):
 			f = Gio.File.new_for_path(paths[i])
 			f.enumerate_children_async(
@@ -102,8 +101,8 @@ class UserDataManager(object):
 				1, None, self._on_user_data_loaded,
 				data, i, callback
 			)
-	
-	
+
+
 	def _on_user_data_loaded(self, pdir, res, data, i, callback):
 		"""
 		Called when enumerate_children_async gets lists of files.
@@ -134,10 +133,10 @@ class UserDataManager(object):
 				log.warning("enumerate_children_async returned no files")
 				files = self._sync_load([ pdir for pdir, enumerator in data
 											if pdir is not None])
-			
+
 			callback(files.values())
-	
-	
+
+
 	def _sync_load(self, pdirs):
 		"""
 		Synchronous (= UI lagging) fallback method for those (hopefully) rare
@@ -148,23 +147,23 @@ class UserDataManager(object):
 			for name in os.listdir(pdir.get_path()):
 				files[name] = pdir.get_child(name)
 		return files
-	
-	
+
+
 	def on_menus_loaded(self, menus): # Overriden by subclass
 		pass
-	
-	
+
+
 	def on_profiles_loaded(self, profiles): # Overriden by subclass
 		pass
-	
-	
+
+
 	def on_menuicons_loaded(self, icons): # Overriden by subclass
 		pass
-	
-	
+
+
 	def on_profile_saved(self, giofile): # Overriden in App
 		pass
-	
-	
+
+
 	def on_profile_loaded(self, profile, giofile): # Overriden in App
 		pass

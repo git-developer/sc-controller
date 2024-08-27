@@ -4,7 +4,6 @@ SC-Controller - BindingEditor
 
 Base class for main application window and OSD Keyboard bindings editor.
 """
-from __future__ import unicode_literals
 from scc.tools import _
 
 from scc.modifiers import ModeModifier, SensitivityModifier, FeedbackModifier
@@ -25,12 +24,12 @@ from scc.gui.ring_editor import RingEditor
 
 
 class BindingEditor(object):
-	
+
 	def __init__(self, app):
 		self.button_widgets = {}
 		self.app = app
-	
-	
+
+
 	def create_binding_buttons(self, use_icons=True, enable_press=True):
 		"""
 		Creates ControllerWidget instances for available Gtk.Buttons defined
@@ -60,16 +59,16 @@ class BindingEditor(object):
 			w = self.builder.get_object("bt" + b)
 			if w:
 				self.button_widgets[b] = ControllerGyro(self, b, use_icons, w)
-	
-	
+
+
 	def on_action_chosen(self, id, action, mark_changed=True):
 		"""
 		Callback called when action editting is finished in editor.
 		Should return None or action being replaced.
 		"""
 		raise TypeError("Non-overriden on_action_chosen")
-	
-	
+
+
 	def set_action(self, profile, id, action):
 		"""
 		Stores action in profile.
@@ -113,8 +112,8 @@ class BindingEditor(object):
 				raise ValueError("unknown id %s" % (id,))
 			self.button_widgets[id].update()
 		return before
-	
-	
+
+
 	def get_action(self, profile, id):
 		"""
 		Returns action for specified id.
@@ -147,8 +146,8 @@ class BindingEditor(object):
 			else:
 				raise ValueError("unknown id %s" % (id,))
 		return None
-	
-	
+
+
 	def choose_editor(self, action, title, id=None):
 		""" Chooses apropripate Editor instance for edited action """
 		if isinstance(action, SensitivityModifier):
@@ -175,12 +174,12 @@ class BindingEditor(object):
 			e = ActionEditor(self.app, self.on_action_chosen)
 			e.set_title(title)
 		return e
-	
-	
+
+
 	def hilight(self, button):
 		""" Hilights button on image. Overriden by app. """
 		pass
-	
-	
+
+
 	def show_editor(self, id):
 		raise TypeError("show_editor not overriden")

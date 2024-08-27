@@ -2,7 +2,6 @@
 """
 SC-Controller - Action Editor - Gyro -> Joystick or Mouse component
 """
-from __future__ import unicode_literals
 from scc.tools import _
 
 from scc.actions import Action, NoAction, MouseAction, MultiAction, RangeOP
@@ -28,7 +27,7 @@ class GyroActionComponent(AEComponent):
 	NAME = "gyro_action"
 	CTXS = Action.AC_GYRO
 	PRIORITY = 3
-	
+
 	BUTTONS = (	# in order as displayed in combobox
 		(None,					_('Always Active')),
 		(None, None),
@@ -58,13 +57,13 @@ class GyroActionComponent(AEComponent):
 		(SCButtons.CPADTOUCH,	_('Touch Touchpad')),
 		(SCButtons.CPADPRESS,	_('Press Touchpad')),
 	)
-	
+
 	def __init__(self, app, editor):
 		AEComponent.__init__(self, app, editor)
 		self._recursing = False
 		self.parser = GuiActionParser()
-	
-	
+
+
 	def load(self):
 		if self.loaded : return
 		AEComponent.load(self)
@@ -72,8 +71,8 @@ class GyroActionComponent(AEComponent):
 		cbGyroButton = self.builder.get_object("cbGyroButton")
 		fill_buttons(cbGyroButton)
 		self._recursing = False
-	
-	
+
+
 	def set_action(self, mode, action):
 		if self.handles(mode, action):
 			if isinstance(action, NoAction):
@@ -126,8 +125,8 @@ class GyroActionComponent(AEComponent):
 			elif isinstance(action, CemuHookAction):
 					self.select_gyro_output("cemuhook")
 			self.modifier_updated()
-	
-	
+
+
 	def modifier_updated(self):
 		cbInvertY = self.builder.get_object("cbInvertY")
 		sens = self.editor.get_sensitivity()
@@ -138,8 +137,8 @@ class GyroActionComponent(AEComponent):
 			self._recursing = False
 
 		self.update()
-	
-	
+
+
 	def cbInvertY_toggled_cb(self, cb, *a):
 		if self._recursing: return
 		sens = list(self.editor.get_sensitivity())
@@ -150,12 +149,12 @@ class GyroActionComponent(AEComponent):
 				# Ensure that Y sensitivity is negative
 				sens[1] *= -1
 		self.editor.set_sensitivity(*sens)
-	
-	
+
+
 	def get_button_title(self):
 		return _("Joystick or Mouse")
-	
-	
+
+
 	def handles(self, mode, action):
 		if isinstance(action, NoAction):
 			return True
@@ -176,8 +175,8 @@ class GyroActionComponent(AEComponent):
 		if isinstance(action, (MouseAction, MouseAbsAction, CemuHookAction)):
 			return True
 		return False
-	
-	
+
+
 	def select_gyro_output(self, key):
 		""" Just sets combobox value """
 		cb = self.builder.get_object("cbMode")
@@ -189,8 +188,8 @@ class GyroActionComponent(AEComponent):
 				self._recursing = False
 				return
 		self._recursing = False
-	
-	
+
+
 	def select_yaw_roll(self, yawroll):
 		""" Just sets combobox value """
 		cb = self.builder.get_object("cbYawRoll")
@@ -202,8 +201,8 @@ class GyroActionComponent(AEComponent):
 				self._recursing = False
 				return
 		self._recursing = False
-	
-	
+
+
 	def select_gyro_button(self, item):
 		""" Just sets combobox value """
 		cb = self.builder.get_object("cbGyroButton")
@@ -224,8 +223,8 @@ class GyroActionComponent(AEComponent):
 				self._recursing = False
 				return
 		self._recursing = False
-	
-	
+
+
 	def on_cbInvertGyro_toggled(self, cb, *a):
 		lblGyroEnable = self.builder.get_object("lblGyroEnable")
 		if cb.get_active():
@@ -234,28 +233,28 @@ class GyroActionComponent(AEComponent):
 			lblGyroEnable.set_label(_("Gyro Enable Button"))
 		if not self._recursing:
 			self.send()
-	
-	
+
+
 	def on_sclSoftLevel_format_value(self, scale, value):
 		return  "%s%%" % (int(value * 100.0),)
-	
-	
+
+
 	def update(self, *a):
 		cbMode = self.builder.get_object("cbMode")
 		cbYawRoll = self.builder.get_object("cbYawRoll")
 		lblYawRoll = self.builder.get_object("lblYawRoll")
 		key = cbMode.get_model().get_value(cbMode.get_active_iter(), 2)
 		cbYawRoll.set_sensitive(key != "cemuhook")
-		lblYawRoll.set_sensitive(key != "cemuhook")	
-	
-	
+		lblYawRoll.set_sensitive(key != "cemuhook")
+
+
 	def hidden(self):
 		self.editor.set_default_sensitivity(1, 1, 1)
-	
-	
+
+
 	def send(self, *a):
 		if self._recursing : return
-		
+
 		cbMode = self.builder.get_object("cbMode")
 		cbYawRoll = self.builder.get_object("cbYawRoll")
 		rvSoftLevel = self.builder.get_object("rvSoftLevel")
@@ -268,7 +267,7 @@ class GyroActionComponent(AEComponent):
 		yawroll = cbYawRoll.get_model().get_value(cbYawRoll.get_active_iter(), 0)
 		item = cbGyroButton.get_model().get_value(cbGyroButton.get_active_iter(), 0)
 		rvSoftLevel.set_reveal_child(item in TRIGGERS)
-		
+
 		match = re.match(r"([^\[]+)\[([^\|]+)\|([^\]]+)\](.*)", action)
 		if match:
 			grps = match.groups()
@@ -277,7 +276,7 @@ class GyroActionComponent(AEComponent):
 			else:
 				action = "%s%s%s" % (grps[0], grps[2], grps[3])
 		action = self.parser.restart(action).parse()
-		
+
 		if item and action:
 			if item in TRIGGERS:
 				what = RangeOP(getattr(SCButtons, item), ">=", sclSoftLevel.get_value())
@@ -293,7 +292,7 @@ class GyroActionComponent(AEComponent):
 			self.editor.set_default_sensitivity(3.5, 3.5, 3.5)
 		else:
 			self.editor.set_default_sensitivity(1, 1, 1)
-		
+
 		self.update()
 		self.editor.set_action(action)
 
@@ -331,5 +330,5 @@ def fill_buttons(cb):
 	cb.set_row_separator_func( lambda model, iter : model.get_value(iter, 1) is None )
 	model = cb.get_model()
 	for button, text in GyroActionComponent.BUTTONS:
-		model.append(( None if button is None else nameof(button), text ))	
+		model.append(( None if button is None else nameof(button), text ))
 	cb.set_active(0)

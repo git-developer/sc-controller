@@ -4,7 +4,6 @@ SC-Controller - Action Editor - Button Component
 
 Assigns emulated button to physical button
 """
-from __future__ import unicode_literals
 from scc.tools import _
 
 from gi.repository import Gtk, Gdk, GLib
@@ -34,14 +33,14 @@ class ButtonsComponent(AEComponent, Chooser):
 		Keys.KEY_LEFTCTRL, Keys.KEY_RIGHTMETA, Keys.KEY_RIGHTSHIFT,
 		Keys.KEY_RIGHTCTRL, Keys.KEY_RIGHTALT,
 	)
-	
+
 	def __init__(self, app, editor):
 		AEComponent.__init__(self, app, editor)
 		Chooser.__init__(self, app)
 		self.axes_allowed = True
 		self.keys = set()
-	
-	
+
+
 	def load(self):
 		if not self.loaded:
 			AEComponent.load(self)
@@ -49,13 +48,13 @@ class ButtonsComponent(AEComponent, Chooser):
 			if self.app.osd_mode:
 				self.builder.get_object('btnGrabKey').set_sensitive(False)
 				self.builder.get_object('btnGrabAnother').set_sensitive(False)
-	
-	
+
+
 	def area_action_selected(self, area, action):
 		self.set_active_area(area)
 		self.editor.set_action(action)
-	
-	
+
+
 	def set_action(self, mode, action):
 		cbToggle = self.builder.get_object("cbToggle")
 		cbRepeat = self.builder.get_object("cbRepeat")
@@ -83,12 +82,12 @@ class ButtonsComponent(AEComponent, Chooser):
 				self.set_active_area(area)
 				return
 		self.set_active_area(None)
-	
-	
+
+
 	def get_button_title(self):
 		return _("Key or Button")
-	
-	
+
+
 	def handles(self, mode, action):
 		# Handles ButtonAction and MultiAction if all subactions are ButtonAction
 		if isinstance(action, (ButtonAction, NoAction, InvalidAction)):
@@ -109,26 +108,26 @@ class ButtonsComponent(AEComponent, Chooser):
 						return False
 				return True
 		return False
-	
-	
+
+
 	def on_key_grabbed(self, keys):
 		""" Handles selecting key using "Grab the Key" dialog """
 		self.keys = set(keys)
 		self.apply_keys()
-	
-	
+
+
 	def on_additional_key_grabbed(self, keys):
 		self.keys.update(keys)
 		self.apply_keys()
-	
-	
+
+
 	@staticmethod
 	def modifiers_first(key):
 		if key in ButtonsComponent.MODIFIER_KEYS:
 			return 0
 		return 1
-	
-	
+
+
 	def apply_keys(self, *a):
 		""" Common part of on_*key_grabbed """
 		cbToggle = self.builder.get_object("cbToggle")
@@ -144,8 +143,8 @@ class ButtonsComponent(AEComponent, Chooser):
 		elif cbToggle.get_active():
 			action = Cycle(PressAction(action), ReleaseAction(action))
 		self.editor.set_action(action)
-	
-	
+
+
 	def on_btnGrabKey_clicked(self, *a):
 		"""
 		Called when user clicks on 'Grab a Key' button.
@@ -153,8 +152,8 @@ class ButtonsComponent(AEComponent, Chooser):
 		"""
 		kg = KeyGrabber(self.app)
 		kg.grab(self.editor.window, self.editor._action, self.on_key_grabbed)
-	
-	
+
+
 	def on_btnGrabAnother_clicked(self, *a):
 		"""
 		Same as above, but adds another key to action
@@ -162,22 +161,22 @@ class ButtonsComponent(AEComponent, Chooser):
 		kg = KeyGrabber(self.app)
 		kg.grab(self.editor.window, self.editor._action,
 				self.on_additional_key_grabbed)
-	
-	
+
+
 	def on_cbToggle_toggled(self, cbToggle):
 		cbRepeat = self.builder.get_object("cbRepeat")
 		if cbToggle.get_active() and cbRepeat.get_active():
 			cbRepeat.set_active(False)
 		self.apply_keys()
-	
-	
+
+
 	def on_cbRepeat_toggled(self, cbRepeat):
 		cbToggle = self.builder.get_object("cbToggle")
 		if cbToggle.get_active() and cbRepeat.get_active():
 			cbToggle.set_active(False)
 		self.apply_keys()
-	
-	
+
+
 	def hide_toggle(self):
 		""" Hides 'set as toggle button' option """
 		cbToggle = self.builder.get_object("cbToggle")
@@ -190,8 +189,8 @@ class ButtonsComponent(AEComponent, Chooser):
 		parent.pack_start(replacement, True, True, 0)
 		parent.reorder_child(replacement, 0)
 		replacement.set_visible(True)
-	
-	
+
+
 	def hide_axes(self):
 		""" Prevents user from selecting axes """
 		self.axes_allowed = False

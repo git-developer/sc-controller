@@ -4,7 +4,6 @@ SC-Controller - On Screen Keyboard Binding Editor
 
 Edits '.scc-osd.keyboard.sccprofile', profile used by on screen keyboard
 """
-from __future__ import unicode_literals
 from scc.tools import _
 
 from gi.repository import Gdk
@@ -25,7 +24,7 @@ log = logging.getLogger("OSKEdit")
 
 class OSKBindingEditor(Editor, BindingEditor):
 	GLADE = "osk_binding_editor.glade"
-	
+
 	def __init__(self, app):
 		BindingEditor.__init__(self, app)
 		self.app = app
@@ -34,13 +33,13 @@ class OSKBindingEditor(Editor, BindingEditor):
 		self.current = Profile(GuiActionParser())
 		self.current.load(find_profile(OSDKeyboard.OSK_PROF_NAME))
 		self.setup_widgets()
-	
-	
+
+
 	def setup_widgets(self):
 		Editor.setup_widgets(self)
 		self.create_binding_buttons(use_icons=False, enable_press=False)
-	
-	
+
+
 	def show_editor(self, id):
 		if id in STICKS:
 			ae = self.choose_editor(self.current.stick,
@@ -57,13 +56,13 @@ class OSKBindingEditor(Editor, BindingEditor):
 				_("%s Trigger") % (id,))
 			ae.set_input(id, self.current.triggers[id], mode=Action.AC_OSK)
 			ae.show(self.window)
-	
-	
+
+
 	def on_action_chosen(self, id, action, mark_changed=True):
 		self.set_action(self.current, id, action)
 		self.save_profile()
-	
-	
+
+
 	def save_profile(self, *a):
 		"""
 		Saves osk profile from 'profile' object into 'giofile'.

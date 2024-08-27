@@ -7,7 +7,6 @@ Works as OSD menu, but displays all items in one row.
 Designed mainly as RPG numeric pad display and looks
 awfull with larger number of items.
 """
-from __future__ import unicode_literals
 from scc.tools import _, set_logging_level
 
 from gi.repository import Gtk
@@ -23,14 +22,14 @@ log = logging.getLogger("osd.hmenu")
 class HorizontalMenu(GridMenu):
 	def __init__(self, cls="osd-menu"):
 		GridMenu.__init__(self, cls)
-	
-	
+
+
 	def create_parent(self):
 		g = Gtk.Grid()
 		g.set_name("osd-menu")
 		return g
-	
-	
+
+
 	def generate_widget(self, item):
 		"""
 		Generates gtk widget for specified menutitem
@@ -44,20 +43,20 @@ class HorizontalMenu(GridMenu):
 			if self._size > 1 and isinstance(icon, MenuIcon):
 				widget.set_size_request(-1, 32 + self._size * 3)
 			return widget
-	
-	
+
+
 	def pack_items(self, parent, items):
 		x = 0
 		for item in items:
 			parent.attach(item.widget, x, 0, 1, 1)
 			x += 1
-	
-	
+
+
 	def on_stick_direction(self, trash, x, y):
 		if x != 0:
 			self.next_item(-x)
-	
-	
+
+
 	def on_event(self, daemon, what, data):
 		# Restricts Y axis to dead center, as nothing
 		# else makes sense in this kind of menu

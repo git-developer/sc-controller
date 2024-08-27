@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import unicode_literals
 from scc.tools import _
 
 from gi.repository import Gtk, Gio
@@ -21,23 +20,23 @@ class Export(UserDataManager):
 
 	def __init__(self):
 		self.__profile_load_started = False
-	
-	
+
+
 	def on_grSelectProfile_activated(self, *a):
 		# Not an event handler, called from page_selected
 		if not self.__profile_load_started:
 			self.__profile_load_started = True
 			self.load_profile_list()
 		self.on_tvProfiles_cursor_changed()
-	
-	
+
+
 	def on_profile_selected(self, *a):
 		grMakePackage	= self.builder.get_object("grMakePackage")
-		btSaveAs		= self.builder.get_object("btSaveAs")		
+		btSaveAs		= self.builder.get_object("btSaveAs")
 		btSaveAs.set_visible(True)
 		self.next_page(grMakePackage)
 
-	
+
 	def on_profiles_loaded(self, lst):
 		tvProfiles = self.builder.get_object("tvProfiles")
 		model = tvProfiles.get_model()
@@ -57,13 +56,13 @@ class Export(UserDataManager):
 			i += 1
 		if current_index >= 0:
 			tvProfiles.set_cursor((current_index,))
-	
-	
+
+
 	def _add_refereced_profile(self, model, giofile, used):
 		"""
 		Loads profile file and recursively adds all profiles and menus
 		referenced by it into 'package' list.
-		
+
 		Returns True on success or False if something cannot be parsed.
 		"""
 		# Load & parse selected profile and check every action in it
@@ -74,10 +73,10 @@ class Export(UserDataManager):
 			# Profile that cannot be parsed shouldn't be exported
 			log.error(e)
 			return False
-		
+
 		for action in profile.get_all_actions():
 			self._parse_action(model, action, used)
-		
+
 		for menu in profile.menus:
 			for item in profile.menus[menu]:
 				if isinstance(item, Submenu):
@@ -85,8 +84,8 @@ class Export(UserDataManager):
 				if hasattr(item, "action"):
 					self._parse_action(model, item.action, used)
 		return True
-	
-	
+
+
 	def _add_refereced_menu(self, model, menu_id, used):
 		"""
 		As _add_refereced_profile, but reads and parses menu file.
@@ -116,8 +115,8 @@ class Export(UserDataManager):
 			else:
 				model.append((False, _("Menu"), _("%s (not found)") % (name,),
 						"", False, self.TP_MENU))
-	
-	
+
+
 	def _parse_action(self, model, action, used):
 		"""
 		Common part of _add_refereced_profile and _add_refereced_menu
@@ -137,8 +136,8 @@ class Export(UserDataManager):
 						False, self.TP_PROFILE))
 		elif isinstance(action, MenuAction):
 			self._add_refereced_menu(model, action.menu_id, used)
-	
-	
+
+
 	def on_tvProfiles_cursor_changed(self, *a):
 		"""
 		Called when user selects profile.
@@ -147,11 +146,11 @@ class Export(UserDataManager):
 		tvPackage	= self.builder.get_object("tvPackage")
 		btSaveAs	= self.builder.get_object("btSaveAs")
 		btClose		= self.builder.get_object("btClose")
-		
+
 		package = tvPackage.get_model()
 		package.clear()
 		used = set()
-		
+
 		model, iter = tvProfiles.get_selection().get_selected()
 		if iter:
 			giofile = model[iter][1]
@@ -168,8 +167,8 @@ class Export(UserDataManager):
 			# Nothing selected
 				self.enable_next(enabled=False)
 				btSaveAs.set_visible(False)
-	
-	
+
+
 	def _needs_package(self):
 		"""
 		Returns True if there is any file checked on 2nd page,
@@ -178,27 +177,27 @@ class Export(UserDataManager):
 		tvPackage = self.builder.get_object("tvPackage")
 		package = tvPackage.get_model()
 		return any([ row[0] for row in package ])
-	
-	
+
+
 	def on_btSelectAll_clicked(self, *a):
 		tvPackage = self.builder.get_object("tvPackage")
 		package = tvPackage.get_model()
 		for row in package:
 			if row[4]:	# if enabled
 				row[0] = True	# then selected
-	
-	
+
+
 	def on_crPackageCheckbox_toggled(self, cr, path):
 		tvPackage = self.builder.get_object("tvPackage")
 		package = tvPackage.get_model()
 		package[path][0] = not package[path][0]
-	
-	
+
+
 	def on_btSaveAs_clicked(self, *a):
 		# Grab stuff
 		tvProfiles	= self.builder.get_object("tvProfiles")
 		model, iter = tvProfiles.get_selection().get_selected()
-		
+
 		# Determine format
 		f = Gtk.FileFilter()
 		if self._needs_package():
@@ -208,7 +207,7 @@ class Export(UserDataManager):
 			f.set_name("SC-Controller Profile")
 			fmt = "sccprofile"
 		f.add_pattern("*.%s" % (fmt,))
-		
+
 		# Create dialog
 		d = Gtk.FileChooserNative.new(_("Export to File..."),
 				self.window, Gtk.FileChooserAction.SAVE)
@@ -221,15 +220,15 @@ class Export(UserDataManager):
 			if len(os.path.split(fn)[-1].split(".")) < 2:
 				# User wrote filename without extension
 				fn = "%s.%s" % (fn, fmt)
-			
+
 			if self._needs_package():
 				if self._export_package(model[iter][1], fn):
 					self.window.destroy()
 			else:
 				if self._export(model[iter][1], fn):
 					self.window.destroy()
-	
-	
+
+
 	def _export(self, giofile, target_filename):
 		"""
 		Performs actual exporting.
@@ -243,18 +242,18 @@ class Export(UserDataManager):
 			# Profile that cannot be parsed shouldn't be exported
 			log.error(e)
 			return False
-		
+
 		profile.save(target_filename)
 		return True
-	
-	
+
+
 	def _export_package(self, giofile, target_filename):
 		"""
 		Performs actual exporting.
 		This method is used when profile is to be exported _with_ some
 		referenced files. It reads not only passed giofile, but all files
 		marked on 2nd page of export dialog.
-		
+
 		Both profiles and menus are parsed before saving, but menu actions are
 		not parsed, so it is possible (but not very probable) to export
 		invalid menu file with this.
@@ -262,7 +261,7 @@ class Export(UserDataManager):
 		tvPackage = self.builder.get_object("tvPackage")
 		package = tvPackage.get_model()
 		tar = tarfile.open(target_filename, "w:gz")
-		
+
 		def export_profile(tar, filename):
 			profile = Profile(TalkingActionParser())
 			try:
@@ -275,7 +274,7 @@ class Export(UserDataManager):
 				log.error(e)
 				return False
 			return True
-		
+
 		def export_menu(tar, filename):
 			try:
 				menu = MenuData.from_json_data(json.loads(open(filename, "r").read()), ActionParser())
@@ -285,11 +284,11 @@ class Export(UserDataManager):
 				log.error(e)
 				return False
 			return True
-		
-		
+
+
 		if not export_profile(tar, giofile.get_path()):
 			return False
-		
+
 		for row in package:
 			enabled, tp, filename = row[0], row[5], row[3]
 			if enabled:
@@ -299,7 +298,7 @@ class Export(UserDataManager):
 				elif tp == self.TP_MENU:
 					if not export_menu(tar, filename):
 						return False
-		
+
 		# Store original profile name so import knows which profile is
 		# "important" and which just tagged along as referenced by some action.
 		out = tempfile.NamedTemporaryFile()

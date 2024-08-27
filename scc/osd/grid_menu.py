@@ -5,7 +5,6 @@ SC-Controller - Grid OSD Menu
 Works as OSD menu, but displays item in (as rectangluar as possible - and
 that's usually not very much) grid.
 """
-from __future__ import unicode_literals
 from scc.tools import _, set_logging_level
 
 from gi.repository import Gtk
@@ -20,18 +19,18 @@ log = logging.getLogger("osd.gridmenu")
 
 class GridMenu(Menu):
 	PREFER_BW_ICONS = True
-	
+
 	def __init__(self, cls="osd-menu"):
 		Menu.__init__(self, cls)
 		self.ipr = 1	# items per row
-	
-	
+
+
 	def create_parent(self):
 		g = Gtk.Grid()
 		g.set_name("osd-menu")
 		return g
-	
-	
+
+
 	def pack_items(self, parent, items):
 		if self._size > 0:
 			self.ipr = self._size
@@ -46,16 +45,16 @@ class GridMenu(Menu):
 			if x >= self.ipr:
 				x = 0
 				y += 1
-	
-	
+
+
 	def on_stick_direction(self, trash, x, y):
 		if x != 0:
 			self.next_item(-x)
 		elif y != 0:
 			for i in range(0, self.ipr):
 				self.next_item(y)
-	
-	
+
+
 	def generate_widget(self, item):
 		if isinstance(item, Separator):
 			# Ignored here

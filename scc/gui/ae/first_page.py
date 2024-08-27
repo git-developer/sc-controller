@@ -5,7 +5,6 @@ SC-Controller - Action Editor - First Page
 
 Provides links for quick settings.
 """
-from __future__ import unicode_literals
 from scc.tools import _
 
 from gi.repository import Gtk, Gdk, GLib
@@ -23,7 +22,7 @@ MARKUP_BUTTON = """
 <big>%(what)s: Quick settings</big>
 
   • Map to <a href='page://buttons'>Button</a>
-  
+
   • Use to <a href='quick://menu("Default.menu")'>display on-screen menu</a>
 """
 
@@ -31,9 +30,9 @@ MARKUP_TRIGGER = """
 <big>%(what)s: Quick settings</big>
 
   • Map to <a href='quick://axis(Axes.ABS_Z)'>Left</a> or <a href='quick://axis(Axes.ABS_RZ)'>Right</a> Trigger
-  
+
   • Map to <a href='quick://trigger(50, 255, button(Keys.BTN_LEFT))'>Left</a> or <a href='quick://trigger(50, 255, button(Keys.BTN_RIGHT))'>Right</a> mouse button
-  
+
   • Map to <a href='grab://trigger_button'>Button</a>
 """
 
@@ -67,9 +66,9 @@ MARKUP_GYRO = """
 <big>Gyro: Quick settings</big>
 
   • Setup for aiming when right <a href='quick://mode(RPADTOUCH, mouse(ROLL), None)'>pad is touched</a>
-  
+
   • Setup for aiming when right <a href='quick://mode(LT >= 0.7, mouse(ROLL), None)'>trigger is pushed</a>
-  
+
   • <a href='quick://sens(3.5, 3.5, 3.5, mouse(ROLL))'>Use as mouse</a>
 """
 
@@ -79,10 +78,10 @@ class FirstPage(AEComponent):
 	NAME = "first_page"
 	CTXS = 0
 	PRIORITY = 999
-	
+
 	def __init__(self, app, editor):
 		AEComponent.__init__(self, app, editor)
-	
+
 	def load(self):
 		if AEComponent.load(self):
 			markup = ""
@@ -96,7 +95,7 @@ class FirstPage(AEComponent):
 				markup = MARKUP_TRIGGER
 			else:
 				markup = MARKUP_BUTTON
-			
+
 			long_names = {
 				'LPAD' : _("Left Pad"),
 				'RPAD' : _("Right Pad"),
@@ -108,13 +107,13 @@ class FirstPage(AEComponent):
 				'RIGHT' : _("Right Trigger"),
 				'STICK' : _("Stick"),
 			}
-			
+
 			markup = markup % {
 				'what' : long_names.get(nameof(self.editor.get_id()),
 								nameof(self.editor.get_id()).title())
 			}
 			self.builder.get_object("lblMarkup").set_markup(markup.strip(" \r\n\t"))
 			return True
-	
+
 	def on_lblMarkup_activate_link(self, trash, link):
 		self.editor.on_link(link)

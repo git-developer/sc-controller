@@ -2,7 +2,6 @@
 """
 SC-Controller - Input Display
 """
-from __future__ import unicode_literals
 from scc.tools import _, set_logging_level
 
 from gi.repository import Gtk, GLib
@@ -19,48 +18,48 @@ class InputDisplay(OSDWindow):
 	IMAGE = "inputdisplay.svg"
 	HILIGHT_COLOR = "#FF00FF00"		# ARGB
 	OBSERVE_COLOR = "#00007FFF"		# ARGB
-	
+
 	def __init__(self, imagepath="/usr/share/scc/images"):
 		OSDWindow.__init__(self, "osd-menu")
 		self.daemon = None
 		self.config = None
 		self.hilights = { self.HILIGHT_COLOR : set(), self.OBSERVE_COLOR : set() }
 		self.imagepath = imagepath
-		
+
 		self._eh_ids = []
-	
-	
+
+
 	def show(self):
 		self.main_area = Gtk.Fixed()
 		self.background = SVGWidget(os.path.join(self.imagepath, self.IMAGE))
 		self.lpadTest = Gtk.Image.new_from_file(os.path.join(self.imagepath, "inputdisplay-cursor.svg"))
 		self.rpadTest = Gtk.Image.new_from_file(os.path.join(self.imagepath, "inputdisplay-cursor.svg"))
 		self.stickTest = Gtk.Image.new_from_file(os.path.join(self.imagepath, "inputdisplay-cursor.svg"))
-		
+
 		self.main_area.set_property("margin-left", 10)
 		self.main_area.set_property("margin-right", 10)
 		self.main_area.set_property("margin-top", 10)
 		self.main_area.set_property("margin-bottom", 10)
-		
+
 		self.main_area.put(self.background, 0, 0)
 		self.main_area.put(self.lpadTest, 40, 40)
 		self.main_area.put(self.rpadTest, 290, 90)
 		self.main_area.put(self.stickTest, 150, 40)
-		
+
 		self.add(self.main_area)
-		
+
 		OSDWindow.show(self)
 		self.lpadTest.hide()
 		self.rpadTest.hide()
 		self.stickTest.hide()
-	
-	
+
+
 	def run(self):
 		self.daemon = DaemonManager()
 		self._connect_handlers()
 		OSDWindow.run(self)
-	
-	
+
+
 	def use_daemon(self, d):
 		"""
 		Allows (re)using already existing DaemonManager instance in same process.
@@ -68,28 +67,28 @@ class InputDisplay(OSDWindow):
 		"""
 		self.daemon = d
 		self._connect_handlers()
-		self.on_daemon_connected(self.daemon)	
-	
-	
+		self.on_daemon_connected(self.daemon)
+
+
 	def _connect_handlers(self):
 		self._eh_ids += [
 			(self.daemon, self.daemon.connect('dead', self.on_daemon_died)),
 			(self.daemon, self.daemon.connect('error', self.on_daemon_died)),
 			(self.daemon, self.daemon.connect('alive', self.on_daemon_connected)),
 		]
-	
-	
+
+
 	def on_daemon_connected(self, *a):
 		c = self.daemon.get_controllers()[0]
 		c.unlock_all()
 		c.observe(DaemonManager.nocallback, self.on_observe_failed,
 			'A', 'B', 'C', 'X', 'Y', 'START', 'BACK', 'LB', 'RB',
 			'LPAD', 'RPAD', 'LGRIP', 'RGRIP', 'LT', 'RT', 'LEFT',
-			'RIGHT', 'STICK', 'STICKPRESS')	
+			'RIGHT', 'STICK', 'STICKPRESS')
 		c.connect('event', self.on_daemon_event_observer)
 		c.connect('lost', self.on_controller_lost)
-	
-	
+
+
 	def on_observe_failed(self, error):
 		log.error("Failed to enable test mode: %s", error)
 		if "Sniffing" in error:
@@ -98,8 +97,8 @@ class InputDisplay(OSDWindow):
 			log.error("[!!] Please, enable 'Input Test Mode' on 'Advanced' tab in SC-Controller settings")
 			log.error("=================================================================================")
 		self.quit(3)
-	
-	
+
+
 	def on_daemon_event_observer(self, daemon, what, data):
 		if what in (LEFT, RIGHT, STICK):
 			widget, area = {
@@ -146,8 +145,8 @@ class InputDisplay(OSDWindow):
 				pass
 		else:
 			print("event", what)
-	
-	
+
+
 	def _update_background(self):
 		h = {}
 		for color in self.hilights:
@@ -169,11 +168,11 @@ if __name__ == "__main__":
 	gi.require_version('Gtk', '3.0')
 	gi.require_version('Rsvg', '2.0')
 	gi.require_version('GdkX11', '3.0')
-	
+
 	from scc.tools import init_logging
 	from scc.paths import get_share_path
 	init_logging()
-	
+
 	m = InputDisplay()
 	if not m.parse_argumets(sys.argv):
 		sys.exit(1)

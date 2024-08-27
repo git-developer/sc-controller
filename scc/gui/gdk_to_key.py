@@ -5,8 +5,6 @@ SC-Controller - GDK_TO_KEY
 Maps Gdk.KEY_* constants into Keys.KEY_* constants.
 Used by ActionEditor (when grabbing the key)
 """
-from __future__ import unicode_literals
-
 from gi.repository import Gdk
 from scc.uinput import Keys
 
@@ -17,32 +15,32 @@ GDK_TO_KEY = {
 	Gdk.KEY_Scroll_Lock	: Keys.KEY_SCROLLLOCK,
 	Gdk.KEY_Sys_Req		: Keys.KEY_SYSRQ,
 	Gdk.KEY_Pause		: Keys.KEY_PAUSE,
-	
+
 	# Row 2
 	Gdk.KEY_quoteleft	: Keys.KEY_GRAVE,	# tilde
 	Gdk.KEY_minus		: Keys.KEY_MINUS,
 	Gdk.KEY_equal		: Keys.KEY_EQUAL,
 	Gdk.KEY_BackSpace	: Keys.KEY_BACKSPACE,
-	
+
 	# Row 3
 	Gdk.KEY_Tab			: Keys.KEY_TAB,
 	Gdk.KEY_bracketleft	: Keys.KEY_LEFTBRACE,
 	Gdk.KEY_bracketright: Keys.KEY_RIGHTBRACE,
 	Gdk.KEY_backslash	: Keys.KEY_BACKSLASH,
-	
+
 	# Row 4
 	Gdk.KEY_Caps_Lock	: Keys.KEY_CAPSLOCK,
 	Gdk.KEY_semicolon	: Keys.KEY_SEMICOLON,
 	Gdk.KEY_apostrophe	: Keys.KEY_APOSTROPHE,
 	Gdk.KEY_Return		: Keys.KEY_ENTER,
-	
+
 	# Row 5
 	Gdk.KEY_Shift_L		: Keys.KEY_LEFTSHIFT,
 	Gdk.KEY_comma		: Keys.KEY_COMMA,
 	Gdk.KEY_period		: Keys.KEY_DOT,
 	Gdk.KEY_slash		: Keys.KEY_SLASH,
 	Gdk.KEY_Shift_R		: Keys.KEY_RIGHTSHIFT,
-	
+
 	# Numpad
 	Gdk.KEY_KP_0		: Keys.KEY_KP0,
 	Gdk.KEY_KP_1		: Keys.KEY_KP1,
@@ -61,7 +59,7 @@ GDK_TO_KEY = {
 	Gdk.KEY_KP_Subtract	: Keys.KEY_KPMINUS,
 	Gdk.KEY_KP_Enter	: Keys.KEY_KPENTER,
 	Gdk.KEY_Num_Lock	: Keys.KEY_NUMLOCK,
-	
+
 	# Home & co
 	Gdk.KEY_Insert		: Keys.KEY_INSERT,
 	Gdk.KEY_Home		: Keys.KEY_HOME,
@@ -69,13 +67,13 @@ GDK_TO_KEY = {
 	Gdk.KEY_Delete		: Keys.KEY_DELETE,
 	Gdk.KEY_End			: Keys.KEY_END,
 	Gdk.KEY_Page_Down	: Keys.KEY_PAGEDOWN,
-	
+
 	# Arrows
 	Gdk.KEY_Up			: Keys.KEY_UP,
 	Gdk.KEY_Left		: Keys.KEY_LEFT,
 	Gdk.KEY_Right		: Keys.KEY_RIGHT,
 	Gdk.KEY_Down		: Keys.KEY_DOWN,
-	
+
 	# Bottom row
 	Gdk.KEY_Control_L	: Keys.KEY_LEFTCTRL,
 	Gdk.KEY_Super_L		: Keys.KEY_LEFTMETA,
@@ -106,7 +104,7 @@ KEYCODE_TO_KEY = {
 	107	: Keys.KEY_PRINT,
 	78	: Keys.KEY_SCROLLLOCK,
 	127		: Keys.KEY_PAUSE,
-	
+
 	# Row 2
 	49	: Keys.KEY_GRAVE,	# tilde
 	10	: Keys.KEY_1,
@@ -122,7 +120,7 @@ KEYCODE_TO_KEY = {
 	20	: Keys.KEY_MINUS,
 	21	: Keys.KEY_EQUAL,
 	22	: Keys.KEY_BACKSPACE,
-	
+
 	# Row 3
 	23	: Keys.KEY_TAB,
 	24	: Keys.KEY_Q,
@@ -138,7 +136,7 @@ KEYCODE_TO_KEY = {
 	34	: Keys.KEY_LEFTBRACE,
 	35	: Keys.KEY_RIGHTBRACE,
 	51	: Keys.KEY_BACKSLASH,
-	
+
 	# Row 4
 	66	: Keys.KEY_CAPSLOCK,
 	38	: Keys.KEY_A,
@@ -153,7 +151,7 @@ KEYCODE_TO_KEY = {
 	47	: Keys.KEY_SEMICOLON,
 	48	: Keys.KEY_APOSTROPHE,
 	36	: Keys.KEY_ENTER,
-	
+
 	# Row 5
 	50	: Keys.KEY_LEFTSHIFT,
 	52	: Keys.KEY_Z,
@@ -167,7 +165,7 @@ KEYCODE_TO_KEY = {
 	60	: Keys.KEY_DOT,
 	61	: Keys.KEY_SLASH,
 	62	: Keys.KEY_RIGHTSHIFT,
-	
+
 	# Numpad
 	90	: Keys.KEY_KP0,
 	87	: Keys.KEY_KP1,
@@ -186,7 +184,7 @@ KEYCODE_TO_KEY = {
 	82	: Keys.KEY_KPMINUS,
 	104	: Keys.KEY_KPENTER,
 	77	: Keys.KEY_NUMLOCK,
-	
+
 	# Home & co
 	118	: Keys.KEY_INSERT,
 	110	: Keys.KEY_HOME,
@@ -194,13 +192,13 @@ KEYCODE_TO_KEY = {
 	119	: Keys.KEY_DELETE,
 	115	: Keys.KEY_END,
 	117	: Keys.KEY_PAGEDOWN,
-	
+
 	# Arrows
 	111	: Keys.KEY_UP,
 	113	: Keys.KEY_LEFT,
 	114	: Keys.KEY_RIGHT,
 	116	: Keys.KEY_DOWN,
-	
+
 	# Bottom row
 	37	: Keys.KEY_LEFTCTRL,
 	133	: Keys.KEY_LEFTMETA,

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import unicode_literals
 from scc.tools import _
 
 from gi.repository import Gtk, Gio, GLib, GObject
@@ -15,14 +14,14 @@ import sys, os, json, tarfile, tempfile, logging
 log = logging.getLogger("IE.ImportSSCC")
 
 class ImportSccprofile(object):
-	
+
 	def on_btImportSccprofile_clicked(self, *a):
 		# Create filters
 		f1 = Gtk.FileFilter()
 		f1.set_name("SC-Controller Profile or Archive")
 		f1.add_pattern("*.sccprofile")
 		f1.add_pattern("*.sccprofile.tar.gz")
-		
+
 		# Create dialog
 		d = Gtk.FileChooserNative.new(_("Import Profile..."),
 				self.window, Gtk.FileChooserAction.OPEN)
@@ -32,19 +31,19 @@ class ImportSccprofile(object):
 				self.import_scc_tar(d.get_filename())
 			else:
 				self.import_scc(d.get_filename())
-	
-	
+
+
 	def error(self, text):
 		"""
 		Displays error page (reused from VDF import).
 		"""
 		tbError =			self.builder.get_object("tbError")
 		grImportFailed =	self.builder.get_object("grImportFailed")
-		
+
 		tbError.set_text(text)
 		self.next_page(grImportFailed)
-	
-	
+
+
 	def import_scc(self, filename):
 		"""
 		Imports simple, single-file scc-profile.
@@ -62,16 +61,16 @@ class ImportSccprofile(object):
 			log.error(e)
 			self.error(str(e))
 			return
-		
+
 		name = ".".join(os.path.split(filename)[-1].split(".")[0:-1])
 		files.clear()
 		o = GObject.GObject()
 		o.obj = profile
 		files.append(( 2, name, name, _("(profile)"), o ))
-		
+
 		self.check_shell_commands()
-	
-	
+
+
 	def import_scc_tar(self, filename):
 		"""
 		Imports packaged profiles.
@@ -109,14 +108,14 @@ class ImportSccprofile(object):
 			self.error(str(e))
 			return
 		self.check_shell_commands()
-	
-	
+
+
 	def check_shell_commands(self):
 		"""
 		Check for shell commands in profiles being imported.
 		If there are any shell commands found, displays warning page
 		and lets user to confirm import of them.
-		
+
 		Othewise, goes straight to next page as if user already confirmed them.
 		"""
 		grShellCommands =	self.builder.get_object("grShellCommands")
@@ -130,7 +129,7 @@ class ImportSccprofile(object):
 				for a in obj.obj.get_all_actions():
 					if isinstance(a, ShellCommandAction):
 						model.append((False, a.command))
-		
+
 		if len(model) > 0:
 			# If there is shell command present, jump to warning page
 			self.next_page(grShellCommands)
@@ -139,9 +138,9 @@ class ImportSccprofile(object):
 			btNext.set_sensitive(False)
 		else:
 			# Otherwise continue to next one
-			self.shell_import_confirmed()	
-	
-	
+			self.shell_import_confirmed()
+
+
 	def on_crShellCommandChecked_toggled(self, cr, path):
 		tvShellCommands =	self.builder.get_object("tvShellCommands")
 		btNext =			self.builder.get_object("btNext")
@@ -152,23 +151,23 @@ class ImportSccprofile(object):
 			if not row[0]:
 				btNext.set_sensitive(False)
 				return
-	
-	
+
+
 	def shell_import_confirmed(self):
 		grSccImportFinished =	self.builder.get_object("grSccImportFinished")
 		lblSccImportFinished =	self.builder.get_object("lblSccImportFinished")
 		txName2 =				self.builder.get_object("txName2")
 		files =					self.builder.get_object("lstImportPackage")
 		vbImportPackage =		self.builder.get_object("vbImportPackage")
-		
+
 		enabled, trash, name, trash, obj = files[0]
 		lblSccImportFinished.set_text(_("Profile sucessfully imported"))
 		txName2.set_text(name)
 		vbImportPackage.set_visible(len(files) > 1)
 		self.next_page(grSccImportFinished)
 		self.on_txName2_changed()
-	
-	
+
+
 	def on_txName2_changed(self, *a):
 		txName2 =			self.builder.get_object("txName2")
 		btNext =			self.enable_next(True, self.on_scc_import_confirmed)
@@ -184,10 +183,10 @@ class ImportSccprofile(object):
 			btNext.set_sensitive(True)
 		else:
 			btNext.set_sensitive(False)
-		
+
 		cbImportHidden.set_label(_("Import as hidden menus and profiles named \".%s:name\"") % (main_name,))
 		cbImportVisible.set_label(_("Import normaly, with names formated as \"%s:name\"") % (main_name,))
-		
+
 		for i in range(0, len(files)):
 			enabled, name, importas, type, obj = files[i]
 			if enabled == 2:
@@ -201,14 +200,14 @@ class ImportSccprofile(object):
 			elif cbImportNone.get_active():
 				enabled = 0
 			files[i] = enabled, name, importas, type, obj
-	
-	
+
+
 	def on_cbImportPackageAdvanced_toggled(self, *a):
 		rvImportPackageAdvanced =	self.builder.get_object("rvImportPackageAdvanced")
 		cbImportPackageAdvanced =	self.builder.get_object("cbImportPackageAdvanced")
 		rvImportPackageAdvanced.set_reveal_child(cbImportPackageAdvanced.get_active())
-	
-	
+
+
 	def on_crIPKGEnabled_toggled(self, renderer, path):
 		files = self.builder.get_object("lstImportPackage")
 		i = int(path)
@@ -217,8 +216,8 @@ class ImportSccprofile(object):
 		if enabled != 2:
 			enabled = 1 if enabled == 0 else 0
 			files[i] = enabled, name, importas, type, obj
-	
-	
+
+
 	def on_crIPKGImportAs_edited(self, renderer, path, new_name):
 		files =		self.builder.get_object("lstImportPackage")
 		txName2 =	self.builder.get_object("txName2")
@@ -228,8 +227,8 @@ class ImportSccprofile(object):
 		if enabled == 2:
 			txName2.set_text(importas)
 		files[i] = enabled, name, importas, type, obj
-	
-	
+
+
 	def on_scc_import_confirmed(self, *a):
 		files =		self.builder.get_object("lstImportPackage")
 		new_profile_names = {}
@@ -240,7 +239,7 @@ class ImportSccprofile(object):
 					new_profile_names[name] = importas
 				elif isinstance(obj.obj, MenuData):
 					new_menu_names["%s.menu" % (name,)] = "%s.menu" % (importas,)
-		
+
 		def apply_replacements(obj):
 			for a in obj.get_all_actions():
 				if isinstance(a, ChangeProfileAction):
@@ -251,7 +250,7 @@ class ImportSccprofile(object):
 					if a.menu_id in new_menu_names:
 						a.menu_id = new_menu_names[a.menu_id]
 						a.parameters = tuple([ a.menu_id ] + list(a.parameters[1:]))
-		
+
 		for enabled, trash, importas, trash, obj in files:
 			if enabled != 0:
 				# TODO: update references
@@ -263,7 +262,7 @@ class ImportSccprofile(object):
 					jstr = Encoder(sort_keys=True, indent=4).encode(obj.obj)
 					filename = os.path.join(get_menus_path(), "%s.menu" % (importas,))
 					open(filename, "w").write(jstr)
-		
+
 		trash, trash, importas, trash, obj = files[0]	# 1st is always profile that's being imported
 		self.app.new_profile(obj.obj, importas)
 		GLib.idle_add(self.window.destroy)

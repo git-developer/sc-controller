@@ -2,7 +2,6 @@
 """
 SC-Controller - Gesture-related GUI stuff.
 """
-from __future__ import unicode_literals
 from scc.tools import _, set_logging_level
 
 from gi.repository import Gtk, Gdk, GLib, GObject
@@ -26,8 +25,8 @@ class GestureDraw(Gtk.DrawingArea):
 		self.connect('draw', self.draw)
 		self.set_size_request(size, size)
 		self.set_colors()
-	
-	
+
+
 	def set_colors(self, background="000000FF", line="FF00FFFF",
 			grid="7A7A7AFF", hilight="0030AAFF", **a):
 		""" Expects colors in RRGGBB, as stored in config file """
@@ -37,16 +36,16 @@ class GestureDraw(Gtk.DrawingArea):
 			'grid' : 		parse_rgba(grid),
 			'hilight':		parse_rgba(hilight),
 		}
-	
-	
+
+
 	def add(self, x, y):
 		factor = self._size / float(STICK_PAD_MAX - STICK_PAD_MIN)
 		x -= STICK_PAD_MIN
 		y = STICK_PAD_MAX - y
 		self._points.append(( x * factor, y * factor ))
 		self.queue_draw()
-	
-	
+
+
 	def draw(self, another_self, cr):
 		resolution = self._detector.get_resolution()
 		# hilights = [ [0] * resolution for x in xrange(0, resolution) ]
@@ -55,7 +54,7 @@ class GestureDraw(Gtk.DrawingArea):
 		Gdk.cairo_set_source_rgba(cr, self.colors['background'])
 		cr.rectangle(0, 0, self._size, self._size)
 		cr.fill()
-		
+
 		# Hilighted boxes
 		# Iterates over gesture in progress hilighting apripriate boxes,
 		# so user can see what's he doing.
@@ -73,7 +72,7 @@ class GestureDraw(Gtk.DrawingArea):
 			cr.fill()
 			step += 1
 		col.alpha = alpha
-		
+
 		# Grid
 		Gdk.cairo_set_source_rgba(cr, self.colors['grid'])
 		for i in range(1, resolution):
@@ -83,7 +82,7 @@ class GestureDraw(Gtk.DrawingArea):
 			cr.move_to(self.GRID_PAD, i * box_width)
 			cr.line_to(self._size - self.GRID_PAD, i * box_width)
 			cr.stroke()
-		
+
 		# Line
 		Gdk.cairo_set_source_rgba(cr, self.colors['line'])
 		drawing = False

@@ -4,7 +4,6 @@ SC-Controller - Action Editor - On Screen Keyboard Action Component
 
 Assigns actions from scc.osd.osk_actions
 """
-from __future__ import unicode_literals
 from scc.tools import _
 
 from gi.repository import Gtk, Gdk, GLib
@@ -27,12 +26,12 @@ class OSKActionComponent(AEComponent):
 	NAME = "osk_action"
 	CTXS = Action.AC_OSK
 	PRIORITY = 2
-	
+
 	def __init__(self, app, editor):
 		AEComponent.__init__(self, app, editor)
 		self._recursing = False
-	
-	
+
+
 	def set_action(self, mode, action):
 		cb = self.builder.get_object("cbActionType")
 		if isinstance(action, CloseOSKAction):
@@ -54,20 +53,19 @@ class OSKActionComponent(AEComponent):
 				self.set_cb(cb, "button(Keys.BTN_RIGHT)")
 		else:
 			self.set_cb(cb, "None")
-	
-	
+
+
 	def get_button_title(self):
 		return _("On-Screen Keyboard")
-	
-	
+
+
 	def handles(self, mode, action):
 		if isinstance(action, ButtonAction):
 			return action.button in ( Keys.BTN_LEFT, Keys.BTN_RIGHT )
 		return isinstance(action, (NoAction, OSKAction, OSKCursorAction))
-	
-	
+
+
 	def on_cbActionType_changed(self, *a):
 		cbActionType = self.builder.get_object("cbActionType")
 		key = cbActionType.get_model().get_value(cbActionType.get_active_iter(), 0)
 		self.editor.set_action(GuiActionParser().restart(key).parse())
-		

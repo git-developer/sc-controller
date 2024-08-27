@@ -5,7 +5,6 @@ SC Controller - ActionParser
 Parses action(s) expressed as string or in dict loaded from json file into
 one or more Action instances.
 """
-from __future__ import unicode_literals
 from tokenize import generate_tokens, TokenError
 from collections import namedtuple
 
@@ -49,7 +48,7 @@ def build_action_constants():
 class ActionParser(object):
 	"""
 	Parses action expressed as string into Action instances.
-	
+
 	Usage:
 		ap = ActionParser(string)
 		action = ap.parse()
@@ -58,18 +57,18 @@ class ActionParser(object):
 			# do something with error
 	"""
 	Token = namedtuple('Token', 'type value')
-	
+
 	CONSTS = build_action_constants()
-	
-	
+
+
 	def __init__(self, string=""):
 		self.restart(string)
-	
-	
+
+
 	def from_json_data(self, data, key=None):
 		"""
 		Converts dict stored in profile file into action.
-		
+
 		May throw ParseError.
 		"""
 		if key is not None:
@@ -80,7 +79,7 @@ class ActionParser(object):
 				return self.from_json_data(data[key], None)
 			else:
 				return NoAction()
-		
+
 		if "action" in data:
 			a = self.restart(data["action"]).parse() or NoAction()
 		else:
@@ -89,13 +88,13 @@ class ActionParser(object):
 		for key in data:
 			if key in Action.PKEYS:
 				decoders.add(Action.PKEYS[key])
-		
+
 		if decoders:
 			for cls in sorted(decoders, key=lambda a : a.PROFILE_KEY_PRIORITY ):
 				a = cls.decode(data, a, self, 0)	# Profile version is not yet used anywhere
 		return a
-	
-	
+
+
 	def restart(self, s):
 		"""
 		Restarts parsing with new string
@@ -103,7 +102,7 @@ class ActionParser(object):
 		"""
 		if type(s) == bytes:
 			s = s.decode("utf-8")
-			
+
 		try:
 			self.tokens = [
 				ActionParser.Token(type, string)
@@ -115,24 +114,24 @@ class ActionParser(object):
 			self.tokens = None
 		self.index = 0
 		return self
-	
-	
+
+
 	def _next_token(self):
 		rv = self.tokens[self.index]
 		self.index += 1
 		return rv
-	
-	
+
+
 	def _peek_token(self):
 		""" As _next_token, but without increasing counter """
 		return self.tokens[self.index]
-	
-	
+
+
 	def _tokens_left(self):
 		""" Returns True if there are any tokens left """
 		return self.index < len(self.tokens)
-	
-	
+
+
 	def _parse_parameter(self):
 		""" Parses single parameter """
 		t = self._next_token()
@@ -140,7 +139,7 @@ class ActionParser(object):
 			if not self._tokens_left():
 				raise ParseError("Expected parameter at end of string")
 			t = self._next_token()
-		
+
 		if t.type == TokenType.NAME:
 			# Constant or action used as parameter
 			if self._tokens_left() and self._peek_token().type == TokenType.OP and self._peek_token().value == '(':
@@ -156,18 +155,18 @@ class ActionParser(object):
 				if not t.value in ActionParser.CONSTS:
 					raise ParseError("Expected parameter, got '%s' which is not defined" % (t.value,))
 				parameter = ActionParser.CONSTS[t.value]
-			
+
 			# Check for dots
 			while self._tokens_left() and self._peek_token().type == TokenType.OP and self._peek_token().value == '.':
 				self._next_token()
 				if not self._tokens_left():
 					raise ParseError("Expected NAME after '.'")
-				
+
 				t = self._next_token()
 				if not hasattr(parameter, t.value):
 					raise ParseError("%s has no attribute '%s'" % (parameter, t.value,))
 				parameter = getattr(parameter, t.value)
-			
+
 			# Check for ranges (<, >, <=, >=)
 			if self._tokens_left() and self._peek_token().type == TokenType.OP:
 				if self._peek_token().value in RangeOP.OPS:
@@ -182,22 +181,22 @@ class ActionParser(object):
 					except ValueError:
 						raise ParseError("Excepted number after '%s'" % (op, ))
 					parameter = RangeOP(parameter, op, number)
-			
+
 			return parameter
-		
+
 		if t.type == TokenType.OP and t.value == "-":
 			if not self._tokens_left() or self._peek_token().type != TokenType.NUMBER:
 				raise ParseError("Expected number after '-'")
 			return - self._parse_number()
-		
+
 		if t.type == TokenType.NUMBER:
 			self.index -= 1
 			return self._parse_number()
-		
+
 		if t.type == TokenType.STRING:
 			#return t.value[1:-1].decode('unicode_escape')
 			return t.value[1:-1]
-		
+
 		raise ParseError("Expected parameter, got '%s'" % (t.value,))
 
 
@@ -251,8 +250,8 @@ class ActionParser(object):
 
 		# Code shouldn't reach here, unless there is not closing ')' in parameter list
 		raise ParseError("Unmatched parenthesis")
-	
-	
+
+
 	def _create_action(self, cls, *pars):
 		try:
 			return cls(*pars)
@@ -261,8 +260,8 @@ class ActionParser(object):
 		except TypeError as e:
 			print(e, file=sys.stderr)
 			raise ParseError("Invalid number of parameters for '%s'" % (cls.COMMAND))
-	
-	
+
+
 	def _parse_action(self, frm=Action.ALL):
 		"""
 		Parses one action, that is one of:
@@ -278,12 +277,12 @@ class ActionParser(object):
 			raise ParseError("Unknown action '%s'" % (t.value,))
 		action_name = t.value
 		action_class = frm[action_name]
-		
+
 		# Check if there are any tokens left - return action without parameters
 		# if not
 		if not self._tokens_left():
 			return self._create_action(action_class)
-		
+
 		# Check if token after action name is parenthesis and if yes, parse
 		# parameters from it
 		t = self._peek_token()
@@ -300,7 +299,7 @@ class ActionParser(object):
 			if not self._tokens_left():
 				return self._create_action(action_class, *parameters)
 			t = self._peek_token()
-		
+
 		# ... or, if it is one of ';', 'and' or 'or' and if yes, parse next action
 		if t.type == TokenType.NAME and t.value == 'and':
 			# Two (or more) actions joined by 'and'
@@ -336,10 +335,10 @@ class ActionParser(object):
 			action1 = self._create_action(action_class, *parameters)
 			action2 = self._parse_action()
 			return Macro(action1, action2)
-		
+
 		return self._create_action(action_class, *parameters)
-	
-	
+
+
 	def parse(self):
 		"""
 		Returns parsed action.

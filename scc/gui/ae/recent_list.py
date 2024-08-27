@@ -4,7 +4,6 @@ SC-Controller - Action Editor - Recent List Component
 
 Displays page that can edit settings for RecentListMenuGenerator
 """
-from __future__ import unicode_literals
 from scc.tools import _
 
 from scc.gui.ae import AEComponent
@@ -20,27 +19,27 @@ class RecentListGenComponent(AEComponent):
 	NAME = "recent_list"
 	CTXS = 0
 	PRIORITY = 0
-	
+
 	def __init__(self, app, editor):
 		AEComponent.__init__(self, app, editor)
-	
-	
+
+
 	def set_action(self, mode, action):
 		pass
-	
-	
+
+
 	def get_button_title(self):
 		return _("Recent List")
-	
-	
+
+
 	def handles(self, mode, action):
 		""" Not visible by default """
 		return False
-	
-	
+
+
 	def set_row_count(self, count):
 		self.builder.get_object("sclNumOfProfiles").set_value(count)
-	
-	
+
+
 	def get_row_count(self):
 		return int(self.builder.get_object("sclNumOfProfiles").get_value())

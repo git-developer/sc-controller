@@ -4,14 +4,12 @@ SC-Controller - Timer manager
 
 Simple abstract class for named, cancelable timers
 """
-
-from __future__ import unicode_literals
 from gi.repository import GLib
 
 class TimerManager(object):
 	def __init__(self):
 		self._timers = {}
-	
+
 	def timer(self, name, delay, callback, *data, **kwdata):
 		"""
 		Runs callback after specified number of seconds. Uses
@@ -31,11 +29,11 @@ class TimerManager(object):
 				GLib.source_remove(self._timers[name])
 			# Create new one
 			self._timers[name] = method(delay, self._callback, name, callback, *data, **kwdata)
-	
+
 	def timer_active(self, name):
 		""" Returns True if named timer is active """
 		return (name in self._timers)
-	
+
 	def cancel_timer(self, name):
 		"""
 		Cancels named timer. Returns True on success, False if there is no such timer.
@@ -45,13 +43,13 @@ class TimerManager(object):
 			del self._timers[name]
 			return True
 		return False
-	
+
 	def cancel_all(self):
 		""" Cancels all active timers """
 		for x in self._timers:
 			GLib.source_remove(self._timers[x])
 		self._timers = {}
-	
+
 	def _callback(self, name, callback, *data, **kwdata):
 		"""
 		Removes name from list of active timers and calls real callback.
@@ -59,4 +57,3 @@ class TimerManager(object):
 		del self._timers[name]
 		callback(*data, **kwdata)
 		return False
-	

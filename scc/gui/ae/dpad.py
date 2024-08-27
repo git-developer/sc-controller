@@ -5,7 +5,6 @@ SC-Controller - Action Editor - "DPAD or Menu"
 
 Setups DPAD emulation or menu display
 """
-from __future__ import unicode_literals
 from scc.tools import _
 
 from gi.repository import Gtk, Gdk, GLib
@@ -32,9 +31,9 @@ class DPADComponent(AEComponent, MenuActionCofC, BindingEditor):
 	NAME = "dpad"
 	CTXS = Action.AC_STICK | Action.AC_PAD
 	PRIORITY = 2
-	
+
 	DPAD8_WIDGETS = [ 'btDPAD4', 'btDPAD5', 'btDPAD6', 'btDPAD7' ]
-	
+
 	def __init__(self, app, editor):
 		AEComponent.__init__(self, app, editor)
 		MenuActionCofC.__init__(self)
@@ -42,8 +41,8 @@ class DPADComponent(AEComponent, MenuActionCofC, BindingEditor):
 		self._recursing = False
 		self._userdata_load_started = False
 		self.actions = [ NoAction() ] * 8
-	
-	
+
+
 	def load(self):
 		if self.loaded : return
 		AEComponent.load(self)
@@ -51,14 +50,14 @@ class DPADComponent(AEComponent, MenuActionCofC, BindingEditor):
 		cbCancelWith = self.builder.get_object("cbCancelWith")
 		cbConfirmWith.set_row_separator_func( lambda model, iter : model.get_value(iter, 0) == "-" )
 		cbCancelWith.set_row_separator_func( lambda model, iter : model.get_value(iter, 0)  == "-" )
-	
-	
+
+
 	def shown(self):
 		if not self._userdata_load_started:
 			self._userdata_load_started = True
 			self.load_menu_list()
-	
-	
+
+
 	def set_action(self, mode, action):
 		cbm = self.builder.get_object("cbMenuType")
 		cb = self.builder.get_object("cbActionType")
@@ -75,33 +74,33 @@ class DPADComponent(AEComponent, MenuActionCofC, BindingEditor):
 			self.set_cb(cb, "menu", 1)
 			self.load_menu_data(action)
 		self.on_cbActionType_changed()
-	
-	
+
+
 	def update_button_desc(self, action):
 		for i in range(0, len(action.actions)):
 			self.actions[i] = action.actions[i]
 		for i in range(0, 8):
 			self.set_button_desc(i)
-	
-	
+
+
 	def set_button_desc(self, i):
 		desc = describe_action(Action.AC_BUTTON, None, self.actions[i])
 		l = self.builder.get_object("lblDPAD%s" % (i,))
 		if l is None:
 			l = self.builder.get_object("btDPAD%s" % (i,)).get_children()[0]
 		l.set_markup(desc)
-	
-	
+
+
 	def get_button_title(self):
 		return _("DPAD / Menu")
-	
-	
+
+
 	def handles(self, mode, action):
 		if MenuActionCofC.handles(self, mode, action):
 			return True
 		return isinstance(action, DPadAction) # DPad8Action is derived from DPadAction
-	
-	
+
+
 	def update(self):
 		cb = self.builder.get_object("cbActionType")
 		scl = self.builder.get_object("sclDiagonalRange")
@@ -140,8 +139,8 @@ class DPADComponent(AEComponent, MenuActionCofC, BindingEditor):
 		else:
 			# Menu
 			self.on_cbMenus_changed()
-	
-	
+
+
 	def on_cbActionType_changed(self, *a):
 		if self._recursing: return
 		cb = self.builder.get_object("cbActionType")
@@ -154,8 +153,8 @@ class DPADComponent(AEComponent, MenuActionCofC, BindingEditor):
 		else: # key == "menu"
 			stActionData.set_visible_child(self.builder.get_object("grMenu"))
 		self.update()
-	
-	
+
+
 	def on_action_chosen(self, i, action, mark_changed=True):
 		self.actions[i] = action
 		cb = self.builder.get_object("cbActionType")
@@ -168,21 +167,21 @@ class DPADComponent(AEComponent, MenuActionCofC, BindingEditor):
 		#	action = NameModifier(action.name, action)
 		self.set_button_desc(i)
 		self.update()
-	
-	
+
+
 	def on_sclDiagonalRange_format_value(self, scale, value):
 		return _("%s°") % (value,)
-	
-	
+
+
 	def on_btClearDiagonalRange_clicked(self, *a):
 		scl = self.builder.get_object("sclDiagonalRange")
 		scl.set_value(DPadAction.DEFAULT_DIAGONAL_RANGE)
-	
-	
+
+
 	def on_sclDiagonalRange_value_changed(self, *a):
 		self.update()
-	
-	
+
+
 	def on_btDPAD_clicked(self, b):
 		""" 'Select DPAD Left Action' handler """
 		i = int(b.get_name())
@@ -195,8 +194,8 @@ class DPADComponent(AEComponent, MenuActionCofC, BindingEditor):
 		ae.set_title(_("Select DPAD Action"))
 		ae.set_input(i, action, mode = Action.AC_BUTTON)
 		ae.show(self.editor.window)
-	
-	
+
+
 	def get_default_confirm(self):
 		"""
 		Returns default confirm button for pads/stick - LPAD, RPAD or STICKPRESS
@@ -204,8 +203,8 @@ class DPADComponent(AEComponent, MenuActionCofC, BindingEditor):
 		if self.editor.id == STICK:
 			return SCButtons.STICKPRESS
 		return getattr(SCButtons, self.editor.id)
-	
-	
+
+
 	def get_default_cancel(self):
 		"""
 		Returns default cancel button for stick/pad - SAME or B
@@ -213,20 +212,20 @@ class DPADComponent(AEComponent, MenuActionCofC, BindingEditor):
 		if self.editor.id == STICK:
 			return SCButtons.B
 		return SAME
-	
-	
+
+
 	def get_control_with(self):
 		"""
 		'control_with' argument is ignored when menu is used with stick/pad.
 		"""
 		return DEFAULT
-	
-	
+
+
 	def on_exMenuControl_activate(self, ex, *a):
 		rvMenuControl = self.builder.get_object("rvMenuControl")
 		rvMenuControl.set_reveal_child(not ex.get_expanded())
-	
-	
+
+
 	def on_exMenuPosition_activate(self, ex, *a):
 		rvMenuPosition = self.builder.get_object("rvMenuPosition")
 		rvMenuPosition.set_reveal_child(not ex.get_expanded())

@@ -4,7 +4,6 @@ DWSNC - Doing Weird Things in Name of Compatibility
 This module, when imported, applies various fixes and monkey-patching to allow
 application to run with older versions of GLib and/or GTK.
 """
-from __future__ import unicode_literals
 from gi.repository import Gtk, GObject
 import os
 
@@ -13,7 +12,7 @@ def fix_label_missing_set_XYalign_methods():
 	"""
 	Fix Gtk.Label missing set_xalign and set_yalign methods with older
 	versions of Gtk.
-	
+
 	Prevents crashing, but alings are ignored.
 	"""
 	Gtk.Label.set_xalign = Gtk.Label.set_yalign = lambda *a : None
@@ -33,7 +32,7 @@ def headerbar(bar):
 	"""
 	Moves all buttons from left to right (and vice versa) if user's desktop
 	environment is identified as Unity.
-	
+
 	Removes 'icon' button otherwise
 	"""
 	bar.set_decoration_layout(":minimize,close")
@@ -46,14 +45,14 @@ IS_KDE = False
 if "XDG_CURRENT_DESKTOP" in os.environ:
 	if "GNOME" in os.environ["XDG_CURRENT_DESKTOP"].split(":"):
 		IS_GNOME = True
-	
+
 	if "KDE" in os.environ["XDG_CURRENT_DESKTOP"].split(":"):
 		IS_KDE = True
-	
+
 	if "Unity" in os.environ["XDG_CURRENT_DESKTOP"].split(":"):
 		# User runs Unity
 		IS_UNITY = True
-		
+
 		def _headerbar(bar):
 			children = [] + bar.get_children()
 			pack_start = []
@@ -78,4 +77,3 @@ if "XDG_CURRENT_DESKTOP" in os.environ:
 if not hasattr(Gtk.Label, "set_xalign"):
 	# GTK is old enough
 	fix_label_missing_set_XYalign_methods()
-
