@@ -1560,9 +1560,8 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 				assert stream
 				stream.read_bytes_async(102400, 0, None, stream_ready, buffer)
 			except Exception as e:
-				log.warning("Failed to read release notes")
-				log.exception(e)
-				log.warning("(above error is not fatal and can be ignored)")
+				log.warning("Failed to read release notes, maybe your internet connection is down?")
+#				log.exception(f"Following Traceback error is not fatal and can be ignored: {e}")
 				return
 
 		f.read_async(0, None, http_ready, buffer)
