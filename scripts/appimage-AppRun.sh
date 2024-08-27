@@ -12,7 +12,7 @@ function dependency_check_failed() {
 	# This checks 4 different ways to open error message in addition to
 	# throwing it to screen directly
 	>&2 cat /tmp/scc.depcheck.$$.txt
-	
+
 	[ -e /usr/bin/zenity ] && run_and_die /usr/bin/zenity --error --no-wrap --text "$(cat /tmp/scc.depcheck.$$.txt)"
 	[ -e /usr/bin/yad ] && run_and_die /usr/bin/yad --error --text "$(cat /tmp/scc.depcheck.$$.txt)"
 	[ -e /usr/bin/Xdialog ] && run_and_die /usr/bin/Xdialog --textbox "/tmp/scc.depcheck.$$.txt" 10 100
@@ -32,7 +32,7 @@ rm /tmp/scc.depcheck.$$.txt || true
 
 # Pre-parse arguments
 ARG1=$1
-if [ "x$ARG1" == "x" ] ; then
+if [ "$ARG1" == "" ] ; then
 	# Start gui if no arguments are passed
 	ARG1="gui"
 else
@@ -44,4 +44,3 @@ export GDK_PIXBUF_MODULE_FILE=${APPDIR}/../$$-gdk-pixbuf-loaders.cache
 gdk-pixbuf-query-loaders >"$GDK_PIXBUF_MODULE_FILE"
 python3 ${APPDIR}/usr/bin/scc $ARG1 $@
 rm "$GDK_PIXBUF_MODULE_FILE" &>/dev/null
-

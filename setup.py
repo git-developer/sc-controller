@@ -37,7 +37,7 @@ data_files = [
 packages = [
 	# Required
 	'scc', 'scc.drivers', 'scc.lib',
-	# Usefull
+	# Useful
 	'scc.x11', 'scc.osd', 'scc.foreign',
 	# GUI
 	'scc.gui', 'scc.gui.ae', 'scc.gui.importexport', "scc.gui.creg"
