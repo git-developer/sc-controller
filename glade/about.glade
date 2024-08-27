@@ -4,7 +4,7 @@
   <requires lib="gtk+" version="3.10"/>
   <object class="GtkDialog" id="Dialog">
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">About SC-Controller</property>
+    <property name="title" translatable="yes">About SC Controller</property>
     <property name="window_position">center-on-parent</property>
     <property name="icon">../images/sc-controller-small.svg</property>
     <property name="type_hint">dialog</property>
@@ -66,7 +66,7 @@
               <object class="GtkLabel" id="label1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">&lt;span size="large"&gt;&lt;b&gt;SC-Controller&lt;/b&gt;&lt;/span&gt;</property>
+                <property name="label" translatable="yes">&lt;span size="large"&gt;&lt;b&gt;SC Controller&lt;/b&gt;&lt;/span&gt;</property>
                 <property name="use_markup">True</property>
                 <property name="justify">center</property>
               </object>
@@ -95,7 +95,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="margin_bottom">20</property>
-                <property name="label" translatable="yes">User-mode driver and GTK3 based GUI for Steam Controller.</property>
+                <property name="label" translatable="yes">User-mode driver and GTK3 based GUI for the Steam Controller, DS4 and similar controllers</property>
                 <property name="use_markup">True</property>
                 <property name="justify">center</property>
               </object>
@@ -110,23 +110,17 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="margin_bottom">25</property>
-                <property name="label" translatable="yes">&lt;b&gt;Code&amp;amp;UI © 2016 Kozec&lt;/b&gt;
+                <property name="label" translatable="yes">
+&lt;b&gt;Code&amp;amp;UI © 2016-2023 Kozec&lt;/b&gt;
+&lt;b&gt;Python 3 port&amp;amp;Maintenance © 2020-2024 Ryochan7&lt;/b&gt;
+&lt;b&gt;Maintenance © 2024 Martin Rys&lt;/b&gt;
 
-Source code available on &lt;a href="https://github.com/kozec/sc-controller"&gt;GitHub&lt;/a&gt;
+Source code available on &lt;a href="https://github.com/C0rn3j/sc-controller"&gt;GitHub&lt;/a&gt;
 
-I'd like to express my biggest thanks
-for all my &lt;b&gt;&lt;a href="https://www.patreon.com/kozec"&gt;Patreon&lt;/a&gt;&lt;/b&gt; supporters, with special mention of
+If you like what I am doing, you can become a supporter on &lt;a href="https://ko-fi.com/martinrys"&gt;Ko-Fi&lt;/a&gt; or check out other &lt;a href="https://rys.rs/donate"&gt;ways to donate&lt;/a&gt;
 
-&lt;b&gt;guido haag&lt;/b&gt;
-&lt;b&gt;Orivej Desh&lt;/b&gt;
-&lt;b&gt;G. Wilson&lt;/b&gt;
-&lt;b&gt;Eric Duhamel&lt;/b&gt;
-&lt;b&gt;Enric Morales&lt;/b&gt;
-&lt;b&gt;Joshua M&lt;/b&gt;
-&lt;b&gt;Lutris&lt;/b&gt;
-&lt;b&gt;Taowa&lt;/b&gt;
-and
-&lt;b&gt;ambidot&lt;/b&gt;
+Donation links for Kozec, who is the original developer, can be found &lt;a href="https://github.com/kozec/sc-controller?tab=readme-ov-file#like-what-im-doing"&gt;here&lt;/a&gt;
+
 </property>
                 <property name="use_markup">True</property>
                 <property name="justify">center</property>

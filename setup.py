@@ -25,7 +25,7 @@ data_files = [
 				('share/mime/packages', [ "scc-mime-types.xml" ]),
 				('share/applications', ['scripts/sc-controller.desktop' ]),
 				('lib/udev/rules.d', glob.glob('scripts/*.rules')),
-				
+
 ] + [ # menu icons subfolders
 	(
 		'share/scc/images/menu-icons/' + x.split("/")[-1],
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 	setup(name = 'sccontroller',
 			version = DAEMON_VERSION,
 			description = 'Standalone controller maping tool',
-			author = 'kozec',
+			author = 'C0rn3j',
 			packages = packages,
 			data_files = data_files,
 			scripts = [
@@ -73,4 +73,3 @@ if __name__ == "__main__":
 				Extension('libremotepad', sources = ['scc/drivers/remotepad_controller.c']),
 			]
 	)
-
