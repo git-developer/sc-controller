@@ -1487,9 +1487,9 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 
 		self.connect('handle-local-options', self.do_local_options)
 
-		aso("verbose",	b"v", "Be verbose")
-		aso("debug",	b"d", "Be more verbose (debug mode)")
-		aso("osd",		b"o", "OSD mode (OSD-controllable editor for current profile)")
+		aso("verbose", b"v", "Be verbose")
+		aso("debug",   b"d", "Be more verbose (debug mode)")
+		aso("osd",     b"o", "OSD mode (OSD-controllable editor for current profile)")
 
 
 	def save_profile_selection(self, path):
@@ -1508,24 +1508,26 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 		""" Returns name profile from config file or None if there is none saved """
 		try:
 			return self.config['recent_profiles'][0]
-		except:
+		except Exception:
 			return None
 
 
 	@staticmethod
-	def get_release(n=3):
+	def get_release(n:int = 4) -> str:
 		"""
 		Returns current version rounded to max. 'n' numbers.
 		( v0.14.1.3 ; n=3 -> v0.14.1 )
 		"""
 		split = DAEMON_VERSION.split(".")[0:n]
-		while split[-1] == "0": split = split[0:len(split) - 1]
+		while split[-1] == "0":
+			split = split[0:len(split) - 1]
 		return ".".join(split)
 
 
-	def release_notes_visible(self):
+	def release_notes_visible(self) -> bool:
 		""" Returns True if release notes infobox is visible """
-		if not self.ribar: return False
+		if not self.ribar:
+			return False
 		riNewRelease = self.builder.get_object('riNewRelease')
 		return self.ribar._infobar == riNewRelease
 
@@ -1536,7 +1538,7 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 		informing user that they are ready to be displayed.
 		"""
 		url = App.RELEASE_URL % (App.get_release(),)
-		log.debug("Loading release notes from '%s'", url)
+		log.debug(f"Loading release notes from '{url}'")
 		f = Gio.File.new_for_uri(url)
 		buffer = b""
 
@@ -1549,7 +1551,7 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 				else:
 					self.on_got_release_notes(buffer.decode("utf-8"))
 			except Exception as e:
-				log.warning("Failed to read release notes")
+				log.warning(f"Failed to read release notes at {url}, maybe your internet connection is down?")
 				log.exception(e)
 				return
 
@@ -1559,7 +1561,7 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 				assert stream
 				stream.read_bytes_async(102400, 0, None, stream_ready, buffer)
 			except Exception as e:
-				log.warning("Failed to read release notes, maybe your internet connection is down?")
+				log.warning(f"Failed to read release notes at {url}, maybe your internet connection is down?")
 #				log.exception(f"Following Traceback error is not fatal and can be ignored: {e}")
 				return
 
