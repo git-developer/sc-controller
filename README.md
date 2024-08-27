@@ -27,25 +27,28 @@ Donation links for kozec, who is the original developer, can be found on the [ol
 
 ## Packages
 
- - **Arch Linux (and derivatives):** Found in [AUR/sc-controller](https://aur.archlinux.org/packages/sc-controller/) and [AUR/sc-controller-git](https://aur.archlinux.org/packages/sc-controller-git/)
- - **Ubuntu (and Debian and derivatives):** Packaged as AppImage in [GitHub releases](https://github.com/C0rn3j/sc-controller/releases), ***which may also run fine on other operating systems***
- - **Gentoo:** Packaged as [game-util/sc-controller](https://packages.gentoo.org/packages/games-util/sc-controller)
- - **Void Linux:** Packaged as [sc-controller](https://github.com/void-linux/void-packages/blob/master/srcpkgs/sc-controller/template) - Run `xbps-install -S sc-controller` in a terminal, points to archived Ryochan7's fork at the time of writing
+  - **Arch Linux:** Found in [AUR/sc-controller](https://aur.archlinux.org/packages/sc-controller/) and [AUR/sc-controller-git](https://aur.archlinux.org/packages/sc-controller-git/)
+  - **Ubuntu (22.04-jammy, 24.04-noble):** Packaged as AppImage in [GitHub releases](https://github.com/C0rn3j/sc-controller/releases), ***which may also run fine on other operating systems***
+  - **Gentoo:** Packaged as [game-util/sc-controller](https://packages.gentoo.org/packages/games-util/sc-controller)
+  - **Void Linux:** Packaged as [sc-controller](https://github.com/void-linux/void-packages/blob/master/srcpkgs/sc-controller/template) - Run `xbps-install -S sc-controller` in a terminal, points to archived Ryochan7's fork at the time of writing
+  - **Others:** You can attempt to use the latest Ubuntu AppImage, or a package meant for your parent distribution if applicable
 
 
 ## Building the package by yourself
 
 ### Dependencies
-  - python 3, GTK 3.22 or newer and [PyGObject](https://live.gnome.org/PyGObject)
-  - [python-gi-cairo](https://packages.debian.org/sid/python-gi-cairo) and [gir1.2-rsvg-2.0](https://packages.debian.org/sid/gir1.2-rsvg-2.0) on debian based distros (included in PyGObject elsewhere)
+  - Python 3
+  - GTK 3.22+
+  - [PyGObject](https://live.gnome.org/PyGObject)
+  - [python-gi-cairo](https://packages.debian.org/sid/python-gi-cairo) and [gir1.2-rsvg-2.0](https://packages.debian.org/sid/gir1.2-rsvg-2.0) on Debian-based distributions (included in PyGObject elsewhere)
   - [setuptools](https://pypi.python.org/pypi/setuptools)
-  - [python-pylibacl](http://pylibacl.k1024.org/) is recommended
   - [python-evdev](https://python-evdev.readthedocs.io/en/latest/) is strongly recommended
+  - [python-pylibacl](http://pylibacl.k1024.org/) is recommended
   - [python-vdf](https://pypi.org/project/vdf/)
   - [gtk-layer-shell](https://github.com/wmww/gtk-layer-shell) (Wayland only)
 
 ### Installing
-  - Download and extract  [latest release](https://github.com/C0rn3j/sc-controller/releases/latest)
+  - Download and extract [latest release](https://github.com/C0rn3j/sc-controller/releases/latest)
   - `python3 setup.py build`
   - `python3 setup.py install`
 
