@@ -28,12 +28,21 @@ from scc.mapper import Mapper
 from scc import drivers
 
 from socketserver import UnixStreamServer, ThreadingMixIn, StreamRequestHandler
-import os, sys, pkgutil, signal, time, json, logging
-import threading, traceback, subprocess, shlex
+import os
+import sys
+import pkgutil
+import signal
+import time
+import json
+import logging
+import threading
+import traceback
+import subprocess
 log = logging.getLogger("SCCDaemon")
 tlog = logging.getLogger("Socket Thread")
 
-class ThreadingUnixStreamServer(ThreadingMixIn, UnixStreamServer): daemon_threads = True
+class ThreadingUnixStreamServer(ThreadingMixIn, UnixStreamServer):
+	daemon_threads = True
 
 
 class SCCDaemon(Daemon):
@@ -223,7 +232,8 @@ class SCCDaemon(Daemon):
 		for client in self.clients:
 			try:
 				client.wfile.write(message_str)
-			except: pass
+			except Exception:
+				pass
 
 
 	def on_sa_turnoff(self, mapper, action):
@@ -262,7 +272,7 @@ class SCCDaemon(Daemon):
 				self.osd_daemon.gesture_action = action
 				self._osd('gesture',
 					"--controller", mapper.get_controller().get_id(),
-				 	'--control-with', what)
+					'--control-with', what)
 				log.debug("Gesture detection request sent to scc-osd-daemon")
 			else:
 				# Otherwise it is handled internally
@@ -412,7 +422,8 @@ class SCCDaemon(Daemon):
 		for fn in self.on_exit_cbs:
 			fn(self)
 		for d in (self.osd_daemon, self.autoswitch_daemon):
-			if d: d.wfile.close()
+			if d:
+				d.wfile.close()
 		self.osd_daemon, self.autoswitch_daemon = None, None
 		for p in self.subprocs:
 			p.kill()
@@ -503,10 +514,10 @@ class SCCDaemon(Daemon):
 
 	def load_default_profile(self, mapper=None):
 		mapper = mapper or self.default_mapper
-		if self.default_profile == None:
+		if self.default_profile is None:
 			try:
 				self.default_profile = find_profile(Config()["recent_profiles"][0])
-			except:
+			except Exception:
 				# Broken config is not reason to fail here
 				pass
 		try:
@@ -739,7 +750,8 @@ class SCCDaemon(Daemon):
 			except Exception:
 				# Connection terminated
 				break
-			if len(line) == 0: break
+			if len(line) == 0:
+				break
 			if len(line.strip(b"\t\n ")) > 0:
 				self._handle_message(client, line.strip(b"\n"))
 
@@ -810,7 +822,7 @@ class SCCDaemon(Daemon):
 							break
 					else:
 						raise Exception("goto fail")
-				except Exception as e:
+				except Exception:
 					client.wfile.write(b"Fail: no such controller\n")
 		elif message.startswith(b"State."):
 			if Config()["enable_sniffing"]:
@@ -850,7 +862,7 @@ class SCCDaemon(Daemon):
 					if not self._can_lock_action(client.mapper, SCCDaemon.source_to_constant(l)):
 						client.wfile.write(b"Fail: Cannot lock " + l.encode("utf-8") + b"\n")
 						return
-				except ValueError as e:
+				except ValueError:
 					tb = str(traceback.format_exc()).encode("utf-8").decode('unicode_escape').encode("latin1")
 					client.wfile.write(b"Fail: " + tb + b"\n")
 					return
@@ -864,7 +876,7 @@ class SCCDaemon(Daemon):
 						if not self._can_lock_action(client.mapper, SCCDaemon.source_to_constant(l)):
 							client.wfile.write(b"Fail: Cannot lock " + l.encode("utf-8") + b"\n")
 							return
-				except ValueError as e:
+				except ValueError:
 					tb = str(traceback.format_exc()).encode("utf-8").decode('unicode_escape').encode("latin1")
 					client.wfile.write(b"Fail: " + tb + b"\n")
 					return
@@ -894,7 +906,7 @@ class SCCDaemon(Daemon):
 				try:
 					client.wfile.write(b"OK.\n")
 					self._send_to_all("Reconfigured.\n".encode("utf-8"))
-				except:
+				except Exception:
 					pass
 		elif message.startswith(b"Rescan."):
 			cbs = []
@@ -903,7 +915,7 @@ class SCCDaemon(Daemon):
 				# Respond first
 				try:
 					client.wfile.write(b"OK.\n")
-				except:
+				except Exception:
 					pass
 			# Do stuff later
 			# (this cannot be done while self.lock is held, as creating new
@@ -933,7 +945,7 @@ class SCCDaemon(Daemon):
 			try:
 				what, up_angle = message[8:].strip().split(b" ", 2)
 				up_angle = int(up_angle)
-			except Exception as  e:
+			except Exception:
 				tb = str(traceback.format_exc()).encode("utf-8").decode('unicode_escape').encode("latin1")
 				client.wfile.write(b"Fail: " + tb + b"\n")
 				return
@@ -980,7 +992,7 @@ class SCCDaemon(Daemon):
 					else:
 						menuaction = client.mapper.profile.menus[menu_id].get_by_id(item_id).action
 					client.wfile.write(b"OK.\n")
-				except:
+				except Exception:
 					log.warning("Selected menu item is no longer valid.")
 					client.wfile.write(b"Fail: Selected menu item is no longer valid\n")
 				if menuaction:
@@ -988,11 +1000,13 @@ class SCCDaemon(Daemon):
 		elif message.startswith(b"Register:"):
 			with self.lock:
 				if message.strip().endswith(b"osd"):
-					if self.osd_daemon: self.osd_daemon.close()
+					if self.osd_daemon:
+						self.osd_daemon.close()
 					self.osd_daemon = client
 					log.info("Registered scc-osd-daemon")
 				elif message.strip().endswith(b"autoswitch"):
-					if self.autoswitch_daemon: self.autoswitch_daemon.close()
+					if self.autoswitch_daemon:
+						self.autoswitch_daemon.close()
 					self.autoswitch_daemon = client
 					log.info("Registered scc-autoswitch-daemon")
 				client.wfile.write(b"OK.\n")
@@ -1139,7 +1153,7 @@ class Client(object):
 		""" Closes connection to this client """
 		try:
 			self.connection.shutdown(True)
-		except:
+		except Exception:
 			pass
 
 
@@ -1154,7 +1168,7 @@ class Client(object):
 			# Called while lock is being held
 			try:
 				self.wfile.write(b"Gesture: %s %s\n" % (what, gesture))
-			except:
+			except Exception:
 				pass
 
 		gd = daemon._start_gesture(self.mapper, what, up_angle, cb)
@@ -1247,7 +1261,7 @@ class ReportingAction(Action):
 	def _report(self, message):
 		try:
 			self.client.wfile.write(message.encode("utf-8"))
-		except Exception as e:
+		except Exception:
 			# May fail when client dies
 			self.client.rfile.close()
 			self.client.wfile.close()
@@ -1282,7 +1296,8 @@ class ReportingAction(Action):
 
 	def whole(self, mapper, x, y, what):
 		min_difference = self.MIN_DIFFERENCE
-		if what == CPAD: min_difference /= 10
+		if what == CPAD:
+			min_difference /= 10
 		if (x == 0 or y == 0 or abs(x - self.old_pos[0]) > min_difference
 							or abs(y - self.old_pos[1] > min_difference)):
 			self.old_pos = x, y
