@@ -42,10 +42,10 @@ Donation links for kozec, who is the original developer, can be found on the [ol
   - [PyGObject](https://live.gnome.org/PyGObject)
   - [python-gi-cairo](https://packages.debian.org/sid/python-gi-cairo) and [gir1.2-rsvg-2.0](https://packages.debian.org/sid/gir1.2-rsvg-2.0) on Debian-based distributions (included in PyGObject elsewhere)
   - [setuptools](https://pypi.python.org/pypi/setuptools)
-  - [python-evdev](https://python-evdev.readthedocs.io/en/latest/) is strongly recommended
-  - [python-pylibacl](http://pylibacl.k1024.org/) is recommended
+  - [python-evdev](https://python-evdev.readthedocs.io/en/latest/)
+  - [python-pylibacl](http://pylibacl.k1024.org/)
   - [python-vdf](https://pypi.org/project/vdf/)
-  - [gtk-layer-shell](https://github.com/wmww/gtk-layer-shell) (Wayland only)
+  - [gtk-layer-shell](https://github.com/wmww/gtk-layer-shell)
 
 ### Installing
   - Download and extract [latest release](https://github.com/C0rn3j/sc-controller/releases/latest)
