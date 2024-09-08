@@ -610,7 +610,7 @@ class HIDDrv(object):
 					log.warning("Ignoring file that cannot be parsed: %s", name)
 					continue
 
-				self.config_files[vid, pid] = config_file.decode("utf-8")
+				self.config_files[vid, pid] = config_file
 				self.configs[vid, pid] = config
 				known.add((vid, pid))
 
@@ -695,7 +695,7 @@ def hiddrv_test(cls, args):
 
 	return fake_daemon.exitcode
 
-def init(daemon, config):
+def init(daemon, config: dict) -> bool:
 	""" Called from scc-daemon """
 	d = HIDDrv(daemon)
 	daemon.add_on_rescan(d.scan_files)
