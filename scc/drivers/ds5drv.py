@@ -7,11 +7,10 @@ Extends HID driver with DS5-specific options.
 
 import ctypes
 import logging
-import os, sys
+import os
+import sys
 import zlib
-from datetime import datetime
 import time
-import binascii
 import math
 
 

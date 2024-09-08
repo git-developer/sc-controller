@@ -1751,7 +1751,7 @@ class MultiAction(MultichildAction):
 
 	def _add_all(self, actions):
 		for x in actions:
-			if type(x) == list:
+			if type(x) is list:
 				self._add_all(x)
 			elif x:
 				self._add(x)

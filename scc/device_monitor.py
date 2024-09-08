@@ -8,7 +8,9 @@ manage plugging/releasing devices.
 from scc.lib.eudevmonitor import Eudev, Monitor
 from scc.lib.ioctl_opt import IOR
 from ctypes.util import find_library
-from typing import Union, Tuple
+from typing import Union, Tuple, TYPE_CHECKING
+if TYPE_CHECKING:
+	from scc.sccdaemon import SCCDaemon
 import os
 import ctypes
 import fcntl
@@ -32,16 +34,16 @@ except Exception:
 
 class DeviceMonitor(Monitor):
 
-	def __init__(self, *a):
+	def __init__(self, *a) -> None:
 		Monitor.__init__(self, *a)
-		self.daemon = None
+		self.daemon: Union['SCCDaemon', None] = None
 		self.dev_added_cbs = {}
 		self.dev_removed_cbs = {}
 		self.bt_addresses = {}
 		self.known_devs = {}
 
 # removed_cb type can be None
-	def add_callback(self, subsystem: str, vendor_id: int, product_id: int, added_cb, removed_cb):
+	def add_callback(self, subsystem: str, vendor_id: int, product_id: int, added_cb, removed_cb) -> None:
 		"""
 		Adds function that is called when eudev monitor detects new, ready
 		to use device.
@@ -60,7 +62,7 @@ class DeviceMonitor(Monitor):
 		self.dev_removed_cbs[key] = removed_cb
 
 
-	def add_remove_callback(self, syspath, cb):
+	def add_remove_callback(self, syspath, cb) -> None:
 		"""
 		Adds (possibly replaces) callback that will be called once
 		device with specified syspath is disconnected.
@@ -70,7 +72,7 @@ class DeviceMonitor(Monitor):
 			self.known_devs[syspath] = (vendor, product, cb)
 
 
-	def start(self):
+	def start(self) -> None:
 		""" Registers poller and starts listening for events """
 		if not HAVE_BLUETOOTH_LIB:
 			log.warning("Failed to load libbluetooth.so, bluetooth support will be incomplete")
@@ -79,7 +81,7 @@ class DeviceMonitor(Monitor):
 		Monitor.start(self)
 
 
-	def _on_new_syspath(self, subsystem, syspath):
+	def _on_new_syspath(self, subsystem, syspath) -> None:
 		try:
 			if subsystem == "input":
 				vendor, product = None, None
@@ -101,7 +103,7 @@ class DeviceMonitor(Monitor):
 				del self.known_devs[syspath]
 
 
-	def _get_hci_addresses(self):
+	def _get_hci_addresses(self) -> None:
 		if not HAVE_BLUETOOTH_LIB:
 			return
 		cl = hci_conn_list_req()
@@ -150,7 +152,7 @@ class DeviceMonitor(Monitor):
 		return None
 
 
-	def on_data_ready(self, *a):
+	def on_data_ready(self, *a) -> None:
 		event = self.receive_device()
 		if event:
 			if event.action == "bind" and event.initialized:
@@ -240,7 +242,7 @@ class DeviceMonitor(Monitor):
 
 
 	@staticmethod
-	def _find_bt_address(syspath):
+	def _find_bt_address(syspath) -> Union[str, None]:
 		"""
 		Recursivelly searchs for "input*" subdirectories until "uniq" file
 		is found. Then, returns address from that file.
@@ -259,7 +261,7 @@ class DeviceMonitor(Monitor):
 
 
 	@staticmethod
-	def get_usb_address(syspath):
+	def get_usb_address(syspath) -> Tuple[int, int]:
 		"""
 		For given syspath, reads and returns (busnum, devnum) as ints.
 
@@ -271,7 +273,7 @@ class DeviceMonitor(Monitor):
 
 
 	@staticmethod
-	def get_subsystem(syspath):
+	def get_subsystem(syspath) -> str:
 		"""
 		For given syspath, reads and returns subsystem as string.
 
@@ -299,7 +301,8 @@ class hci_conn_list_req(ctypes.Structure):
 	]
 
 
-def create_device_monitor(daemon):
-	m = Eudev().monitor(subclass=DeviceMonitor)
-	m.daemon = daemon
-	return m
+def create_device_monitor(daemon: 'SCCDaemon') -> DeviceMonitor:
+	mon = Eudev().monitor(subclass=DeviceMonitor)
+	assert type(mon) is DeviceMonitor # Satisfy type checker
+	mon.daemon = daemon
+	return mon
