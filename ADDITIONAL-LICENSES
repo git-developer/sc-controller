@@ -11,4 +11,4 @@ lib/jsonencoder.py is licensed under PSFL, https://www.python.org/download/relea
 scripts/gamecontrollerdb.txt is taken from Simple DirectMedia Layer library and licensed under zlib license.
 lib/xwrappers.py and lib/vdf.py are part of SC-Controller, licensed under GPL2 as rest of the project.
 
-Everything else is licensed under GPL2, as described in 'LICENCE' file.
+Everything else is licensed under GPL2, as described in 'LICENSE' file.
