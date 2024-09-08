@@ -179,7 +179,7 @@ class Action(object):
 				yield cc
 
 
-	def get_compatible_modifiers(self):
+	def get_compatible_modifiers(self) -> int:
 		"""
 		Returns bit combination of MOD_* constants to indicate which modifier
 		can be used with this action.
@@ -188,7 +188,7 @@ class Action(object):
 		return 0
 
 
-	def get_previewable(self):
+	def get_previewable(self) -> bool:
 		"""
 		Returns True if action can be saved immediately to preview user changes.
 		Used by editor.
@@ -208,7 +208,8 @@ class Action(object):
 		Returns string that describes what action does in human-readable form.
 		Used in GUI.
 		"""
-		if self.name: return self.name
+		if self.name:
+			return self.name
 		return str(self)
 
 
@@ -291,7 +292,7 @@ class Action(object):
 		return self.axis(mapper, position, what)
 
 
-	def gyro(self, mapper, pitch, yaw, roll, q1, q2, q3, q4):
+	def gyro(self, mapper, pitch, yaw, roll, q1, q2, q3, q4) -> None:
 		"""
 		Called when action is set by rotating gyroscope.
 		'pitch', 'yaw' and 'roll' represents change in gyroscope rotations.
@@ -300,7 +301,7 @@ class Action(object):
 		pass
 
 
-	def whole(self, mapper, x, y, what):
+	def whole(self, mapper, x, y, what) -> None:
 		"""
 		Called when action is executed by moving physical stick or touching
 		physical pad, when one action is defined for whole pad or stick.
@@ -312,7 +313,7 @@ class Action(object):
 		log.warning("Action %s can't handle whole stick event", self.__class__.__name__)
 
 
-	def whole_blocked(self, mapper, x, y, what):
+	def whole_blocked(self, mapper, x, y, what) -> None:
 		"""
 		Special case called when ClickModifier is used and prevents 'whole'
 		to be called because finger moves over non-pressed pad.
@@ -329,7 +330,7 @@ class Action(object):
 		self.whole(mapper, dx, dy, None)
 
 
-	def change(self, mapper, dx, dy, what):
+	def change(self, mapper, dx, dy, what) -> None:
 		"""
 		Called from CircularModifier to indicate incremental (or decremental)
 		change in value.
@@ -339,7 +340,7 @@ class Action(object):
 		log.warning("Action %s can't handle incremental changes", self.__class__.__name__)
 
 
-	def cancel(self, mapper):
+	def cancel(self, mapper) -> None:
 		"""
 		Called when profile is changed to give action chance to cancel
 		long-running effects it may have created.
@@ -383,7 +384,7 @@ class Action(object):
 		""" Encodes one parameter. Used by encode_parameters """
 		if parameter in PARSER_CONSTANTS:
 			return parameter
-		if type(parameter) == str:
+		if type(parameter) is str:
 			return "'%s'" % (str(parameter),)
 		return nameof(parameter)
 
@@ -1257,7 +1258,7 @@ class GyroAbsAction(HapticEnabledAction, GyroAction):
 			| Action.MOD_DEADZONE )
 
 
-	def get_previewable(self):
+	def get_previewable(self) -> bool:
 		return True
 
 	GYROAXES = (0, 1, 2)
