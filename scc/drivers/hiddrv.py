@@ -17,14 +17,18 @@ from scc.paths import get_config_path
 from scc.tools import find_library
 from scc.lib import IntEnum
 
-import os, json, ctypes, sys, logging
+import os
+import json
+import ctypes
+import sys
+import logging
 log = logging.getLogger("HID")
 
 DEV_CLASS_HID = 3
 TRANSFER_TYPE_INTERRUPT = 3
 LIBUSB_DT_REPORT = 0x22
-AXIS_COUNT = 20		# Must match number of axis fields in HIDControllerInput and values in AxisType
-BUTTON_COUNT = 32	# Must match (or be less than) number of bits in HIDControllerInput.buttons
+AXIS_COUNT = 20   # Must match number of axis fields in HIDControllerInput and values in AxisType
+BUTTON_COUNT = 32 # Must match (or be less than) number of bits in HIDControllerInput.buttons
 ALLOWED_SIZES = [1, 2, 4, 8, 16, 32]
 SYS_DEVICES = "/sys/devices"
 
@@ -38,9 +42,12 @@ BLACKLIST = [
 ]
 
 
-class HIDDrvError(Exception): pass
-class NotHIDDevice(HIDDrvError): pass
-class UnparsableDescriptor(HIDDrvError): pass
+class HIDDrvError(Exception):
+	pass
+class NotHIDDevice(HIDDrvError):
+	pass
+class UnparsableDescriptor(HIDDrvError):
+	pass
 
 class HIDControllerInput(ctypes.Structure):
 	_fields_ = [
@@ -344,7 +351,7 @@ class HIDController(USBDevice, Controller):
 					log.debug("Found %s bits of nothing", count * size)
 				elif x[1] == ItemType.Data:
 					if kind in AXES:
-						if not size in ALLOWED_SIZES:
+						if size not in ALLOWED_SIZES:
 							raise UnparsableDescriptor("Axis with invalid size (%s bits)" % (size, ))
 						for i in range(count):
 							if next_axis < AXIS_COUNT:
@@ -443,7 +450,8 @@ class HIDController(USBDevice, Controller):
 						continue
 					if os.path.isdir(full_path):
 						r = recursive_search(pattern, full_path)
-						if r: return r
+						if r:
+							return r
 				except IOError:
 					pass
 			return None
@@ -511,7 +519,8 @@ class HIDController(USBDevice, Controller):
 		# Note: This is quite slow, but good enough for test mode
 		code = 0
 		for attr, trash in self._decoder.state._fields_:
-			if attr == "buttons": continue
+			if attr == "buttons":
+				continue
 			if getattr(self._decoder.state, attr) != getattr(self._decoder.old_state, attr):
 				# print("Axis", code, getattr(self._decoder.state, attr))
 				sys.stdout.flush()
@@ -699,4 +708,3 @@ if __name__ == "__main__":
 	init_logging()
 	set_logging_level(True, True)
 	sys.exit(hiddrv_test(HIDController, sys.argv[1:]))
-

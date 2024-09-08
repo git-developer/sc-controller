@@ -8,7 +8,13 @@ manage plugging/releasing devices.
 from scc.lib.eudevmonitor import Eudev, Monitor
 from scc.lib.ioctl_opt import IOR
 from ctypes.util import find_library
-import os, ctypes, fcntl, re, logging, time
+from typing import Union, Tuple
+import os
+import ctypes
+import fcntl
+import re
+import logging
+import time
 
 log = logging.getLogger("DevMon")
 
@@ -20,11 +26,12 @@ try:
 	assert btlib_name
 	btlib = ctypes.CDLL(btlib_name)
 	HAVE_BLUETOOTH_LIB = True
-except: pass
+except Exception:
+	pass
 
 
 class DeviceMonitor(Monitor):
-	
+
 	def __init__(self, *a):
 		Monitor.__init__(self, *a)
 		self.daemon = None
@@ -32,23 +39,23 @@ class DeviceMonitor(Monitor):
 		self.dev_removed_cbs = {}
 		self.bt_addresses = {}
 		self.known_devs = {}
-	
-	
-	def add_callback(self, subsystem, vendor_id, product_id, added_cb, removed_cb):
+
+# removed_cb type can be None
+	def add_callback(self, subsystem: str, vendor_id: int, product_id: int, added_cb, removed_cb):
 		"""
 		Adds function that is called when eudev monitor detects new, ready
 		to use device.
-		
+
 		This has to be called from something called by init_drivers method.
 		"""
 		key = (subsystem, vendor_id, product_id)
 		assert key not in self.dev_added_cbs
 		self.match_subsystem(subsystem)
-		
+
 		self.dev_added_cbs[key] = added_cb
 		self.dev_removed_cbs[key] = removed_cb
-	
-	
+
+
 	def add_remove_callback(self, syspath, cb):
 		"""
 		Adds (possibly replaces) callback that will be called once
@@ -57,8 +64,8 @@ class DeviceMonitor(Monitor):
 		if syspath in self.known_devs:
 			vendor, product, old_cb = self.known_devs.pop(syspath)
 			self.known_devs[syspath] = (vendor, product, cb)
-	
-	
+
+
 	def start(self):
 		""" Registers poller and starts listening for events """
 		if not HAVE_BLUETOOTH_LIB:
@@ -66,8 +73,8 @@ class DeviceMonitor(Monitor):
 		poller = self.daemon.poller
 		poller.register(self.fileno(), poller.POLLIN, self.on_data_ready)
 		Monitor.start(self)
-	
-	
+
+
 	def _on_new_syspath(self, subsystem, syspath):
 		try:
 			if subsystem == "input":
@@ -88,8 +95,8 @@ class DeviceMonitor(Monitor):
 			except Exception as e:
 				log.exception(e)
 				del self.known_devs[syspath]
-	
-	
+
+
 	def _get_hci_addresses(self):
 		if not HAVE_BLUETOOTH_LIB:
 			return
@@ -98,20 +105,20 @@ class DeviceMonitor(Monitor):
 		if cl.dev_id < 0 or cl.dev_id > 65534:
 			return
 		cl.conn_num = 256
-		
+
 		s = btlib.hci_open_dev(cl.dev_id)
 		if fcntl.ioctl(s, HCIGETCONNLIST, cl, True):
 			log.error("Failed to list bluetooth collections")
 			return
-		
+
 		for i in range(cl.conn_num):
 			ci = cl.conn_info[i]
 			id = "hci%s:%s" % (cl.dev_id, ci.handle)
 			address = ":".join([ hex(x).lstrip("0x").zfill(2).upper() for x in reversed(ci.bdaddr) ])
 			self.bt_addresses[id] = address
-	
-	
-	def _dev_for_hci(self, syspath):
+
+
+	def _dev_for_hci(self, syspath) -> Union[str, None]:
 		"""
 		For given syspath leading to ../hciX:ABCD, returns input device node
 		"""
@@ -129,15 +136,16 @@ class DeviceMonitor(Monitor):
 			except IOError:
 				continue
 			try:
-				# SteamOS 3 "Holo" return caps
-				if node_addr.lower() == addr.lower():
-					return node
+				if node_addr is not None and addr is not None:
+					# SteamOS 3 "Holo" return caps
+					if node_addr.lower() == addr.lower():
+						return node
 			# None
 			except AttributeError:
 				pass
 		return None
-	
-	
+
+
 	def on_data_ready(self, *a):
 		event = self.receive_device()
 		if event:
@@ -154,21 +162,21 @@ class DeviceMonitor(Monitor):
 				vendor, product, cb = self.known_devs.pop(event.syspath)
 				if cb:
 					cb(event.syspath, vendor, product)
-	
-	
-	def rescan(self):
+
+
+	def rescan(self) -> None:
 		""" Scans and calls callbacks for already connected devices """
 		self._get_hci_addresses()
 		enumerator = self._eudev.enumerate()
 		subsystem_to_vp_to_callback = {}
-		
+
 		for key, cb in self.dev_added_cbs.items():
 			subsystem, vendor_id, product_id = key
 			enumerator.match_subsystem(subsystem)
 			if subsystem not in subsystem_to_vp_to_callback:
 				subsystem_to_vp_to_callback[subsystem] = {}
 			subsystem_to_vp_to_callback[subsystem][vendor_id, product_id] = cb
-		
+
 		for syspath in enumerator:
 			if syspath not in self.known_devs:
 				try:
@@ -177,12 +185,12 @@ class DeviceMonitor(Monitor):
 					continue
 				if subsystem in subsystem_to_vp_to_callback:
 					self._on_new_syspath(subsystem, syspath)
-	
-	
-	def get_vendor_product(self, syspath, subsystem=None):
+
+
+	def get_vendor_product(self, syspath: str, subsystem: str | None = None) -> Tuple[int, int]:
 		"""
 		For given syspath, reads and returns (vendor_id, product_id) as ints.
-		
+
 		May throw all kinds of OSErrors or IOErrors
 		"""
 		if os.path.exists(os.path.join(syspath, "idVendor")):
@@ -210,9 +218,9 @@ class DeviceMonitor(Monitor):
 					vendor, product = [ int(x, 16) for x in RE_BT_NUMBERS.match(name).groups() ]
 					return vendor, product
 		raise OSError("Cannot determine vendor and product IDs")
-	
-	
-	def get_hidraw(self, syspath):
+
+
+	def get_hidraw(self, syspath) -> Union[str, None]:
 		"""
 		For given syspath, returns name of assotiated hidraw device.
 		Returns None if there is no such thing.
@@ -225,8 +233,8 @@ class DeviceMonitor(Monitor):
 			if fname.startswith("hidraw"):
 				return fname
 		return None
-	
-	
+
+
 	@staticmethod
 	def _find_bt_address(syspath):
 		"""
@@ -241,27 +249,28 @@ class DeviceMonitor(Monitor):
 				path = os.path.join(syspath, name)
 				if os.path.isdir(path) and not os.path.islink(path):
 					addr = DeviceMonitor._find_bt_address(path)
-					if addr: return addr
+					if addr:
+						return addr
 		return None
-	
-	
+
+
 	@staticmethod
 	def get_usb_address(syspath):
 		"""
 		For given syspath, reads and returns (busnum, devnum) as ints.
-		
+
 		May throw all kinds of OSErrors or IOErrors
 		"""
 		busnum  = int(open(os.path.join(syspath, "busnum")).read().strip())
 		devnum = int(open(os.path.join(syspath, "devnum")).read().strip())
 		return busnum, devnum
-	
-	
+
+
 	@staticmethod
 	def get_subsystem(syspath):
 		"""
 		For given syspath, reads and returns subsystem as string.
-		
+
 		May throw OSError if directory is not readable.
 		"""
 		return os.readlink(os.path.join(syspath, "subsystem")).split("/")[-1]
