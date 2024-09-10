@@ -1,10 +1,14 @@
-#!/usr/bin/env python3
-from scc.constants import HapticPos
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
+from scc.constants import HapticPos
+
 if TYPE_CHECKING:
 	from scc.controller import HapticData
-import time
+
 import logging
+import time
 
 log = logging.getLogger("SCController")
 

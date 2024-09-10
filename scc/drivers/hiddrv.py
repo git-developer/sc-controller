@@ -1,27 +1,35 @@
-#!/usr/bin/env python3
-"""
-SC Controller - Universal HID driver. For all three universal HID devices.
+"""SC Controller - Universal HID driver. For all three universal HID devices.
 
 Borrows bit of code and configuration from evdevdrv.
 """
-from scc.lib.hidparse import GlobalItem, LocalItem, MainItem, ItemType
-from scc.lib.hidparse import UsagePage, parse_report_descriptor
-from scc.lib.hidparse import GenericDesktopPage, AXES
-from scc.drivers.usb import register_hotplug_device, unregister_hotplug_device
-from scc.drivers.usb import USBDevice
-from scc.constants import STICK_PAD_MIN, STICK_PAD_MAX
-from scc.constants import SCButtons, ControllerFlags
-from scc.drivers.evdevdrv import FIRST_BUTTON, TRIGGERS, parse_axis
+import ctypes
+import json
+import logging
+import os
+import sys
+
+from scc.constants import STICK_PAD_MAX, STICK_PAD_MIN, ControllerFlags, SCButtons
 from scc.controller import Controller
+from scc.drivers.evdevdrv import FIRST_BUTTON, TRIGGERS, parse_axis
+from scc.drivers.usb import (
+	USBDevice,
+	register_hotplug_device,
+	unregister_hotplug_device,
+)
+from scc.lib import IntEnum
+from scc.lib.hidparse import (
+	AXES,
+	GenericDesktopPage,
+	GlobalItem,
+	ItemType,
+	LocalItem,
+	MainItem,
+	UsagePage,
+	parse_report_descriptor,
+)
 from scc.paths import get_config_path
 from scc.tools import find_library
-from scc.lib import IntEnum
 
-import os
-import json
-import ctypes
-import sys
-import logging
 log = logging.getLogger("HID")
 
 DEV_CLASS_HID = 3
@@ -471,7 +479,7 @@ class HIDController(USBDevice, Controller):
 		return None
 
 
-	def close(self):
+	def close(self) -> None:
 		# Called when pad is disconnected
 		USBDevice.close(self)
 		if self._ready:
@@ -479,11 +487,11 @@ class HIDController(USBDevice, Controller):
 			self._ready = False
 
 
-	def get_type(self):
+	def get_type(self) -> str:
 		return "hid"
 
 
-	def _generate_id(self):
+	def _generate_id(self) -> str:
 		"""
 		ID is generated as 'hid0000:1111' where first number is vendor and
 		2nd product id. If two or more controllers with same vendor/product
@@ -499,7 +507,7 @@ class HIDController(USBDevice, Controller):
 		return id
 
 
-	def get_id(self):
+	def get_id(self) -> str:
 		return self._id
 
 
@@ -507,7 +515,7 @@ class HIDController(USBDevice, Controller):
 		return self.config_file
 
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		vid, pid = self.device.getVendorID(), self.device.getProductID()
 		return "<HID %.4x%.4x>" % (vid, pid)
 

@@ -1,0 +1,16 @@
+target-version = "py38"
+
+[lint.flake8-quotes]
+# Existing codebase was already mostly doublequoted
+inline-quotes = 'double'
+
+
+[format]
+# Existing codebase was already mostly doublequoted
+quote-style = 'double'
+indent-style = 'tab'
+
+[lint]
+select = ['ALL']
+# W191 - We use tabs like sane people, so disable this atrocious PEP 8 recommendation
+ignore = ['W191']
