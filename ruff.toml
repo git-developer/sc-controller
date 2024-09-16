@@ -1,4 +1,6 @@
 target-version = "py38"
+# Project uses 80 sporadically, so just do soft 80 and hard break at 120
+line-length = 120
 
 [lint.flake8-quotes]
 # Existing codebase was already mostly doublequoted
@@ -12,5 +14,6 @@ indent-style = 'tab'
 
 [lint]
 select = ['ALL']
-# W191 - We use tabs like sane people, so disable this atrocious PEP 8 recommendation
-ignore = ['W191']
+ignore = [
+	'W191', # We use tabs for indents, disabling this atrocious PEP 8 recommendation
+]
