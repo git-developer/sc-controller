@@ -1,24 +1,41 @@
-#!/usr/bin/env python3
-"""
-SC Controller - Dualshock 4 Driver
+"""SC Controller - Dualshock 4 Driver.
 
 Extends HID driver with DS4-specific options.
 """
 
-from scc.drivers.hiddrv import BUTTON_COUNT, ButtonData, AxisType, AxisData
-from scc.drivers.hiddrv import HIDController, HIDDecoder, hiddrv_test
-from scc.drivers.hiddrv import AxisMode, AxisDataUnion, AxisModeData
-from scc.drivers.hiddrv import HatswitchModeData, _lib
-from scc.drivers.evdevdrv import HAVE_EVDEV, EvdevController, get_axes
-from scc.drivers.evdevdrv import get_evdev_devices_from_syspath
-from scc.drivers.evdevdrv import make_new_device
-from scc.drivers.usb import register_hotplug_device
-from scc.constants import SCButtons, ControllerFlags
-from scc.constants import STICK_PAD_MIN, STICK_PAD_MAX
-from scc.tools import init_logging, set_logging_level
-import sys
-import logging
 import ctypes
+import logging
+import sys
+from typing import TYPE_CHECKING
+
+from scc.constants import STICK_PAD_MAX, STICK_PAD_MIN, ControllerFlags, SCButtons
+from scc.drivers.evdevdrv import (
+	HAVE_EVDEV,
+	EvdevController,
+	get_axes,
+	get_evdev_devices_from_syspath,
+	make_new_device,
+)
+from scc.drivers.hiddrv import (
+	BUTTON_COUNT,
+	AxisData,
+	AxisDataUnion,
+	AxisMode,
+	AxisModeData,
+	AxisType,
+	ButtonData,
+	HatswitchModeData,
+	HIDController,
+	HIDDecoder,
+	_lib,
+	hiddrv_test,
+)
+from scc.drivers.usb import register_hotplug_device
+from scc.tools import init_logging, set_logging_level
+
+if TYPE_CHECKING:
+	from scc.sccdaemon import SCCDaemon
+
 log = logging.getLogger("DS4")
 
 VENDOR_ID         = 0x054c
@@ -61,39 +78,39 @@ class DS4Controller(HIDController):
 			mode = AxisMode.HATSWITCH, byte_offset = 5, size = 8,
 			data = AxisDataUnion(hatswitch = HatswitchModeData(
 				button = SCButtons.LPAD | SCButtons.LPADTOUCH,
-				min = STICK_PAD_MIN, max = STICK_PAD_MAX
+				min = STICK_PAD_MIN, max = STICK_PAD_MAX,
 		)))
 		self._decoder.axes[AxisType.AXIS_STICK_X] = AxisData(
 			mode = AxisMode.AXIS, byte_offset = 1, size = 8,
 			data = AxisDataUnion(axis = AxisModeData(
-				scale = 1.0, offset = -127.5, clamp_max = 257, deadzone = 10
+				scale = 1.0, offset = -127.5, clamp_max = 257, deadzone = 10,
 		)))
 		self._decoder.axes[AxisType.AXIS_STICK_Y] = AxisData(
 			mode = AxisMode.AXIS, byte_offset = 2, size = 8,
 			data = AxisDataUnion(axis = AxisModeData(
-				scale = -1.0, offset = 127.5, clamp_max = 257, deadzone = 10
+				scale = -1.0, offset = 127.5, clamp_max = 257, deadzone = 10,
 		)))
 		self._decoder.axes[AxisType.AXIS_RPAD_X] = AxisData(
 			mode = AxisMode.AXIS, byte_offset = 3, size = 8,
 			data = AxisDataUnion(axis = AxisModeData(
 				button = SCButtons.RPADTOUCH,
-				scale = 1.0, offset = -127.5, clamp_max = 257, deadzone = 10
+				scale = 1.0, offset = -127.5, clamp_max = 257, deadzone = 10,
 		)))
 		self._decoder.axes[AxisType.AXIS_RPAD_Y] = AxisData(
 			mode = AxisMode.AXIS, byte_offset = 4, size = 8,
 			data = AxisDataUnion(axis = AxisModeData(
 				button = SCButtons.RPADTOUCH,
-				scale = -1.0, offset = 127.5, clamp_max = 257, deadzone = 10
+				scale = -1.0, offset = 127.5, clamp_max = 257, deadzone = 10,
 		)))
 		self._decoder.axes[AxisType.AXIS_LTRIG] = AxisData(
 			mode = AxisMode.AXIS, byte_offset = 8, size = 8,
 			data = AxisDataUnion(axis = AxisModeData(
-				scale = 1.0, clamp_max = 1, deadzone = 10
+				scale = 1.0, clamp_max = 1, deadzone = 10,
 		)))
 		self._decoder.axes[AxisType.AXIS_RTRIG] = AxisData(
 			mode = AxisMode.AXIS, byte_offset = 9, size = 8,
 			data = AxisDataUnion(axis = AxisModeData(
-				scale = 1.0, clamp_max = 1, deadzone = 10
+				scale = 1.0, clamp_max = 1, deadzone = 10,
 		)))
 		self._decoder.axes[AxisType.AXIS_GPITCH] = AxisData(
 			mode = AxisMode.DS4ACCEL, byte_offset = 13)
@@ -114,7 +131,7 @@ class DS4Controller(HIDController):
 			mode = AxisMode.DS4TOUCHPAD, byte_offset = 37, bit_offset=4)
 		self._decoder.buttons = ButtonData(
 			enabled = True, byte_offset=5, bit_offset=4, size=14,
-			button_count = 14
+			button_count = 14,
 		)
 
 		if test_mode:
@@ -168,7 +185,7 @@ class DS4Controller(HIDController):
 		magic_number = 1
 		id = "ds4"
 		while id in self.daemon.get_active_ids():
-			id = "ds4:%s" % (magic_number, )
+			id = f"ds4:{magic_number}"
 			magic_number += 1
 		return id
 
@@ -240,7 +257,7 @@ class DS4EvdevController(EvdevController):
 			| ControllerFlags.NO_GRIPS
 	)
 
-	def __init__(self, daemon, controllerdevice, gyro, touchpad):
+	def __init__(self, daemon: "SCCDaemon", controllerdevice, gyro, touchpad):
 		config = {
 			'axes' : DS4EvdevController.AXIS_MAP,
 			'buttons' : DS4EvdevController.BUTTON_MAP,
@@ -271,7 +288,7 @@ class DS4EvdevController(EvdevController):
 					if axis:
 						new_state = new_state._replace(
 								**{ axis : int(event.value * factor) })
-		except IOError:
+		except OSError:
 			# Errors here are not even reported, evdev class handles important ones
 			return
 
@@ -311,7 +328,7 @@ class DS4EvdevController(EvdevController):
 						b = new_state.buttons & ~SCButtons.CPADTOUCH
 						new_state = new_state._replace(buttons = b,
 								cpad_x = 0, cpad_y = 0)
-		except IOError:
+		except OSError:
 			# Errors here are not even reported, evdev class handles important ones
 			return
 
@@ -350,10 +367,7 @@ class DS4EvdevController(EvdevController):
 
 
 	def _generate_id(self) -> str:
-		"""
-		ID is generated as 'ds4' or 'ds4:X' where 'X' starts as 1 and increases
-		as controllers with same ids are connected.
-		"""
+		"""ID is generated as 'ds4' or 'ds4:X' where 'X' starts as 1 and increases as controllers with same ids are connected."""
 		magic_number = 1
 		id = "ds4"
 		while id in self.daemon.get_active_ids():
@@ -362,8 +376,8 @@ class DS4EvdevController(EvdevController):
 		return id
 
 
-def init(daemon, config: dict) -> bool:
-	""" Registers hotplug callback for ds4 device """
+def init(daemon: "SCCDaemon", config: dict) -> bool:
+	"""Register hotplug callback for ds4 device."""
 
 	def hid_callback(device, handle):
 		return DS4Controller(device, daemon, handle, None, None)
@@ -427,9 +441,8 @@ def init(daemon, config: dict) -> bool:
 			daemon.get_device_monitor().add_callback("bluetooth",
 				VENDOR_ID, DS4_V1_PRODUCT_ID, make_evdev_device, None)
 		return True
-	else:
-		log.warning("Neither HID nor Evdev driver is enabled, DS4 support cannot be enabled.")
-		return False
+	log.warning("Neither HID nor Evdev driver is enabled, DS4 support cannot be enabled.")
+	return False
 
 
 if __name__ == "__main__":

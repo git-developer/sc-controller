@@ -16,4 +16,5 @@ indent-style = 'tab'
 select = ['ALL']
 ignore = [
 	'W191', # We use tabs for indents, disabling this atrocious PEP 8 recommendation
+	'D206', # ^
 ]

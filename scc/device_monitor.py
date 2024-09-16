@@ -1,30 +1,32 @@
-#!/usr/bin/env python3
-"""
-SC-Controller - Device Monitor
+"""SC-Controller - Device Monitor.
 
 Extends eudevmonitor with options to register callbacks and
 manage plugging/releasing devices.
 """
+from __future__ import annotations
+
+from ctypes.util import find_library
+from typing import TYPE_CHECKING, Tuple, Union
+
 from scc.lib.eudevmonitor import Eudev, Monitor
 from scc.lib.ioctl_opt import IOR
-from ctypes.util import find_library
-from typing import Union, Tuple, TYPE_CHECKING
+
 if TYPE_CHECKING:
 	from scc.sccdaemon import SCCDaemon
-import os
 import ctypes
 import fcntl
-import re
 import logging
+import os
+import re
 import time
 
 log = logging.getLogger("DevMon")
 
 RE_BT_NUMBERS = re.compile(r"[0-9A-F]{4}:([0-9A-F]{4}):([0-9A-F]{4}).*")
-HCIGETCONNLIST = IOR(ord('H'), 212, ctypes.c_int)
+HCIGETCONNLIST = IOR(ord("H"), 212, ctypes.c_int)
 HAVE_BLUETOOTH_LIB = False
 try:
-	btlib_name = find_library('bluetooth')
+	btlib_name = find_library("bluetooth")
 	assert btlib_name
 	btlib = ctypes.CDLL(btlib_name)
 	HAVE_BLUETOOTH_LIB = True
@@ -36,7 +38,7 @@ class DeviceMonitor(Monitor):
 
 	def __init__(self, *a) -> None:
 		Monitor.__init__(self, *a)
-		self.daemon: Union['SCCDaemon', None] = None
+		self.daemon: SCCDaemon | None = None
 		self.dev_added_cbs = {}
 		self.dev_removed_cbs = {}
 		self.bt_addresses = {}
@@ -87,7 +89,7 @@ class DeviceMonitor(Monitor):
 				vendor, product = None, None
 			else:
 				vendor, product = self.get_vendor_product(syspath, subsystem)
-		except (OSError, IOError):
+		except OSError:
 			# Cannot grab vendor & product, probably subdevice or bus itself
 			return
 		key = (subsystem, vendor, product)
@@ -119,15 +121,13 @@ class DeviceMonitor(Monitor):
 
 		for i in range(cl.conn_num):
 			ci = cl.conn_info[i]
-			id = "hci%s:%s" % (cl.dev_id, ci.handle)
+			id = f"hci{cl.dev_id}:{ci.handle}"
 			address = ":".join([ hex(x).lstrip("0x").zfill(2).upper() for x in reversed(ci.bdaddr) ])
 			self.bt_addresses[id] = address
 
 
-	def _dev_for_hci(self, syspath) -> Union[str, None]:
-		"""
-		For given syspath leading to ../hciX:ABCD, returns input device node
-		"""
+	def _dev_for_hci(self, syspath) -> str | None:
+		"""For given syspath leading to ../hciX:ABCD, returns input device node."""
 		name = syspath.split("/")[-1]
 		if ":" not in name:
 			return None
@@ -139,7 +139,7 @@ class DeviceMonitor(Monitor):
 				#Joe: somehow my node_addr is in lowercase
 				if node_addr is not None:
 					node_addr = str.upper(node_addr)
-			except IOError:
+			except OSError:
 				continue
 			try:
 				if node_addr is not None and addr is not None:
@@ -171,7 +171,7 @@ class DeviceMonitor(Monitor):
 
 
 	def rescan(self) -> None:
-		""" Scans and calls callbacks for already connected devices """
+		"""Scan and call callbacks for already connected devices."""
 		self._get_hci_addresses()
 		enumerator = self._eudev.enumerate()
 		subsystem_to_vp_to_callback = {}
@@ -187,17 +187,16 @@ class DeviceMonitor(Monitor):
 			if syspath not in self.known_devs:
 				try:
 					subsystem = DeviceMonitor.get_subsystem(syspath)
-				except (IOError, OSError):
+				except OSError:
 					continue
 				if subsystem in subsystem_to_vp_to_callback:
 					self._on_new_syspath(subsystem, syspath)
 
 
 	def get_vendor_product(self, syspath: str, subsystem: str | None = None) -> Tuple[int, int]:
-		"""
-		For given syspath, reads and returns (vendor_id, product_id) as ints.
+		"""For given syspath, reads and returns (vendor_id, product_id) as ints.
 
-		May throw all kinds of OSErrors or IOErrors
+		May throw all kinds of OSErrors
 		"""
 		if os.path.exists(os.path.join(syspath, "idVendor")):
 			vendor  = int(open(os.path.join(syspath, "idVendor")).read().strip(), 16)
@@ -226,7 +225,7 @@ class DeviceMonitor(Monitor):
 		raise OSError("Cannot determine vendor and product IDs")
 
 
-	def get_hidraw(self, syspath) -> Union[str, None]:
+	def get_hidraw(self, syspath) -> str | None:
 		"""
 		For given syspath, returns name of assotiated hidraw device.
 		Returns None if there is no such thing.
@@ -242,7 +241,7 @@ class DeviceMonitor(Monitor):
 
 
 	@staticmethod
-	def _find_bt_address(syspath) -> Union[str, None]:
+	def _find_bt_address(syspath) -> str | None:
 		"""
 		Recursivelly searchs for "input*" subdirectories until "uniq" file
 		is found. Then, returns address from that file.
@@ -261,11 +260,11 @@ class DeviceMonitor(Monitor):
 
 
 	@staticmethod
-	def get_usb_address(syspath) -> Tuple[int, int]:
+	def get_usb_address(syspath) -> tuple[int, int]:
 		"""
 		For given syspath, reads and returns (busnum, devnum) as ints.
 
-		May throw all kinds of OSErrors or IOErrors
+		May throw all kinds of OSErrors
 		"""
 		busnum  = int(open(os.path.join(syspath, "busnum")).read().strip())
 		devnum = int(open(os.path.join(syspath, "devnum")).read().strip())
@@ -301,7 +300,7 @@ class hci_conn_list_req(ctypes.Structure):
 	]
 
 
-def create_device_monitor(daemon: 'SCCDaemon') -> DeviceMonitor:
+def create_device_monitor(daemon: SCCDaemon) -> DeviceMonitor:
 	mon = Eudev().monitor(subclass=DeviceMonitor)
 	assert type(mon) is DeviceMonitor # Satisfy type checker
 	mon.daemon = daemon
