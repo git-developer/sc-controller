@@ -75,7 +75,7 @@ class EvdevController(Controller):
 		self.poller = None
 		if daemon:
 			self.poller = daemon.get_poller()
-			self.poller.register(self.device.path, self.poller.POLLIN, self.input)
+			self.poller.register(self.device.fd, self.poller.POLLIN, self.input)
 			self.device.grab()
 			self._id = self._generate_id()
 		self._state = EvdevControllerInput( *[0] * len(EvdevControllerInput._fields) )
@@ -112,7 +112,7 @@ class EvdevController(Controller):
 
 
 	def close(self):
-		self.poller.unregister(self.device.path)
+		self.poller.unregister(self.device.fd)
 		try:
 			self.device.ungrab()
 		except:
