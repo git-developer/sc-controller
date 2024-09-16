@@ -339,8 +339,7 @@ def find_library(libname):
 			break
 
 	if not lib:
-		raise OSError('Cant find %s.so. searched at:\n %s' % (
-			libname, '\n'.join(search_paths)))
+		raise OSError('Cant find %s.so. searched at:\n %s' % (libname, '\n'.join(search_paths)))
 	return ctypes.CDLL(lib)
 
 

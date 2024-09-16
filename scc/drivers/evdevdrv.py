@@ -10,6 +10,7 @@ from scc.constants import STICK_PAD_MIN, STICK_PAD_MAX, TRIGGER_MIN, TRIGGER_MAX
 from scc.constants import SCButtons, ControllerFlags
 from scc.controller import Controller
 from scc.paths import get_config_path
+from scc.sccdaemon import SCCDaemon
 from scc.tools import clamp
 
 
@@ -56,7 +57,7 @@ class EvdevController(Controller):
 			| ControllerFlags.HAS_DPAD
 			| ControllerFlags.NO_GRIPS )
 
-	def __init__(self, daemon, device, config_file, config):
+	def __init__(self, daemon: SCCDaemon, device, config_file, config: dict):
 		try:
 			self._parse_config(config)
 		except Exception:
@@ -77,7 +78,7 @@ class EvdevController(Controller):
 		self._padpressemu_task = None
 
 
-	def _parse_config(self, config):
+	def _parse_config(self, config: dict):
 		self._button_map = {}
 		self._axis_map = {}
 		self._dpad_map = {}
@@ -91,7 +92,8 @@ class EvdevController(Controller):
 				else:
 					sc = getattr(SCButtons, value)
 					self._button_map[keycode] = sc
-			except: pass
+			except:
+				pass
 		for x, value in config.get("axes", {}).items():
 			code, axis = int(x), value.get("axis")
 			if axis in EvdevControllerInput._fields:
@@ -109,7 +111,8 @@ class EvdevController(Controller):
 		self.poller.unregister(self.device.fd)
 		try:
 			self.device.ungrab()
-		except: pass
+		except:
+			pass
 		self.device.close()
 
 
@@ -376,15 +379,17 @@ class EvdevDriver(object):
 		filename = syspath.split("/")[-1]
 		if not filename.startswith("event"):
 			return None
-		return "/dev/input/%s" % (filename, )
+		return f"/dev/input/{filename}"
 
 
 	def handle_new_device(self, syspath, *bunchofnones):
 		# There is no way to get anything usefull from /sys/.../input node,
 		# but I'm interested about event devices here anyway
 		eventnode = EvdevDriver.get_event_node(syspath)
-		if eventnode is None: return False				# Not evdev
-		if eventnode in self._devices: return False		# Already handled
+		if eventnode is None:
+			return False # Not evdev
+		if eventnode in self._devices:
+			return False # Already handled
 
 		try:
 			dev = evdev.InputDevice(eventnode)
@@ -493,10 +498,8 @@ def make_new_device(factory, evdevdevice, *userdata):
 	return _evdevdrv.make_new_device(factory, evdevdevice, *userdata)
 
 
-def get_evdev_devices_from_syspath(syspath):
-	"""
-	For given syspath, returns all assotiated event devices.
-	"""
+def get_evdev_devices_from_syspath(syspath: str):
+	"""For given syspath, returns all assotiated event devices."""
 	assert HAVE_EVDEV, "evdev driver is not available"
 	rv = []
 	for name in os.listdir(syspath):
@@ -518,15 +521,15 @@ def get_evdev_devices_from_syspath(syspath):
 
 
 def get_axes(dev):
-	""" Helper function to get list ofa available axes """
+	"""Get list of available axes."""
 	assert HAVE_EVDEV, "evdev driver is not available"
 	caps = dev.capabilities(verbose=False)
 	return [ axis for (axis, trash) in caps.get(ecodes.EV_ABS, []) ]
 
 
 def evdevdrv_test(args):
-	"""
-	Small input test used by GUI while setting up the device.
+	"""Small input test used by GUI while setting up the device.
+
 	Output and usage matches one from hiddrv.
 	"""
 	from scc.scripts import InvalidArguments
@@ -559,4 +562,3 @@ if __name__ == "__main__":
 	init_logging()
 	set_logging_level(True, True)
 	sys.exit(evdevdrv_test(sys.argv[1:]))
-

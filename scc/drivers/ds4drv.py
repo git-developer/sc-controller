@@ -38,8 +38,8 @@ if TYPE_CHECKING:
 
 log = logging.getLogger("DS4")
 
-VENDOR_ID         = 0x054c
-PRODUCT_ID        = 0x09cc
+VENDOR_ID         = 0x054C
+PRODUCT_ID        = 0x09CC
 DS4_V1_PRODUCT_ID = 0x5C4
 
 
@@ -261,7 +261,7 @@ class DS4EvdevController(EvdevController):
 		config = {
 			'axes' : DS4EvdevController.AXIS_MAP,
 			'buttons' : DS4EvdevController.BUTTON_MAP,
-			'dpads' : {}
+			'dpads' : {},
 		}
 		if controllerdevice.info.version & 0x8000 == 0:
 			# Older kernel uses different mappings
@@ -377,13 +377,13 @@ class DS4EvdevController(EvdevController):
 
 
 def init(daemon: "SCCDaemon", config: dict) -> bool:
-	"""Register hotplug callback for ds4 device."""
+	"""Register hotplug callback for DS4 device."""
 
-	def hid_callback(device, handle):
+	def hid_callback(device, handle) -> DS4Controller:
 		return DS4Controller(device, daemon, handle, None, None)
 
-	def make_evdev_device(syspath, *whatever):
-		devices = get_evdev_devices_from_syspath(syspath)
+	def make_evdev_device(sys_dev_path: str, *whatever):
+		devices = get_evdev_devices_from_syspath(sys_dev_path)
 		# With kernel 4.10 or later, PS4 controller pretends to be 3 different devices.
 		# 1st, determining which one is actual controller is needed
 		controllerdevice = None
@@ -419,7 +419,7 @@ def init(daemon: "SCCDaemon", config: dict) -> bool:
 			return make_new_device(DS4EvdevController, controllerdevice, gyro, touchpad)
 
 
-	def fail_cb(syspath, vid: int, pid: int) -> None:
+	def fail_cb(syspath: str, vid: int, pid: int) -> None:
 		if HAVE_EVDEV:
 			log.warning("Failed to acquire USB device, falling back to evdev driver. This is far from optimal.")
 			make_evdev_device(syspath)
@@ -436,7 +436,7 @@ def init(daemon: "SCCDaemon", config: dict) -> bool:
 		if HAVE_EVDEV and config["drivers"].get("evdevdrv"):
 			# DS4 v.2
 			daemon.get_device_monitor().add_callback("bluetooth",
-							VENDOR_ID, PRODUCT_ID, make_evdev_device, None)
+				VENDOR_ID, PRODUCT_ID, make_evdev_device, None)
 			# DS4 v.1
 			daemon.get_device_monitor().add_callback("bluetooth",
 				VENDOR_ID, DS4_V1_PRODUCT_ID, make_evdev_device, None)

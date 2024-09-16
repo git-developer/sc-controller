@@ -246,22 +246,23 @@ class UInput(object):
 		c_rumble = ctypes.c_int(MAX_FEEDBACK_EFFECTS if rumble else 0)
 		c_name = ctypes.c_char_p(name.encode("utf-8") if type(name) is str else name)
 
-		self._fd = self._lib.uinput_init(ctypes.c_int(len(self._k)),
-										 c_k,
-										 ctypes.c_int(len(self._a)),
-										 c_a,
-										 c_amin,
-										 c_amax,
-										 c_afuzz,
-										 c_aflat,
-										 ctypes.c_int(len(self._r)),
-										 c_r,
-										 c_keyboard,
-										 c_vendor,
-										 c_product,
-										 c_version,
-										 c_rumble,
-										 c_name)
+		self._fd = self._lib.uinput_init(
+			ctypes.c_int(len(self._k)),
+			c_k,
+			ctypes.c_int(len(self._a)),
+			c_a,
+			c_amin,
+			c_amax,
+			c_afuzz,
+			c_aflat,
+			ctypes.c_int(len(self._r)),
+			c_r,
+			c_keyboard,
+			c_vendor,
+			c_product,
+			c_version,
+			c_rumble,
+			c_name)
 		if self._fd < 0:
 			raise CannotCreateUInputException("Failed to create uinput device. Error code: %s" % (self._fd,))
 
@@ -270,16 +271,13 @@ class UInput(object):
 		return self._fd
 
 
-	def keyEvent(self, key, val):
-		"""
-		Generate a key or btn event
+	def keyEvent(self, key: int, val: int):
+		"""Generate a key or btn event.
 
 		@param int axis		 key or btn event (KEY_* or BTN_*)
 		@param int val		  event value
 		"""
-		self._lib.uinput_key(self._fd,
-							 ctypes.c_uint16(key),
-							 ctypes.c_int32(val))
+		self._lib.uinput_key(self._fd, ctypes.c_uint16(key), ctypes.c_int32(val))
 
 
 	def axisEvent(self, axis: int, val: int):
@@ -291,8 +289,7 @@ class UInput(object):
 		self._lib.uinput_abs(self._fd, ctypes.c_uint16(axis), ctypes.c_int32(val))
 
 	def relEvent(self, rel: int, val: int):
-		"""
-		Generate a rel event (move move)
+		"""Generate a rel event (move move).
 
 		@param int rel		  rel event (REL_*)
 		@param int val		  event value
@@ -300,17 +297,14 @@ class UInput(object):
 		self._lib.uinput_rel(self._fd, ctypes.c_uint16(rel), ctypes.c_int32(val))
 
 	def scanEvent(self, val: int):
-		"""
-		Generate a scan event (MSC_SCAN)
+		"""Generate a scan event (MSC_SCAN).
 
 		@param int val		  scan event value (scancode)
 		"""
 		self._lib.uinput_scan(self._fd, ctypes.c_int32(val))
 
 	def synEvent(self):
-		"""
-		Generate a syn event
-		"""
+		"""Generate a syn event."""
 		self._lib.uinput_syn(self._fd)
 
 
@@ -526,7 +520,7 @@ class Mouse(UInput):
 		self._dx = 0
 		self._dy = 0
 
-	def _factorDeadzone(self, dx:int, dy:int, time_elapsed: float):
+	def _factorDeadzone(self, dx: int, dy: int, time_elapsed: float):
 		"""Take raw event and adjust based on assigned dead zone setting.
 
 		@param int dx				delta movement from last call on x axis

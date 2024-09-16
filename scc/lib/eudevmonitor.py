@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-udevmonitor.py - enumerates and monitors devices using (e)udev
+"""udevmonitor.py - enumerates and monitors devices using (e)udev.
 
 Copyright (C) 2018 by Kozec
 
@@ -18,13 +17,14 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
+from __future__ import annotations
 
-from collections import namedtuple
-from ctypes.util import find_library
-from typing import Union, Type, TypeVar
-import os
 import ctypes
 import errno
+import os
+from ctypes.util import find_library
+from typing import NamedTuple, Type, TypeVar
+
 
 class Eudev:
 	LIB_NAME = "udev"
@@ -44,7 +44,7 @@ class Eudev:
 
 	@staticmethod
 	def _setup_lib(lib):
-		""" Just so it's away from init and can be folded in IDE """
+		"""Just so it's away from init and can be folded in IDE."""
 		# udev
 		lib.udev_new.restype = ctypes.c_void_p
 		lib.udev_unref.argtypes = [ ctypes.c_void_p ]
@@ -117,9 +117,7 @@ class Eudev:
 
 
 	def enumerate(self, subclass=None):
-		"""
-		Returns new Enumerator instance.
-		"""
+		"""Return new Enumerator instance."""
 		enumerator = self._lib.udev_enumerate_new(self._ctx)
 		if enumerator is None:
 			raise OSError("Failed to initialize enumerator")
@@ -128,18 +126,16 @@ class Eudev:
 		subclass = subclass or Enumerator
 		return subclass(self, enumerator)
 
-	T = TypeVar('T', bound='Monitor')
-	def monitor(self, subclass: Union[Type [T], None] = None) -> Union[T, 'Monitor']:
-		"""
-		Returns new Monitor instance.
-		"""
+	T = TypeVar("T", bound="Monitor")
+	def monitor(self, subclass: type [T] | None = None) -> T | Monitor:
+		"""Return new Monitor instance."""
 		monitor = self._lib.udev_monitor_new_from_netlink(self._ctx, b"udev")
 		if monitor is None:
 			raise OSError("Failed to initialize monitor")
 		if subclass is not None:
 			assert issubclass(subclass, Monitor), f"subclass must be a subclass of Monitor but {subclass} was provided"
-		finalClass = subclass or Monitor
-		return finalClass(self, monitor)
+		final_class = subclass or Monitor
+		return final_class(self, monitor)
 
 
 def twoargs(fn):
@@ -148,13 +144,14 @@ def twoargs(fn):
 
 
 class Enumerator:
-	"""
-	Iterable object used for enumerating available devices.
+	"""Iterable object used for enumerating available devices.
+
 	Yields syspaths (strings).
 
 	All match_* methods are returning self for chaining.
 	"""
-	def __init__(self, eudev, enumerator):
+
+	def __init__(self, eudev: Eudev, enumerator: Enumerator):
 		self._eudev = eudev
 		self._enumerator = enumerator
 		self._keep_in_mem = []
@@ -221,19 +218,26 @@ class Enumerator:
 		self._next = self._eudev._lib.udev_list_entry_get_next(self._next)
 		return str(rv, "utf-8")
 
+class DeviceEvent(NamedTuple):
+	action: str
+	node: str | None
+	initialized: bool
+	subsystem: str
+	devtype: str
+	syspath: str
+	devnum: str
 
 class Monitor:
-	"""
-	Monitor object receives device events.
+	"""Monitor object that receives device events.
+
 	receive_device method blocks until next event is processed, so it can be
 	used either in dumb loop, or called when select syscall reports descriptor
 	returned by get_fd has data available.
 
 	All match_* methods are returning self for chaining
 	"""
-	DeviceEvent = namedtuple("DeviceEvent", "action,node,initialized,subsystem,devtype,syspath,devnum")
 
-	def __init__(self, eudev, monitor):
+	def __init__(self, eudev: Eudev, monitor):
 		self._eudev = eudev
 		self._monitor = monitor
 		self._monitor_started = False
@@ -266,9 +270,9 @@ class Monitor:
 		return self
 
 
-	def match_subsystem_devtype(self, subsystem, devtype=None):
+	def match_subsystem_devtype(self, subsystem: str, devtype=None):
 		return self._add_match("match_subsystem_devtype", subsystem, devtype)
-	def match_subsystem(self, subsystem):
+	def match_subsystem(self, subsystem: str):
 		return self._add_match("match_subsystem_devtype", subsystem, None)
 	def match_tag(self, tag):
 		return self._add_match("match_tag", tag)
@@ -307,7 +311,7 @@ class Monitor:
 	start = enable_receiving	# I like this name better
 
 
-	def receive_device(self):
+	def receive_device(self) -> DeviceEvent:
 		if not self._monitor_started:
 			self.enable_receiving()
 
@@ -323,7 +327,7 @@ class Monitor:
 		devtype = self._eudev._lib.udev_device_get_devtype(dev)
 		devtype_str = str(devtype, "utf-8") if devtype else None
 
-		event = Monitor.DeviceEvent(
+		event = DeviceEvent(
 			str(self._eudev._lib.udev_device_get_action(dev), "utf-8"),
 			devnode_str,
 			self._eudev._lib.udev_device_get_is_initialized(dev) == 1,
@@ -345,6 +349,6 @@ if __name__ == "__main__":
 
 	m = udev.monitor().match_subsystem("hidraw").start()
 	while True:
-		d = m.receive_device()
-		if d:
-			print(os.major(d.devnum), os.minor(d.devnum), d)
+		dev = m.receive_device()
+		if dev:
+			print(os.major(dev.devnum), os.minor(dev.devnum), dev)

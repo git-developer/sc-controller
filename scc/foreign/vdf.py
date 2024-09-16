@@ -346,7 +346,7 @@ class VDFProfile(Profile):
 				items.append(MenuItem(
 					"item_%s" % (next_item_id,),
 					action.describe(Action.AC_BUTTON),
-					action
+					action,
 				))
 				next_item_id += 1
 			# Menu is stored in profile, with generated ID
@@ -364,10 +364,7 @@ class VDFProfile(Profile):
 			for k in inputs:
 				action = self.parse_button(inputs[k])
 				items.append(MenuItem(
-					"item_%s" % (next_item_id,),
-					action.describe(Action.AC_BUTTON),
-					action
-				))
+					"item_%s" % (next_item_id,), action.describe(Action.AC_BUTTON), action ))
 				next_item_id += 1
 			# Menu is stored in profile, with generated ID
 			menu_id = "menu_%s" % (self.next_menu_id,)
@@ -394,8 +391,7 @@ class VDFProfile(Profile):
 			else:
 				action = MouseAction()
 		elif mode == "mouse_wheel":
-			action = BallModifier(XYAction(MouseAction(Rels.REL_HWHEEL),
-			 	MouseAction(Rels.REL_WHEEL)))
+			action = BallModifier(XYAction(MouseAction(Rels.REL_HWHEEL), MouseAction(Rels.REL_WHEEL)))
 		elif mode == "trigger":
 			actions = []
 			if "click" in inputs:
@@ -436,18 +432,18 @@ class VDFProfile(Profile):
 
 
 	def parse_switches(self, group):
-		""" Used for special cases of input groups that contains buttons """
+		"""Use for special cases of input groups that contain buttons."""
 		inputs = VDFProfile.get_inputs(group)
 		for button in inputs:
 			if button in ("trigger_left", "left_trigger"):
 				self.add_by_binding(
 					"left_trigger",
-					AxisAction(Axes.ABS_Z)
+					AxisAction(Axes.ABS_Z),
 				)
 			elif button in ("trigger_right", "right_trigger"):
 				self.add_by_binding(
 					"right_trigger",
-					AxisAction(Axes.ABS_RZ)
+					AxisAction(Axes.ABS_RZ),
 				)
 			elif button in VDFProfile.BUTTON_TO_BUTTON:
 				self.add_by_binding(
@@ -478,9 +474,7 @@ class VDFProfile(Profile):
 
 
 	def set_by_binding(self, binding, action):
-		"""
-		Sets action specified by binding, one of group_source_bindings keys
-		used in vdf profile. Also supports SCButtons constants for buttons.
+		"""Set action specified by binding, one of group_source_bindings keys used in vdf profile. Also supports SCButtons constants for buttons.
 
 		Throws ParseError if key is not supported.
 		"""
@@ -503,10 +497,7 @@ class VDFProfile(Profile):
 
 
 	def add_by_binding(self, binding, action):
-		"""
-		As set_by_binding, but if there is alrady action for specified binding
-		set, creates MultiAction.
-		"""
+		"""As set_by_binding, but if there is alrady action for specified binding set, creates MultiAction."""
 		old = self.get_by_binding(binding)
 		new = MultiAction.make(old, action)
 		if isinstance(new, MultiAction):
@@ -515,9 +506,7 @@ class VDFProfile(Profile):
 
 
 	def get_by_binding(self, binding):
-		"""
-		Returns action specified by binding, one of group_source_bindings keys
-		used in vdf profile. Also supports SCButtons constants for buttons.
+		"""Return action specified by binding, one of group_source_bindings keys used in vdf profile. Also supports SCButtons constants for buttons.
 
 		Throws ParseError if key is not supported.
 		"""

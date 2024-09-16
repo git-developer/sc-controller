@@ -6,7 +6,7 @@ manage plugging/releasing devices.
 from __future__ import annotations
 
 from ctypes.util import find_library
-from typing import TYPE_CHECKING, Tuple, Union
+from typing import TYPE_CHECKING
 
 from scc.lib.eudevmonitor import Eudev, Monitor
 from scc.lib.ioctl_opt import IOR
@@ -46,9 +46,7 @@ class DeviceMonitor(Monitor):
 
 # removed_cb type can be None
 	def add_callback(self, subsystem: str, vendor_id: int, product_id: int, added_cb, removed_cb) -> None:
-		"""
-		Adds function that is called when eudev monitor detects new, ready
-		to use device.
+		"""Add a function that is called when eudev monitor detects new, ready to use device.
 
 		This has to be called from something called by init_drivers method.
 		"""
@@ -64,18 +62,15 @@ class DeviceMonitor(Monitor):
 		self.dev_removed_cbs[key] = removed_cb
 
 
-	def add_remove_callback(self, syspath, cb) -> None:
-		"""
-		Adds (possibly replaces) callback that will be called once
-		device with specified syspath is disconnected.
-		"""
+	def add_remove_callback(self, syspath: str, cb) -> None:
+		"""Add (possibly replace) callback that will be called once device with specified syspath is disconnected."""
 		if syspath in self.known_devs:
 			vendor, product, old_cb = self.known_devs.pop(syspath)
 			self.known_devs[syspath] = (vendor, product, cb)
 
 
 	def start(self) -> None:
-		""" Registers poller and starts listening for events """
+		"""Register poller and starts listening for events."""
 		if not HAVE_BLUETOOTH_LIB:
 			log.warning("Failed to load libbluetooth.so, bluetooth support will be incomplete")
 		poller = self.daemon.poller
@@ -83,7 +78,7 @@ class DeviceMonitor(Monitor):
 		Monitor.start(self)
 
 
-	def _on_new_syspath(self, subsystem, syspath) -> None:
+	def _on_new_syspath(self, subsystem: str, syspath: str) -> None:
 		try:
 			if subsystem == "input":
 				vendor, product = None, None
@@ -126,9 +121,12 @@ class DeviceMonitor(Monitor):
 			self.bt_addresses[id] = address
 
 
-	def _dev_for_hci(self, syspath) -> str | None:
-		"""For given syspath leading to ../hciX:ABCD, returns input device node."""
-		name = syspath.split("/")[-1]
+	def _dev_for_hci(self, sys_bus_path: str) -> str | None:
+		"""For given syspath leading to ../hciX:ABCD, returns input device node.
+
+		For example "a0:5a:5d:87:82:17" or "vial:f64c2b3c"
+		"""
+		name = sys_bus_path.split("/")[-1]
 		if ":" not in name:
 			return None
 		addr = self.bt_addresses.get(name)
@@ -193,7 +191,7 @@ class DeviceMonitor(Monitor):
 					self._on_new_syspath(subsystem, syspath)
 
 
-	def get_vendor_product(self, syspath: str, subsystem: str | None = None) -> Tuple[int, int]:
+	def get_vendor_product(self, syspath: str, subsystem: str | None = None) -> tuple[int, int]:
 		"""For given syspath, reads and returns (vendor_id, product_id) as ints.
 
 		May throw all kinds of OSErrors
@@ -225,9 +223,9 @@ class DeviceMonitor(Monitor):
 		raise OSError("Cannot determine vendor and product IDs")
 
 
-	def get_hidraw(self, syspath) -> str | None:
-		"""
-		For given syspath, returns name of assotiated hidraw device.
+	def get_hidraw(self, syspath: str) -> str | None:
+		"""For given syspath, returns name of assotiated hidraw device.
+
 		Returns None if there is no such thing.
 		"""
 		node = self._dev_for_hci(syspath)
@@ -241,11 +239,8 @@ class DeviceMonitor(Monitor):
 
 
 	@staticmethod
-	def _find_bt_address(syspath) -> str | None:
-		"""
-		Recursivelly searchs for "input*" subdirectories until "uniq" file
-		is found. Then, returns address from that file.
-		"""
+	def _find_bt_address(syspath: str) -> str | None:
+		"""Recursivelly searchs for "input*" subdirectories until "uniq" file is found. Then, returns address from that file."""
 		uniq = os.path.join(syspath, "uniq")
 		if os.path.exists(uniq):
 			return open(uniq, "r").read().strip()
@@ -260,7 +255,7 @@ class DeviceMonitor(Monitor):
 
 
 	@staticmethod
-	def get_usb_address(syspath) -> tuple[int, int]:
+	def get_usb_address(syspath: str) -> tuple[int, int]:
 		"""
 		For given syspath, reads and returns (busnum, devnum) as ints.
 
@@ -272,9 +267,8 @@ class DeviceMonitor(Monitor):
 
 
 	@staticmethod
-	def get_subsystem(syspath) -> str:
-		"""
-		For given syspath, reads and returns subsystem as string.
+	def get_subsystem(syspath: str) -> str:
+		"""For given syspath, reads and returns subsystem as string.
 
 		May throw OSError if directory is not readable.
 		"""
