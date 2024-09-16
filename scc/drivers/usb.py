@@ -1,5 +1,4 @@
-"""
-Common code for all (one) USB-based drivers.
+"""Common code for all (one) USB-based drivers.
 
 Driver that uses USB has to call
 register_hotplug_device(callback, vendor_id, product_id, on_failure=None)
@@ -9,15 +8,23 @@ Callback will be called with following arguments:
 	callback(device, handle)
 Callback has to return created USBDevice instance or None.
 """
-from scc.lib import usb1
-from typing import Union
+from __future__ import annotations
+
+import logging
 import time
 import traceback
-import logging
+from typing import TYPE_CHECKING
+
+from scc.lib import usb1
+
+if TYPE_CHECKING:
+	from scc.sccdaemon import SCCDaemon
+
 log = logging.getLogger("USB")
 
 class USBDevice(object):
-	""" Base class for all handled usb devices """
+	"""Base class for all handled usb devices."""
+
 	def __init__(self, device, handle):
 		self.device = device
 		self.handle = handle
@@ -196,12 +203,12 @@ class USBDriver(object):
 		self._changed = 0
 
 
-	def set_daemon(self, daemon):
+	def set_daemon(self, daemon: SCCDaemon):
 		self.daemon = daemon
 
 
 	def on_exit(self, *a):
-		""" Closes all devices and unclaims all interfaces """
+		"""Close all devices and unclaim all interfaces."""
 		if len(self._devices):
 			log.debug("Releasing devices...")
 			to_release, self._devices, self._syspaths = self._devices.values(), {}, {}
@@ -227,7 +234,7 @@ class USBDriver(object):
 		self._started = True
 
 
-	def handle_new_device(self, syspath, vendor, product) -> Union[bool, None]:
+	def handle_new_device(self, syspath: str, vendor: int, product: int) -> bool | None:
 		tp = vendor, product
 		handle = None
 		if tp not in self._known_ids:
@@ -262,28 +269,26 @@ class USBDriver(object):
 				device.close()
 				self._fail_cbs[tp](*tp)
 				return False
-			else:
-				if self.daemon:
-					self.daemon.add_error(
-						"usb:%s:%s" % (tp[0], tp[1]),
-						"Failed to claim USB device: %s" % (e,)
-					)
-				self._retry_devices.append((syspath, tp))
-				device.close()
-				return True
+			if self.daemon:
+				self.daemon.add_error(
+					"usb:%s:%s" % (tp[0], tp[1]),
+					"Failed to claim USB device: %s" % (e,)
+				)
+			self._retry_devices.append((syspath, tp))
+			device.close()
+			return True
 		if handled_device:
 			self._devices[device] = handled_device
 			self._syspaths[syspath] = device
 			log.debug("USB device added: %.4x:%.4x", *tp)
 			self.daemon.remove_error("usb:%s:%s" % (tp[0], tp[1]))
 			return True
-		else:
-			log.warning("Known USB device ignored: %.4x:%.4x", *tp)
-			device.close()
-			return False
+		log.warning("Known USB device ignored: %.4x:%.4x", *tp)
+		device.close()
+		return False
 
 
-	def handle_removed_device(self, syspath, vendor, product):
+	def handle_removed_device(self, syspath: str, vendor: int, product: int):
 		if syspath in self._syspaths:
 			device = self._syspaths[syspath]
 			handled_device = self._devices[device]
@@ -297,7 +302,7 @@ class USBDriver(object):
 				pass
 
 
-	def register_hotplug_device(self, callback, vendor_id, product_id, on_failure):
+	def register_hotplug_device(self, callback, vendor_id: int, product_id: int, on_failure):
 		self._known_ids[vendor_id, product_id] = callback
 		if on_failure:
 			self._fail_cbs[vendor_id, product_id] = on_failure
@@ -320,7 +325,7 @@ class USBDriver(object):
 			self._ctx.handleEventsTimeout()
 			self._changed = 0
 
-		for d in self._devices.values():		# TODO: don't use .values() here
+		for d in self._devices.values(): # TODO: don't use .values() here
 			try:
 				d.flush()
 			except usb1.USBErrorPipe:
@@ -338,19 +343,19 @@ class USBDriver(object):
 # USBDriver should be process-wide singleton
 _usb = USBDriver()
 
-def init(daemon, config: dict) -> bool:
+def init(daemon: SCCDaemon, config: dict) -> bool:
 	_usb.set_daemon(daemon)
 	daemon.add_on_exit(_usb.on_exit)
 	daemon.add_mainloop(_usb.mainloop)
 	return True
 
-def start(daemon):
+def start(daemon: SCCDaemon):
 	_usb.start()
 
 
-def register_hotplug_device(callback, vendor_id, product_id, on_failure=None):
+def register_hotplug_device(callback, vendor_id: int, product_id: int, on_failure=None):
 	_usb.register_hotplug_device(callback, vendor_id, product_id, on_failure)
 
 
-def unregister_hotplug_device(callback, vendor_id, product_id):
+def unregister_hotplug_device(callback, vendor_id: int, product_id: int):
 	_usb.unregister_hotplug_device(callback, vendor_id, product_id)

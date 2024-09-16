@@ -34,13 +34,15 @@ from scc.drivers.usb import register_hotplug_device
 from scc.tools import init_logging, set_logging_level
 
 if TYPE_CHECKING:
+	from evdev import InputDevice
+
 	from scc.sccdaemon import SCCDaemon
 
 log = logging.getLogger("DS4")
 
 VENDOR_ID         = 0x054C
 PRODUCT_ID        = 0x09CC
-DS4_V1_PRODUCT_ID = 0x5C4
+DS4_V1_PRODUCT_ID = 0x05C4
 
 
 class DS4Controller(HIDController):
@@ -242,12 +244,12 @@ class DS4EvdevController(EvdevController):
 		17: { "axis": "lpad_y", "deadzone": 0, "max": -1, "min": 1 }
 	}
 	GYRO_MAP = {
-		EvdevController.ECODES.ABS_RX : ('gpitch', 0.01),
-		EvdevController.ECODES.ABS_RY : ('gyaw', 0.01),
-		EvdevController.ECODES.ABS_RZ : ('groll', 0.01),
-		EvdevController.ECODES.ABS_X : (None, 1),  # 'q2'
-		EvdevController.ECODES.ABS_Y : (None, 1),  # 'q3'
-		EvdevController.ECODES.ABS_Z : (None, -1), # 'q1'
+		EvdevController.ECODES.ABS_RX: ('gpitch', 0.01),
+		EvdevController.ECODES.ABS_RY: ('gyaw', 0.01),
+		EvdevController.ECODES.ABS_RZ: ('groll', 0.01),
+		EvdevController.ECODES.ABS_X: (None, 1),  # 'q2'
+		EvdevController.ECODES.ABS_Y: (None, 1),  # 'q3'
+		EvdevController.ECODES.ABS_Z: (None, -1), # 'q1'
 	}
 	flags = ( ControllerFlags.EUREL_GYROS
 			| ControllerFlags.HAS_RSTICK
@@ -257,7 +259,7 @@ class DS4EvdevController(EvdevController):
 			| ControllerFlags.NO_GRIPS
 	)
 
-	def __init__(self, daemon: "SCCDaemon", controllerdevice, gyro, touchpad):
+	def __init__(self, daemon: "SCCDaemon", controllerdevice: "InputDevice", gyro: "InputDevice", touchpad: "InputDevice"):
 		config = {
 			'axes' : DS4EvdevController.AXIS_MAP,
 			'buttons' : DS4EvdevController.BUTTON_MAP,
@@ -435,11 +437,9 @@ def init(daemon: "SCCDaemon", config: dict) -> bool:
 		register_hotplug_device(hid_callback, VENDOR_ID, DS4_V1_PRODUCT_ID, on_failure=fail_cb)
 		if HAVE_EVDEV and config["drivers"].get("evdevdrv"):
 			# DS4 v.2
-			daemon.get_device_monitor().add_callback("bluetooth",
-				VENDOR_ID, PRODUCT_ID, make_evdev_device, None)
+			daemon.get_device_monitor().add_callback("bluetooth", VENDOR_ID, PRODUCT_ID, make_evdev_device, None)
 			# DS4 v.1
-			daemon.get_device_monitor().add_callback("bluetooth",
-				VENDOR_ID, DS4_V1_PRODUCT_ID, make_evdev_device, None)
+			daemon.get_device_monitor().add_callback("bluetooth", VENDOR_ID, DS4_V1_PRODUCT_ID, make_evdev_device, None)
 		return True
 	log.warning("Neither HID nor Evdev driver is enabled, DS4 support cannot be enabled.")
 	return False

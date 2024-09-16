@@ -1,6 +1,4 @@
-"""
-SC-Controller - Daemon class
-"""
+"""SC-Controller - Daemon class."""
 import stat
 
 from scc.lib import xwrappers as X
@@ -80,8 +78,8 @@ class SCCDaemon(Daemon):
 
 
 	def init_drivers(self):
-		"""
-		Searchs and initializes all controller drivers.
+		"""Search and initialize all controller drivers.
+
 		See __init__.py in scc.drivers.
 		"""
 		log.debug("Initializing drivers...")

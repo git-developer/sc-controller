@@ -372,9 +372,7 @@ class Gamepad(UInput):
 
 
 class Mouse(UInput):
-
-	"""
-	Mouse uinput class, create a mouse device
+	"""Mouse uinput class, create a mouse device.
 
 	moveEvent can emulate free ball rotation of a track ball
 	updateParams permit to upgrade ball model and move scale
