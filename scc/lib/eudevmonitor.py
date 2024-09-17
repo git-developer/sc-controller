@@ -23,7 +23,7 @@ import ctypes
 import errno
 import os
 from ctypes.util import find_library
-from typing import NamedTuple, Type, TypeVar
+from typing import NamedTuple, TypeVar
 
 
 class Eudev:
@@ -43,7 +43,7 @@ class Eudev:
 			raise OSError("Failed to initialize udev context")
 
 	@staticmethod
-	def _setup_lib(lib):
+	def _setup_lib(lib: ctypes.CDLL):
 		"""Just so it's away from init and can be folded in IDE."""
 		# udev
 		lib.udev_new.restype = ctypes.c_void_p
@@ -115,21 +115,22 @@ class Eudev:
 			self._lib.udev_unref(self._ctx)
 			self._ctx = None
 
-
-	def enumerate(self, subclass=None):
+	enumerate_typevar = TypeVar("enumerate_typevar", bound="Enumerator")
+	def enumerate(self, subclass: type [enumerate_typevar] | None = None) -> enumerate_typevar | Enumerator:
 		"""Return new Enumerator instance."""
-		enumerator = self._lib.udev_enumerate_new(self._ctx)
+		enumerator: ctypes.c_void_p | None = self._lib.udev_enumerate_new(self._ctx)
 		if enumerator is None:
 			raise OSError("Failed to initialize enumerator")
 		if subclass is not None:
-			assert issubclass(subclass, Enumerator)
-		subclass = subclass or Enumerator
-		return subclass(self, enumerator)
+			assert issubclass(subclass, Enumerator), f"subclass must be a subclass of Enumerator but {subclass} was provided"
+#		print('enumerate - ', type(enumerator), enumerator)
+		final_class = subclass or Enumerator
+		return final_class(self, enumerator)
 
-	T = TypeVar("T", bound="Monitor")
-	def monitor(self, subclass: type [T] | None = None) -> T | Monitor:
+	monitor_typevar = TypeVar("monitor_typevar", bound="Monitor")
+	def monitor(self, subclass: type [monitor_typevar] | None = None) -> monitor_typevar | Monitor:
 		"""Return new Monitor instance."""
-		monitor = self._lib.udev_monitor_new_from_netlink(self._ctx, b"udev")
+		monitor: ctypes.c_void_p | None = self._lib.udev_monitor_new_from_netlink(self._ctx, b"udev")
 		if monitor is None:
 			raise OSError("Failed to initialize monitor")
 		if subclass is not None:
@@ -151,7 +152,7 @@ class Enumerator:
 	All match_* methods are returning self for chaining.
 	"""
 
-	def __init__(self, eudev: Eudev, enumerator: Enumerator):
+	def __init__(self, eudev: Eudev, enumerator: ctypes.c_void_p) -> None:
 		self._eudev = eudev
 		self._enumerator = enumerator
 		self._keep_in_mem = []
@@ -165,7 +166,7 @@ class Enumerator:
 			self._enumerator = None
 
 
-	def _add_match(self, whichone, *pars):
+	def _add_match(self, whichone: str, *pars) -> Enumerator:
 		if self._enumeration_started:
 			raise RuntimeError("Cannot add match after enumeration is started")
 		fn = getattr(self._eudev._lib, "udev_enumerate_add_" + whichone)
@@ -183,9 +184,9 @@ class Enumerator:
 	def nomatch_sysattr(self, sysattr, value): return self._add_match("nomatch_sysattr", sysattr, value)
 	@twoargs
 	def match_property(self, property, value): return self._add_match("match_property", property, value)
-	def match_subsystem(self, subsystem): return self._add_match("match_subsystem", subsystem)
-	def nomatch_subsystem(self, subsystem): return self._add_match("nomatch_subsystem", subsystem)
-	def match_sysname(self, sysname): return self._add_match("match_sysname", sysname)
+	def match_subsystem(self, subsystem: str): return self._add_match("match_subsystem", subsystem)
+	def nomatch_subsystem(self, subsystem: str): return self._add_match("nomatch_subsystem", subsystem)
+	def match_sysname(self, sysname: str): return self._add_match("match_sysname", sysname)
 	def match_tag(self, tag): return self._add_match("match_tag", tag)
 	def match_is_initialized(self): return self._add_match("match_is_initialized")
 	# match_parent is not implemented
@@ -237,7 +238,7 @@ class Monitor:
 	All match_* methods are returning self for chaining
 	"""
 
-	def __init__(self, eudev: Eudev, monitor):
+	def __init__(self, eudev: Eudev, monitor: ctypes.c_void_p) -> None:
 		self._eudev = eudev
 		self._monitor = monitor
 		self._monitor_started = False
@@ -245,7 +246,7 @@ class Monitor:
 		self._enabled_matches = set()
 
 
-	def __del__(self):
+	def __del__(self) -> None:
 		if self._monitor is not None:
 			self._eudev._lib.udev_monitor_unref(self._monitor)
 			self._monitor = None

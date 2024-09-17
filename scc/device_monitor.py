@@ -214,6 +214,7 @@ class DeviceMonitor(Monitor):
 
 			# Sleep for 1 second to make sure info is available on system
 			time.sleep(1)
+			logging.debug('TODO: Hardcoded 1s sleep!') # https://github.com/C0rn3j/sc-controller/commit/43d148327a1b92042d67dd6cfdf1128aa6f9b25d
 			node = self._dev_for_hci(syspath)
 			if node:
 				name = node.split("/")[-1]
@@ -256,8 +257,7 @@ class DeviceMonitor(Monitor):
 
 	@staticmethod
 	def get_usb_address(syspath: str) -> tuple[int, int]:
-		"""
-		For given syspath, reads and returns (busnum, devnum) as ints.
+		"""For given syspath, read and return (busnum, devnum) as ints.
 
 		May throw all kinds of OSErrors
 		"""
