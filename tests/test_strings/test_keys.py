@@ -1,5 +1,7 @@
+from enum import IntEnum
+
 from scc.uinput import Keys
-from scc.lib import IntEnum
+
 
 class TestKeys(object):
     def test_up_str(self):

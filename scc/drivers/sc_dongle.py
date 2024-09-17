@@ -1,21 +1,21 @@
-#!/usr/bin/env python3
-"""
-SC Controller - Steam Controller Wireless Receiver (aka Dongle) Driver
+"""SC Controller - Steam Controller Wireless Receiver (aka Dongle) Driver.
 
 Called and used when Dongle is detected on USB bus.
 Handles one or multiple controllers connected to dongle.
 """
+from __future__ import annotations
 
-from scc.lib import IntEnum
-from scc.drivers.usb import USBDevice, register_hotplug_device
-from scc.constants import SCButtons, STICKTILT, STICK_PAD_MIN, STICK_PAD_MAX
-from scc.controller import Controller
-from scc.config import Config
-from collections import namedtuple
-from math import pi as PI, sin, cos
-from typing import Union
-import struct
 import logging
+import struct
+from collections import namedtuple
+from enum import IntEnum
+from math import cos, sin
+from math import pi as PI
+
+from scc.config import Config
+from scc.constants import STICK_PAD_MAX, STICK_PAD_MIN, STICKTILT, SCButtons
+from scc.controller import Controller
+from scc.drivers.usb import USBDevice, register_hotplug_device
 
 VENDOR_ID  = 0x28de
 PRODUCT_ID = 0x1142
@@ -301,7 +301,7 @@ class SCController(Controller):
 	# Has to be overriden in sc_by_cable
 	FORMAT2 = b'>BBBB59x'
 
-	def configure(self, idle_timeout: Union[int, None] = None, enable_gyros: Union[bool, None] = None, led_level: Union[int, None] = None):
+	def configure(self, idle_timeout: int | None = None, enable_gyros: bool | None = None, led_level: int | None = None):
 		"""
 		Sets and, if possible, sends configuration to controller.
 		Only value that is provided is changed.
@@ -394,8 +394,7 @@ class SCController(Controller):
 
 
 	def _feedback(self, position, amplitude=128, period=0, count=1):
-		"""
-		Add haptic feedback to be send on next usb tick
+		"""Add haptic feedback to be send on next usb tick.
 
 		@param int position		haptic to use 1 for left 0 for right
 		@param int amplitude	signal amplitude from 0 to 65535
@@ -407,7 +406,7 @@ class SCController(Controller):
 					SCPacketType.FEEDBACK, 0x07, position,
 					amplitude, period, count))
 
-def init(daemon, config: dict) -> Union[Dongle, bool]:
+def init(daemon, config: dict) -> Dongle | bool:
 	""" Registers hotplug callback for controller dongle """
 	def cb(device, handle):
 		return Dongle(device, handle, daemon)

@@ -11,11 +11,11 @@ to not do so periodically.
 import ctypes
 import logging
 import struct
+from enum import IntEnum
 
 from scc.constants import STICK_PAD_MAX, STICK_PAD_MIN, ControllerFlags, SCButtons
 from scc.drivers.sc_dongle import SCController, SCPacketType
 from scc.drivers.usb import USBDevice, register_hotplug_device
-from scc.lib import IntEnum
 
 VENDOR_ID         = 0x28de
 PRODUCT_ID        = 0x1205

@@ -10,6 +10,7 @@ import os
 import sys
 import time
 import zlib
+from enum import IntEnum
 
 from scc.constants import (
     OUTPUT_360_STICK_MAX,
@@ -45,7 +46,6 @@ from scc.drivers.hiddrv import (
     hiddrv_test,
 )
 from scc.drivers.usb import register_hotplug_device
-from scc.lib import IntEnum
 from scc.lib.hidraw import HIDRaw
 from scc.sccdaemon import SCCDaemon
 from scc.tools import init_logging, set_logging_level

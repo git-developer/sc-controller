@@ -7,6 +7,7 @@ import json
 import logging
 import os
 import sys
+from enum import IntEnum
 
 from scc.constants import STICK_PAD_MAX, STICK_PAD_MIN, ControllerFlags, SCButtons
 from scc.controller import Controller
@@ -16,7 +17,6 @@ from scc.drivers.usb import (
 	register_hotplug_device,
 	unregister_hotplug_device,
 )
-from scc.lib import IntEnum
 from scc.lib.hidparse import (
 	AXES,
 	GenericDesktopPage,

@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from scc.lib import IntEnum
+from enum import IntEnum
 
 """
 If SC-Controller is updated while daemon is running, DAEMON_VERSION send by
