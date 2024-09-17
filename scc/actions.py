@@ -24,6 +24,7 @@ from scc.constants import TRIGGER_CLICK, TRIGGER_MAX
 from scc.constants import SCButtons, BASE_STICK_MOUSE_SPEED
 from scc.aliases import ALL_BUTTONS as GAMEPAD_BUTTONS
 from math import copysign, sqrt, sin, cos, atan2, pi as PI
+from enum import IntEnum
 
 import sys
 import logging
@@ -214,8 +215,8 @@ class Action(object):
 
 	def to_string(self, multiline=False, pad=0):
 		"""Convert action back to string."""
-		return (" " * pad) + "%s(%s)" % (self.COMMAND, ", ".join([
-			x.to_string() if isinstance(x, Action) else f"{x.__class__.__name__}.{x.name}"
+		return (" " * pad) + "{}({})".format(self.COMMAND, ", ".join([
+			x.to_string() if isinstance(x, Action) else f"{x.__class__.__name__}.{x.name}" if isinstance(x, IntEnum) else str(x)
 			for x in self.parameters
 		]))
 
