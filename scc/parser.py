@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import sys
 import token as TokenType
+from enum import EnumType
 from tokenize import TokenError, generate_tokens
 from typing import NamedTuple
 
@@ -165,7 +166,10 @@ class ActionParser(object):
 				t = self._next_token()
 				if not hasattr(parameter, t.value):
 					raise ParseError("%s has no attribute '%s'" % (parameter, t.value,))
-				parameter = getattr(parameter, t.value)
+				if type(parameter) is EnumType:
+					parameter = parameter[t.value]
+				else: # This will never happen -> why?
+					raise ParseError("This should not have happened, how did we get here?")
 
 			# Check for ranges (<, >, <=, >=)
 			if self._tokens_left() and self._peek_token().type == TokenType.OP:

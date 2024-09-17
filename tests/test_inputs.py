@@ -132,7 +132,7 @@ class TestInputs(object):
 			"ball(XY("
 			"	mouse(Rels.REL_HWHEEL, 1.0), "
 			"	mouse(Rels.REL_WHEEL, 1.0)"
-			"))"
+			"))",
 		)).parse()
 
 		# Create movement over left pad

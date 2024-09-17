@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-"""
-SC Controller - Modifiers
+"""SC Controller - Modifiers.
 
 Modifier is Action that just sits between input and actual action, changing
 way how resulting action works.

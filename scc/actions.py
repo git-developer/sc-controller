@@ -1491,8 +1491,7 @@ class ButtonAction(HapticEnabledAction, Action):
 		HapticEnabledAction.__init__(self)
 		self.button = button1 or None
 		self.button2 = button2 or None
-		# minustrigger and plustrigger are not used anymore, __init__ takes
-		# them only for backwards compatibility.
+		# minustrigger and plustrigger are not used anymore, __init__ takes them only for backwards compatibility.
 		# TODO: Remove backwards compatibility
 		self._change = 0
 		self._pressed_key = None
@@ -1519,20 +1518,19 @@ class ButtonAction(HapticEnabledAction, Action):
 	def describe_button(button, context=Action.AC_BUTTON):
 		if button in ButtonAction.SPECIAL_NAMES:
 			return _(ButtonAction.SPECIAL_NAMES[button])
-		elif button in MOUSE_BUTTONS:
+		if button in MOUSE_BUTTONS:
 			return _("Mouse %s") % (button,)
-		elif context == Action.AC_OSK:
+		if context == Action.AC_OSK:
 			if button in ButtonAction.MODIFIERS_NAMES:
 				return _(ButtonAction.MODIFIERS_NAMES[button])
-			elif button in Keys.__members__.values():
+			if button in Keys.__members__.values():
 				return button.name.split("_", 1)[-1].title()
 			return ""
-		elif button is None: # or isinstance(button, NoAction):
+		if button is None: # or isinstance(button, NoAction):
 			return "None"
-		elif button in Keys.__members__.values():
+		if button in Keys.__members__.values():
 			return button.name.split("_", 1)[-1]
-		else:
-			return _("Button %i") % (button,)
+		return _("Button %i") % (button,)
 
 
 	def describe_short(self):

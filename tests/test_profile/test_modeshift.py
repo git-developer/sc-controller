@@ -49,7 +49,7 @@ class TestModeshift(object):
 				"LGRIP": {
 					"X": { "action": "mouse(Rels.REL_HWHEEL)" },
 					"Y": { "action": "mouse(Rels.REL_WHEEL)" },
-					"ball": []
+					"ball": [],
 				},
 			},
 		})
