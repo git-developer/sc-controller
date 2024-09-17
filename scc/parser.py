@@ -9,6 +9,7 @@ import sys
 import token as TokenType
 from collections import namedtuple
 from tokenize import TokenError, generate_tokens
+from typing import NamedTuple
 
 from scc.actions import Action, MultiAction, NoAction, RangeOP
 from scc.constants import PARSER_CONSTANTS, STICK, HapticPos, SCButtons
@@ -54,7 +55,9 @@ class ActionParser(object):
 			# do something with error
 	"""
 
-	Token = namedtuple('Token', 'type value')
+	class	Token(NamedTuple):
+		type: str
+		value: str
 
 	CONSTS = build_action_constants()
 
@@ -97,10 +100,10 @@ class ActionParser(object):
 
 		try:
 			self.tokens = [
-				ActionParser.Token(type, string)
-				for type, string, *_
+				ActionParser.Token(token_type, string)
+				for token_type, string, *_
 				in generate_tokens( iter([s]).__next__ )
-				if type != TokenType.ENDMARKER
+				if token_type != TokenType.ENDMARKER
 			]
 		except TokenError:
 			self.tokens = None
@@ -108,19 +111,25 @@ class ActionParser(object):
 		return self
 
 
-	def _next_token(self):
+	def _next_token(self) -> Token:
+		if self.tokens is None:
+			sys.exit("This shouldn't happen, self.tokens is none")
 		rv = self.tokens[self.index]
 		self.index += 1
 		return rv
 
 
-	def _peek_token(self):
+	def _peek_token(self) -> Token:
 		"""As _next_token, but without increasing counter."""
+		if self.tokens is None:
+			sys.exit("This shouldn't happen, self.tokens is none")
 		return self.tokens[self.index]
 
 
 	def _tokens_left(self) -> bool:
 		"""Return True if there are any tokens left."""
+		if self.tokens is None:
+			sys.exit("This shouldn't happen, self.tokens is none")
 		return self.index < len(self.tokens)
 
 
