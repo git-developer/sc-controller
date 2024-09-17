@@ -26,9 +26,10 @@ import os
 from ctypes import POINTER, byref, c_bool, c_int16, c_int32, c_uint16
 from math import copysign, fmod, sqrt
 
+from libusb1 import timeval
+
 from scc.cheader import defines
 from scc.lib import IntEnum
-from scc.lib.libusb1 import timeval
 from scc.tools import find_library
 
 UNPUT_MODULE_VERSION = 9

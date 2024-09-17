@@ -52,7 +52,7 @@ class DeviceMonitor(Monitor):
 		"""
 		key = (subsystem, vendor_id, product_id)
 		# TODO type this, might need 3.11 for https://docs.python.org/3/library/typing.html#typing.Self ?
-		# print(f"add_callback for subsystem {subsystem} for {vendor_id}:{product_id} - existing {self.dev_added_cbs}; of type {type(self.dev_added_cbs)} with existing removals {self.dev_removed_cbs}; of type {type(self.dev_removed_cbs)}")
+		# print(f"add_callback for subsystem {subsystem} for {vendor_id}:{product_id} - existing {self.dev_added_cbs}; of type {type(self.dev_added_cbs)} with existing removals {self.dev_removed_cbs}; of type {type(self.dev_removed_cbs)}\n")
 		# print(f"  {added_cb}; of type {type(added_cb)} with additional removals {added_cb}; of type {type(added_cb)}\n")
 		assert key not in self.dev_added_cbs, (f"DeviceMonitor add_callback found an already present device: \n    {key[0], key[1], key[2]} in hex: {hex(key[1]), hex(key[2])}\n  in existing DeviceMonitor cbs:\n    {self.dev_added_cbs}\n \
 			Perhaps a custom device was added to config that we already considered earlier? Check $config_dir/scc/devices/")

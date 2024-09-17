@@ -45,6 +45,7 @@ Donation links for kozec, who is the original developer, can be found on the [ol
   - [python-evdev](https://python-evdev.readthedocs.io/en/latest/)
   - [python-pylibacl](http://pylibacl.k1024.org/)
   - [python-vdf](https://pypi.org/project/vdf/)
+  - python-libusb1
   - [gtk-layer-shell](https://github.com/wmww/gtk-layer-shell)
 
 ### Installing

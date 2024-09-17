@@ -15,7 +15,7 @@ import time
 import traceback
 from typing import TYPE_CHECKING
 
-from scc.lib import usb1
+import usb1
 
 if TYPE_CHECKING:
 	from scc.sccdaemon import SCCDaemon
