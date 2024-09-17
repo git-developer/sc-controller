@@ -27,7 +27,7 @@ from ctypes import POINTER, byref, c_bool, c_int16, c_int32, c_uint16
 from enum import IntEnum
 from math import copysign, fmod, sqrt
 
-from libusb1 import timeval
+from usb1.libusb1 import timeval
 
 from scc.cheader import defines
 from scc.tools import find_library
