@@ -2,7 +2,6 @@ import logging
 import os
 import time
 import traceback
-from collections import deque
 
 from scc.actions import ButtonAction, GyroAbsAction
 from scc.aliases import ALL_AXES, ALL_BUTTONS
@@ -395,6 +394,7 @@ class Mapper(object):
 
 
 	def input(self, controller, old_state, state):
+#		print(type(controller), type(old_state), type(state))
 		# Store states
 		self.old_state = old_state
 		self.old_buttons = self.buttons

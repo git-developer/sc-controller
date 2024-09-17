@@ -17,23 +17,24 @@ from scc.tools import set_logging_level
 gi.require_version('Gtk', '3.0')
 gi.require_version('Rsvg', '2.0')
 gi.require_version('GdkX11', '3.0')
-from gi.repository import Gdk, GdkX11, GLib, Gtk
+from gi.repository import Gtk, Gdk, GdkX11, GLib
 
-from scc.config import Config
 from scc.gui.daemon_manager import DaemonManager
-from scc.osd import OSDWindow
-from scc.osd.area import Area
-from scc.osd.dialog import Dialog
 from scc.osd.gesture_display import GestureDisplay
-from scc.osd.grid_menu import GridMenu
-from scc.osd.hmenu import HorizontalMenu
-from scc.osd.keyboard import Keyboard
-from scc.osd.menu import Menu
-from scc.osd.message import Message
-from scc.osd.quick_menu import QuickMenu
 from scc.osd.radial_menu import RadialMenu
+from scc.osd.hmenu import HorizontalMenu
+from scc.osd.quick_menu import QuickMenu
+from scc.osd.grid_menu import GridMenu
+from scc.osd.keyboard import Keyboard
+from scc.osd.message import Message
+from scc.osd.dialog import Dialog
+from scc.osd import OSDWindow
+from scc.osd.menu import Menu
+from scc.osd.area import Area
 from scc.special_actions import OSDAction
 from scc.tools import shsplit
+from scc.config import Config
+
 
 log = logging.getLogger("osd.daemon")
 
