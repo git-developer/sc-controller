@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import sys
 import token as TokenType
-from collections import namedtuple
 from tokenize import TokenError, generate_tokens
 from typing import NamedTuple
 
@@ -55,8 +54,8 @@ class ActionParser(object):
 			# do something with error
 	"""
 
-	class	Token(NamedTuple):
-		type: str
+	class Token(NamedTuple):
+		type: int
 		value: str
 
 	CONSTS = build_action_constants()

@@ -33,7 +33,7 @@ log = logging.getLogger("Actions")
 # Default delay after action, if used in macro. May be overriden using sleep() action.
 DEFAULT_DELAY = 0.01
 MOUSE_BUTTONS = ( Keys.BTN_LEFT, Keys.BTN_MIDDLE, Keys.BTN_RIGHT, Keys.BTN_SIDE, Keys.BTN_EXTRA )
-TRIGGERS = ( Axes.ABS_Z, Axes.ABS_RZ )
+TRIGGERS = ( Axes["ABS_Z"], Axes["ABS_RZ"] )
 
 
 class Action(object):

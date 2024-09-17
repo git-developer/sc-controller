@@ -208,16 +208,15 @@ class Enumerator:
 
 
 	def __next__(self) -> str:
-	#def next(self):
 		if not self._enumeration_started:
 			self.__iter__() # Starts the enumeration
 		if self._next is None:
 			raise StopIteration
-		rv: ctypes.c_char_p | None = self._eudev._lib.udev_list_entry_get_name(self._next)
-		if rv is None:
+		udev_name_pointer: ctypes.c_char_p | None = self._eudev._lib.udev_list_entry_get_name(self._next)
+		if udev_name_pointer is None:
 			raise OSError("udev_list_entry_get_name failed, can't get syspath")
 		self._next = self._eudev._lib.udev_list_entry_get_next(self._next)
-		return str(rv, "utf-8")
+		return str(udev_name_pointer, "utf-8")
 
 class DeviceEvent(NamedTuple):
 	action: str

@@ -117,13 +117,12 @@ class TestInputs(object):
 	@input_test
 	def test_button(self, mapper: Mapper):
 		"""Just a test for a test, this should work every time."""
-		mapper.profile.buttons[SCButtons.A] = (parser
-			.restart("button(Keys.KEY_ENTER)")).parse()
+		mapper.profile.buttons[SCButtons.A] = (parser.restart("button(Keys.KEY_ENTER)")).parse()
 		state = ZERO_STATE._replace(buttons=SCButtons.A)
 		mapper.input(mapper.controller, ZERO_STATE, state)
-		assert Keys.KEY_ENTER in mapper.keyboard.pressed
+		assert Keys["KEY_ENTER"] in mapper.keyboard.pressed
 		mapper.input(mapper.controller, state, state._replace(buttons=0))
-		assert Keys.KEY_ENTER not in mapper.keyboard.pressed
+		assert Keys["KEY_ENTER"] not in mapper.keyboard.pressed
 
 
 	@input_test
@@ -164,17 +163,17 @@ class TestInputs(object):
 		# - A
 		state = ZERO_STATE._replace(buttons=SCButtons.LPADTOUCH, lpad_x=STICK_PAD_MIN)
 		mapper.input(mapper.controller, ZERO_STATE, state)
-		assert Keys.KEY_A in mapper.keyboard.pressed
+		assert Keys["KEY_A"] in mapper.keyboard.pressed
 		mapper.input(mapper.controller, state, ZERO_STATE)
 		# - S
 		state = ZERO_STATE._replace(buttons=SCButtons.LPADTOUCH, lpad_y=STICK_PAD_MIN)
 		mapper.input(mapper.controller, ZERO_STATE, state)
-		assert Keys.KEY_S in mapper.keyboard.pressed
+		assert Keys["KEY_S"] in mapper.keyboard.pressed
 		mapper.input(mapper.controller, state, ZERO_STATE)
 		# - D
 		state = ZERO_STATE._replace(buttons=SCButtons.LPADTOUCH, lpad_x=STICK_PAD_MAX)
 		mapper.input(mapper.controller, ZERO_STATE, state)
-		assert Keys.KEY_D in mapper.keyboard.pressed
+		assert Keys["KEY_D"] in mapper.keyboard.pressed
 		mapper.input(mapper.controller, state, ZERO_STATE)
 
 
@@ -185,7 +184,7 @@ class TestInputs(object):
 			"ball(XY("
 			"	axis(Axes.ABS_RX),"
 			"	axis(Axes.ABS_RY)"
-			"))"
+			"))",
 		)).parse()
 
 		# Create movement over right pad
@@ -194,62 +193,62 @@ class TestInputs(object):
 			new_state = state._replace(buttons=SCButtons.RPADTOUCH, rpad_x=x)
 			mapper.input(mapper.controller, state, new_state)
 			state = new_state
-		assert mapper.gamepad.axes[Axes.ABS_RX] == 3000
+		assert mapper.gamepad.axes[Axes["ABS_RX"]] == 3000
 		# Release left pad
 		mapper._tick_rate = 0.001
 		mapper.input(mapper.controller, state, ZERO_STATE)
 		# 'Wait' for 1s
 		for x in range(100):
 			mapper.input(mapper.controller, ZERO_STATE, ZERO_STATE)
-		assert mapper.gamepad.axes[Axes.ABS_RX] == 3510
+		assert mapper.gamepad.axes[Axes["ABS_RX"]] == 3510
 		# 'Wait' for another 0.5s
 		for x in range(50):
 			mapper.input(mapper.controller, ZERO_STATE, ZERO_STATE)
-		assert mapper.gamepad.axes[Axes.ABS_RX] == 1570
+		assert mapper.gamepad.axes[Axes["ABS_RX"]] == 1570
 		# 'Wait' for long time so stick recenters
 		for x in range(100):
 			mapper.input(mapper.controller, ZERO_STATE, ZERO_STATE)
-		assert mapper.gamepad.axes[Axes.ABS_RX] == 0
+		assert mapper.gamepad.axes[Axes["ABS_RX"]] == 0
 
 
 	@input_test
 	def test_modeshift(self, mapper: Mapper):
 		"""Test WSAD."""
 		mapper.profile.buttons[SCButtons.A] = (parser.restart(
-			"mode(B, button(Keys.KEY_V), button(Keys.KEY_Y))"
+			"mode(B, button(Keys.KEY_V), button(Keys.KEY_Y))",
 		)).parse()
 
 		# Press single button
 		state = ZERO_STATE._replace(buttons=SCButtons.A)
 		mapper.input(mapper.controller, ZERO_STATE, state)
-		assert Keys.KEY_Y in mapper.keyboard.pressed
+		assert Keys["KEY_Y"] in mapper.keyboard.pressed
 		mapper.input(mapper.controller, state, ZERO_STATE)
-		assert Keys.KEY_Y not in mapper.keyboard.pressed
+		assert Keys["KEY_Y"] not in mapper.keyboard.pressed
 
 		# Press modeshifting button
 		state = ZERO_STATE._replace(buttons=SCButtons.B)
 		mapper.input(mapper.controller, ZERO_STATE, state)
-		assert Keys.KEY_Y not in mapper.keyboard.pressed
-		assert Keys.KEY_V not in mapper.keyboard.pressed
+		assert Keys["KEY_Y"] not in mapper.keyboard.pressed
+		assert Keys["KEY_V"] not in mapper.keyboard.pressed
 
 		# Press button again
 		_state, state = state, state._replace(buttons=SCButtons.B | SCButtons.A)
 		mapper.input(mapper.controller, _state, state)
-		assert Keys.KEY_V in mapper.keyboard.pressed
-		assert Keys.KEY_Y not in mapper.keyboard.pressed
+		assert Keys["KEY_V"] in mapper.keyboard.pressed
+		assert Keys["KEY_Y"] not in mapper.keyboard.pressed
 
 		# Release modeshifting button
 		_state, state = state, state._replace(buttons=SCButtons.A)
 		mapper.input(mapper.controller, _state, state)
-		assert Keys.KEY_V in mapper.keyboard.pressed
-		assert Keys.KEY_Y not in mapper.keyboard.pressed
+		assert Keys["KEY_V"] in mapper.keyboard.pressed
+		assert Keys["KEY_Y"] not in mapper.keyboard.pressed
 
 		# Release original button and press it again
 		_state, state = state, state._replace(buttons=0)
 		mapper.input(mapper.controller, _state, state)
-		assert Keys.KEY_V not in mapper.keyboard.pressed
-		assert Keys.KEY_Y not in mapper.keyboard.pressed
+		assert Keys["KEY_V"] not in mapper.keyboard.pressed
+		assert Keys["KEY_Y"] not in mapper.keyboard.pressed
 
 		_state, state = state, state._replace(buttons=SCButtons.A)
 		mapper.input(mapper.controller, _state, state)
-		assert Keys.KEY_Y in mapper.keyboard.pressed
+		assert Keys["KEY_Y"] in mapper.keyboard.pressed
