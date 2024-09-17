@@ -8,6 +8,10 @@ import logging
 import os
 import sys
 from enum import IntEnum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+	from scc.sccdaemon import SCCDaemon
 
 from scc.constants import STICK_PAD_MAX, STICK_PAD_MIN, ControllerFlags, SCButtons
 from scc.controller import Controller
@@ -202,7 +206,7 @@ class HIDController(USBDevice, Controller):
 			| ControllerFlags.HAS_DPAD
 			| ControllerFlags.NO_GRIPS )
 
-	def __init__(self, device, daemon, handle, config_file, config, test_mode=False):
+	def __init__(self, device, daemon: "SCCDaemon", handle, config_file, config, test_mode=False):
 		USBDevice.__init__(self, device, handle)
 		self._ready = False
 		self.daemon = daemon

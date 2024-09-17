@@ -101,7 +101,7 @@ def enum_or_reserved(enum, value):
 _HIDIOCGRDESCSIZE =	ioctl_opt.IOR(ord('H'), 0x01, ctypes.c_int)
 _HIDIOCGRDESC =		ioctl_opt.IOR(ord('H'), 0x02, _hidraw_report_descriptor)
 _HIDIOCGRAWINFO =	ioctl_opt.IOR(ord('H'), 0x03, _hidraw_devinfo)
-#_HIDIOCGFEATURE =	lambda len : ioctl_opt.IORW(ord('H'), 0x07, len)
+#_HIDIOCGFEATURE =	lambda len : ioctl_opt.IOWR(ord('H'), 0x07, len)
 _HIDIOCGFEATURE = lambda len: ioctl_opt.IOC(
 	ioctl_opt.IOC_WRITE|ioctl_opt.IOC_READ, ord('H'), 0x07, len)
 

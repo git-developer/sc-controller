@@ -35,8 +35,7 @@ class USBDevice(object):
 
 
 	def set_input_interrupt(self, endpoint, size, callback):
-		"""
-		Helper method for setting up input transfer.
+		"""Set up input transfer.
 
 		callback(endpoint, data) is called repeadedly with every packed received.
 		"""
@@ -66,7 +65,7 @@ class USBDevice(object):
 
 
 	def send_control(self, index, data):
-		""" Schedules writing control to device """
+		"""Schedules writing control to device."""
 		zeros = b'\x00' * (64 - len(data))
 
 		self._cmsg.insert(0, (

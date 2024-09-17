@@ -60,7 +60,7 @@ class Modifier(Action):
 
 
 	def _mod_to_string(self, params, multiline, pad):
-		""" Adds action at end of params list and generates string """
+		"""Add action at end of params list and generate a string."""
 		if multiline:
 			childstr = self.action.to_string(True, pad + 2)
 			if len(params) > 0:

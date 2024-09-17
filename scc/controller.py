@@ -6,7 +6,7 @@ from scc.constants import HapticPos
 
 if TYPE_CHECKING:
 	from scc.controller import HapticData
-
+	from scc.mapper import Mapper
 import logging
 import time
 
@@ -15,17 +15,16 @@ log = logging.getLogger("SCController")
 next_id = 1 # Used with fallback controller id generator
 
 class Controller(object):
-	"""
-	Base class for all controller drivers. Implementations are in
-	scc.drivers package.
+	"""Base class for all controller drivers. Implementations are in scc.drivers package.
 
 	Derived class should implement every method from here.
 	"""
+
 	flags = 0
 
-	def __init__(self):
+	def __init__(self) -> None:
 		global next_id
-		self.mapper = None
+		self.mapper: Mapper | None = None
 		self._id = next_id
 		next_id += 1
 		self.lastTime = time.time()
@@ -66,7 +65,7 @@ class Controller(object):
 		return None
 
 
-	def set_mapper(self, mapper):
+	def set_mapper(self, mapper: Mapper):
 		""" Sets mapper for controller """
 		self.mapper = mapper
 
