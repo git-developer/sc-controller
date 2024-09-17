@@ -17,4 +17,5 @@ select = ['ALL']
 ignore = [
 	'W191', # We use tabs for indents, disabling this atrocious PEP 8 recommendation
 	'D206', # ^
+	'ERA001' # Test for commented out code, but it has way too many false positives, so disable
 ]

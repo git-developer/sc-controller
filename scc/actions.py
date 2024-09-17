@@ -34,10 +34,7 @@ TRIGGERS = ( Axes.ABS_Z, Axes.ABS_RZ )
 
 
 class Action(object):
-	"""
-	Action is what actually does something in SC-Controller. User can assotiate
-	one or more Action to each available button, stick or pad in profile file.
-	"""
+	"""Action is what actually does something in SC-Controller. User can assotiate one or more Action to each available button, stick or pad in profile file."""
 
 	# Static dict of all available actions, filled later
 	ALL = {}	# used by action parser
