@@ -16,37 +16,40 @@
 
 # pylint: disable=invalid-name, too-few-public-methods, too-many-arguments
 # pylint: disable=missing-docstring
-"""
-Python ctypes bindings for libusb-1.0.
+"""Python ctypes bindings for libusb-1.0.
 
 You should not need to import this if you use usb1 module.
 
 Declares all constants, data structures and exported symbols.
 Locates and loads libusb1 dynamic library.
 """
-from ctypes import Structure, LittleEndianStructure, \
-    CFUNCTYPE, POINTER, addressof, sizeof, cast, \
-    c_short, c_int, c_uint, c_size_t, c_long, \
-    c_uint8, c_uint16, c_uint32, \
-    c_void_p, c_char_p, py_object, string_at, pointer
-try:
-    from ctypes import c_ssize_t
-except ImportError:
-    from ctypes import c_longlong
-    # c_ssize_t is new in Python 2.7
-    if sizeof(c_int) == sizeof(c_size_t):
-        c_ssize_t = c_int
-    elif sizeof(c_long) == sizeof(c_size_t):
-        c_ssize_t = c_long
-    elif sizeof(c_longlong) == sizeof(c_size_t):
-        c_ssize_t = c_longlong
-    else:
-        raise ValueError('Unsupported arch: sizeof(c_size_t) = %r' % (
-            sizeof(c_size_t), ))
 import ctypes.util
-import platform
 import os.path
+import platform
 import sys
+from ctypes import (
+	CFUNCTYPE,
+	POINTER,
+	LittleEndianStructure,
+	Structure,
+	addressof,
+	c_char_p,
+	c_int,
+	c_long,
+	c_short,
+	c_ssize_t,
+	c_uint,
+	c_uint8,
+	c_uint16,
+	c_uint32,
+	c_void_p,
+	cast,
+	pointer,
+	py_object,
+	sizeof,
+	string_at,
+)
+
 
 class Enum(object):
     def __init__(self, member_dict, scope_dict=None):

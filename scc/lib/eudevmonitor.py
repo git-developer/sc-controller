@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """udevmonitor.py - enumerates and monitors devices using (e)udev.
 
 Copyright (C) 2018 by Kozec
@@ -27,9 +25,11 @@ from typing import NamedTuple, TypeVar
 
 
 class Eudev:
+	"""Wrapped udev system library."""
+
 	LIB_NAME = "udev"
 
-	def __init__(self):
+	def __init__(self) -> None:
 		self._ctx = None
 		try:
 			self._lib = ctypes.cdll.LoadLibrary("libudev.so")
@@ -43,7 +43,7 @@ class Eudev:
 			raise OSError("Failed to initialize udev context")
 
 	@staticmethod
-	def _setup_lib(lib: ctypes.CDLL):
+	def _setup_lib(lib: ctypes.CDLL) -> None:
 		"""Just so it's away from init and can be folded in IDE."""
 		# udev
 		lib.udev_new.restype = ctypes.c_void_p
@@ -110,7 +110,7 @@ class Eudev:
 				fn.restype = ctypes.c_int
 
 
-	def __del__(self):
+	def __del__(self) -> None:
 		if self._ctx is not None:
 			self._lib.udev_unref(self._ctx)
 			self._ctx = None
@@ -157,10 +157,10 @@ class Enumerator:
 		self._enumerator = enumerator
 		self._keep_in_mem = []
 		self._enumeration_started = False
-		self._next = None
+		self._next: ctypes.c_void_p | None = None
 
 
-	def __del__(self):
+	def __del__(self) -> None:
 		if self._enumerator is not None:
 			self._eudev._lib.udev_enumerate_unref(self._enumerator)
 			self._enumerator = None
@@ -192,7 +192,7 @@ class Enumerator:
 	# match_parent is not implemented
 
 
-	def __iter__(self):
+	def __iter__(self) -> Enumerator:
 		if self._enumeration_started:
 			raise RuntimeError("Cannot iterate same Enumerator twice")
 		self._enumeration_started = True
@@ -203,19 +203,19 @@ class Enumerator:
 		return self
 
 
-	def next(self):
+	def next(self) -> str:
 		return self.__next__()
 
 
-	def __next__(self):
+	def __next__(self) -> str:
 	#def next(self):
 		if not self._enumeration_started:
-			self.__iter__()	# Starts the enumeration
+			self.__iter__() # Starts the enumeration
 		if self._next is None:
-			raise StopIteration()
-		rv = self._eudev._lib.udev_list_entry_get_name(self._next)
+			raise StopIteration
+		rv: ctypes.c_char_p | None = self._eudev._lib.udev_list_entry_get_name(self._next)
 		if rv is None:
-			raise OSError("udev_list_entry_get_name failed")
+			raise OSError("udev_list_entry_get_name failed, can't get syspath")
 		self._next = self._eudev._lib.udev_list_entry_get_next(self._next)
 		return str(rv, "utf-8")
 
