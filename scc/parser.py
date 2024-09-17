@@ -272,7 +272,6 @@ class ActionParser(object):
 			raise ParseError("Unknown action '%s'" % (t.value,))
 		action_name = t.value
 		action_class = frm[action_name]
-		print("_parse_action", action_name, action_class)
 		# Check if there are any tokens left - if not, return action without parameters
 		if not self._tokens_left():
 			return self._create_action(action_class)
