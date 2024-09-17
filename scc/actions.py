@@ -213,12 +213,11 @@ class Action(object):
 
 
 	def to_string(self, multiline=False, pad=0):
-		""" Converts action back to string """
+		"""Convert action back to string."""
 		return (" " * pad) + "%s(%s)" % (self.COMMAND, ", ".join([
-			x.to_string() if isinstance(x, Action) else str(x)
+			x.to_string() if isinstance(x, Action) else f"{x.__class__.__name__}.{x.name}"
 			for x in self.parameters
 		]))
-
 
 	def set_name(self, name):
 		""" Sets display name of action. Returns self. """
