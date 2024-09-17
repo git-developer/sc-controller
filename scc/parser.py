@@ -166,10 +166,7 @@ class ActionParser(object):
 				t = self._next_token()
 				if not hasattr(parameter, t.value):
 					raise ParseError("%s has no attribute '%s'" % (parameter, t.value,))
-				if type(parameter) is EnumType:
-					parameter = parameter[t.value]
-				else: # This will never happen -> why?
-					raise ParseError("This should not have happened, how did we get here?")
+				parameter = getattr(parameter, t.value)
 
 			# Check for ranges (<, >, <=, >=)
 			if self._tokens_left() and self._peek_token().type == TokenType.OP:

@@ -54,8 +54,8 @@ class TestModeshift(object):
 			},
 		})
 
-		assert a.to_string() == test_string
 		assert isinstance(a, ModeModifier)
+		assert a.to_string() == test_string
 		assert isinstance(a.default, RotateInputModifier)
 		sens = a.default.action
 		assert isinstance(sens, SensitivityModifier)

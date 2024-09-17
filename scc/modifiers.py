@@ -18,7 +18,9 @@ from scc.uinput import Axes, Rels
 from math import pi as PI, sqrt, copysign, atan2, sin, cos
 from collections import OrderedDict, deque
 
-import time, logging, inspect
+import time
+import logging
+import inspect
 import itertools
 log = logging.getLogger("Modifiers")
 _ = lambda x : x
