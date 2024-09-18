@@ -1,5 +1,7 @@
 # SC Controller
 
+[![SCC Linux CI](https://github.com/C0rn3j/sc-controller/actions/workflows/scc-linux.yml/badge.svg)](https://github.com/C0rn3j/sc-controller/actions/workflows/scc-linux.yml) [![Build and publish AppImages](https://github.com/C0rn3j/sc-controller/actions/workflows/appimage.yml/badge.svg)](https://github.com/C0rn3j/sc-controller/actions/workflows/appimage.yml)
+
 User-mode driver, mapper and GTK3 based GUI for Steam Controller, DS4 and similar controllers.
 
 [![screenshot1](docs/screenshot1-tn.png?raw=true)](docs/screenshot1.png?raw=true)
@@ -50,6 +52,7 @@ Windows:
   - [python-pylibacl](http://pylibacl.k1024.org/)
   - [python-vdf](https://pypi.org/project/vdf/)
   - [python-libusb1](https://github.com/vpelletier/python-libusb1)
+  - [python-ioctl-opt](https://pypi.org/project/ioctl-opt/)
   - [gtk-layer-shell](https://github.com/wmww/gtk-layer-shell)
 
 ### Installing
