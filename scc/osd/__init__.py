@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-"""
-SC-Controller - OSD
+"""SC-Controller - OSD.
 
 Common methods for OSD-related stuff
 """
@@ -54,6 +52,8 @@ class OSDWindow(Gtk.Window):
 		self.set_wmclass(wmclass, wmclass)
 		self.using_wlroots = False
 		try:
+			import gi
+			gi.require_version("GtkLayerShell", "0.1")
 			from gi.repository import GtkLayerShell
 			if GtkLayerShell.is_supported():
 				self.using_wlroots=True
@@ -114,7 +114,7 @@ class OSDWindow(Gtk.Window):
 
 
 	def _add_arguments(self):
-		""" Should be overriden AND called by child class """
+		"""Should be overriden AND called by child class."""
 		self.argparser.add_argument('-x', type=int, metavar="pixels", default=20,
 			help="""horizontal position in pixels, from left side of screen.
 			Use negative value to specify as distance from right side (default: 20)""")
