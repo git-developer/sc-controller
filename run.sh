@@ -118,6 +118,8 @@ export SCC_SHARED="$(pwd)"
 
 # Start either the daemon in debug mode if first parameter is 'debug', or the regular sc-controller app
 if [[ ${1-} == 'daemon' ]]; then
+	# Kill any existing daemons before spawning our own
+	pkill -f scc-daemon || true
 	python3 'scripts/scc-daemon' debug
 else
 	python3 'scripts/sc-controller' $@

@@ -1,0 +1,5 @@
+evdev
+ioctl-opt
+libusb1
+setuptools
+PyGObject

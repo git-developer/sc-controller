@@ -63,4 +63,10 @@ Windows:
 
 ## Running with non distro-specific package
   - Download and extract [latest release](https://github.com/C0rn3j/sc-controller/releases/latest)
-  - Navigate to extracted directory and execute `./run.sh`
+  - Navigate to extracted directory: `cd sc-controller`
+  - If you do not wish to use system dependencies, you can setup a venv and install them there:
+    - Create the venv: `python -m venv venv`
+    - Activate it, you will need to do this before each launch: `source venv/bin/activate`
+    - Install dependencies: `pip install -r requirements.txt`
+  - Execute `./run.sh`
+  - If you are debuggin an issue, running `./run.sh daemon` first will launch the daemon in debug mode, allowing you to launch sc-controller in another terminal with `./run.sh`
