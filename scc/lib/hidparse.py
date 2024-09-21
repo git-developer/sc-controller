@@ -13,7 +13,8 @@ import fcntl
 import struct
 from enum import IntEnum
 
-from scc.lib import ioctl_opt
+import ioctl_opt
+
 from scc.lib.hidparse_data import (
 	Collection,
 	GenericDesktopPage,

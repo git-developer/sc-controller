@@ -1,7 +1,7 @@
 import ctypes
 import collections
 import fcntl
-from scc.lib import ioctl_opt
+import ioctl_opt
 
 # input.h
 BUS_USB = 0x03
