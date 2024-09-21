@@ -2,6 +2,7 @@
 
 Borrows bit of code and configuration from evdevdrv.
 """
+from __future__ import annotations
 import ctypes
 import json
 import logging
@@ -254,7 +255,7 @@ class HIDController(USBDevice, Controller):
 			self._ready = True
 
 
-	def _load_hid_descriptor(self, config, max_size, vid, pid, test_mode):
+	def _load_hid_descriptor(self, config, max_size, vid: int, pid: int, test_mode):
 		hid_descriptor = HIDController.find_sys_devices_descriptor(vid, pid)
 		if hid_descriptor is None:
 			hid_descriptor = self.handle.getRawDescriptor(
@@ -265,9 +266,7 @@ class HIDController(USBDevice, Controller):
 
 
 	def _build_button_map(self, config):
-		"""
-		Returns button  map readed from configuration, in format situable
-		for HIDDecoder.buttons.button_map field.
+		"""Return button map readed from configuration, in format situable for HIDDecoder.buttons.button_map field.
 
 		Generates default if config is not available.
 		"""
@@ -302,10 +301,7 @@ class HIDController(USBDevice, Controller):
 
 
 	def _build_axis_maping(self, axis, config, mode = AxisMode.AXIS):
-		"""
-		Converts configuration mapping for _one_ axis to value situable
-		for self._decoder.axes field.
-		"""
+		"""Convert configuration mapping for _one_ axis to value situable for self._decoder.axes field."""
 		axis_config = config.get("axes", {}).get(str(int(axis)))
 		if axis_config:
 			try:
@@ -438,10 +434,8 @@ class HIDController(USBDevice, Controller):
 
 
 	@staticmethod
-	def find_sys_devices_descriptor(vid, pid):
-		"""
-		Finds, loads and returns HID descriptor available somewhere deep in
-		/sys/devices structure.
+	def find_sys_devices_descriptor(vid: int, pid: int) -> str | None:
+		"""Finds, loads and returns HID descriptor available somewhere deep in /sys/devices structure.
 
 		Done by walking /sys/devices recursivelly, searching for file named
 		'report_descriptor' in subdirectory with name contining vid and pid.
@@ -450,7 +444,7 @@ class HIDController(USBDevice, Controller):
 		as some controllers are presenting descriptor that are completly
 		broken and kernel already deals with it.
 		"""
-		def recursive_search(pattern, path):
+		def recursive_search(pattern: str, path: str):
 			for name in os.listdir(path):
 				full_path = os.path.join(path, name)
 				if name == "report_descriptor":
@@ -464,7 +458,7 @@ class HIDController(USBDevice, Controller):
 						r = recursive_search(pattern, full_path)
 						if r:
 							return r
-				except IOError:
+				except OSError:
 					pass
 			return None
 

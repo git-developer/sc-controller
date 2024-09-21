@@ -2,9 +2,9 @@
 
 Based on
   - Pythonic binding for linux's hidraw ioctls
-	  (https://github.com/vpelletier/python-hidraw)
+    (https://github.com/vpelletier/python-hidraw)
   - Winfred Lu's rd-parse.py
-	  (http://winfred-lu.blogspot.sk/2014/02/usb-hid-report-descriptor-parser-in.html)
+    (http://winfred-lu.blogspot.sk/2014/02/usb-hid-report-descriptor-parser-in.html)
 
 Licensed under GPL 2.0
 """
@@ -81,7 +81,7 @@ class ReservedItem(object):
 		self.value = value
 
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return "<Reserved ID 0x%x>" % (self.value,)
 
 	__str__ = __repr__
@@ -110,23 +110,18 @@ _HIDIOCGFEATURE = lambda len: ioctl_opt.IOC(
 def _ioctl(devfile, func, arg, mutate_flag=False):
 	result = fcntl.ioctl(devfile, func, arg, mutate_flag)
 	if result < 0:
-		raise IOError(result)
+		raise OSError(result)
 
 
 def get_device_info(devfile):
-	"""
-	Returns tuple of (bustype, vendor_id, product_id), where bustype is
-	instance of BusType enum.
-	"""
+	"""Return tuple of (bustype, vendor_id, product_id), where bustype is instance of BusType enum."""
 	devinfo = _hidraw_devinfo()
 	_ioctl(devfile, _HIDIOCGRAWINFO, devinfo, True)
 	return (BusType(devinfo.bustype), devinfo.vendor, devinfo.product)
 
 
 def get_raw_report_descriptor(devfile):
-	"""
-	Returns raw HID report descriptor as list of bytes.
-	"""
+	"""Return raw HID report descriptor as list of bytes."""
 	descriptor = _hidraw_report_descriptor()
 	size = ctypes.c_uint()
 	_ioctl(devfile, _HIDIOCGRDESCSIZE, size, True)

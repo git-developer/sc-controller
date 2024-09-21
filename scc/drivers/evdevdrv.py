@@ -219,7 +219,7 @@ class EvdevController(Controller):
 						new_state = new_state._replace(buttons=b, **{ axis : value })
 					else:
 						new_state = new_state._replace(**{ axis : value })
-		except IOError as e:
+		except OSError as e:
 			# TODO: Maybe check e.errno to determine exact error
 			# all of them are fatal for now
 			log.error(e)
@@ -462,7 +462,7 @@ class EvdevDriver(object):
 		"""
 		try:
 			controller = factory(self.daemon, evdevdevice, *userdata)
-		except IOError as e:
+		except OSError as e:
 			print("Failed to open device:", str(e), file=sys.stderr)
 			return None
 		if controller:

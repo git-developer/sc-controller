@@ -1,6 +1,7 @@
 import ctypes
-import collections
 import fcntl
+from typing import NamedTuple
+
 import ioctl_opt
 
 # input.h
@@ -42,23 +43,32 @@ HIDRAW_FIRST_MINOR = 0
 HIDRAW_MAX_DEVICES = 64
 HIDRAW_BUFFER_SIZE = 64
 
-DevInfo = collections.namedtuple('DevInfo', ['bustype', 'vendor', 'product'])
+class DevInfo(NamedTuple):
+	"""Device Info.
+
+	- bustype: one of BUS_USB, BUS_HIL, BUS_BLUETOOTH or BUS_VIRTUAL
+	- vendor: device's vendor number
+	- product: device's product number
+"""
+
+	bustype: int
+	vendor: int
+	product: int
 
 class HIDRaw(object):
-    """
-    Provides methods to access hidraw device's ioctls.
-    """
+    """Provide methods to access hidraw device's ioctls."""
+
     def __init__(self, device):
-        """
-        device (file, fileno)
+        """device (file, fileno).
+
             A file object or a fileno of an open hidraw device node.
         """
         self._device = device
 
-    def _ioctl(self, func, arg, mutate_flag=False):
+    def _ioctl(self, func, arg, mutate_flag: bool = False):
         result = fcntl.ioctl(self._device, func, arg, mutate_flag)
         if result < 0:
-            raise IOError(result)
+            raise OSError(result)
 
     def read(self, size):
         return self._device.read(size)
@@ -66,42 +76,33 @@ class HIDRaw(object):
     def write(self, buf):
         return self._device.write(buf)
 
-    def getRawReportDescriptor(self):
-        """
-        Return a binary string containing the raw HID report descriptor.
-        """
+    def getRawReportDescriptor(self) -> str:
+        """Return a binary string containing the raw HID report descriptor."""
         descriptor = _hidraw_report_descriptor()
         size = ctypes.c_uint()
         self._ioctl(_HIDIOCGRDESCSIZE, size, True)
         descriptor.size = size
         self._ioctl(_HIDIOCGRDESC, descriptor, True)
-        return ''.join(chr(x) for x in descriptor.value[:size.value])
+        return "".join(chr(x) for x in descriptor.value[:size.value])
 
     # TODO: decode descriptor into a python object
     #def getReportDescriptor(self):
 
-    def getInfo(self):
-        """
-        Returns a DevInfo instance, a named tuple with the following items:
-        - bustype: one of BUS_USB, BUS_HIL, BUS_BLUETOOTH or BUS_VIRTUAL
-        - vendor: device's vendor number
-        - product: device's product number
-        """
+    def getInfo(self) -> DevInfo:
+        """Return a DevInfo instance."""
         devinfo = _hidraw_devinfo()
         self._ioctl(_HIDIOCGRAWINFO, devinfo, True)
         return DevInfo(devinfo.bustype, devinfo.vendor, devinfo.product)
 
-    def getName(self, length=512):
-        """
-        Returns device name as an unicode object.
-        """
+    def getName(self, length:int = 512) -> str:
+        """Return device name as an unicode object."""
         name = ctypes.create_string_buffer(length)
         self._ioctl(_HIDIOCGRAWNAME(length), name, True)
-        return name.value.decode('UTF-8')
+        return name.value.decode("UTF-8")
 
-    def getPhysicalAddress(self, length=512):
-        """
-        Returns device physical address as a string.
+    def getPhysicalAddress(self, length:int = 512) -> str:
+        """Return device's physical address as a string.
+
         See hidraw documentation for value signification, as it depends on
         device's bus type.
         """
@@ -109,10 +110,8 @@ class HIDRaw(object):
         self._ioctl(_HIDIOCGRAWPHYS(length), name, True)
         return name.value
 
-    def sendFeatureReport(self, report, report_num=0):
-        """
-        Send a feature report.
-        """
+    def sendFeatureReport(self, report, report_num:int = 0) -> None:
+        """Send a feature report."""
         length = len(report) + 1
         buf = bytearray(length)
         buf[0] = report_num
@@ -123,9 +122,9 @@ class HIDRaw(object):
             True,
         )
 
-    def getFeatureReport(self, report_num=0, length=63):
-        """
-        Receive a feature report.
+    def getFeatureReport(self, report_num:int = 0, length:int = 63) -> bytearray:
+        """Receive a feature report.
+
         Blocks, unless you configured provided file (descriptor) to be
         non-blocking.
         """

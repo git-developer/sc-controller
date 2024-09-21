@@ -1,36 +1,34 @@
-#!/usr/bin/env python3
-"""
-SC-Controller - OSD Menu
+"""SC-Controller - OSD Menu.
 
 Displays border around area.
 """
-from scc.tools import _, set_logging_level
+from __future__ import annotations
+
+import logging
 
 from gi.repository import Gtk, GLib, GdkX11
-from scc.constants import LEFT, RIGHT, STICK, STICK_PAD_MIN, STICK_PAD_MAX
-from scc.tools import point_in_gtkrect
-from scc.paths import get_share_path
-from scc.lib import xwrappers as X
-from scc.menu_data import MenuData
-from scc.gui.daemon_manager import DaemonManager
-from scc.osd.timermanager import TimerManager
-from scc.osd import OSDWindow
 
-import os, sys, json, logging
+from scc.constants import LEFT, RIGHT, STICK, STICK_PAD_MAX, STICK_PAD_MIN
+from scc.gui.daemon_manager import DaemonManager
+from scc.lib import xwrappers as X
+from scc.osd import OSDWindow
+from scc.osd.timermanager import TimerManager
+from scc.tools import _
+
 log = logging.getLogger("osd.area")
 
 
 class Area(OSDWindow, TimerManager):
 	BORDER_WIDTH = 2
 
-	def __init__(self):
+	def __init__(self) -> None:
 		OSDWindow.__init__(self, "osd-area")
 		TimerManager.__init__(self)
 		self.size = (100, 100)
 		self.add(Gtk.Fixed())
 
 
-	def _add_arguments(self):
+	def _add_arguments(self) -> None:
 		OSDWindow._add_arguments(self)
 		self.argparser.add_argument('--width', type=int, metavar="pixels", default=20,
 			help="""area width in pixels""")
@@ -38,7 +36,7 @@ class Area(OSDWindow, TimerManager):
 			help="""area height in pixels""")
 
 
-	def parse_argumets(self, argv):
+	def parse_argumets(self, argv) -> bool:
 		if not OSDWindow.parse_argumets(self, argv):
 			return False
 		self.position = (self.position[0] - self.BORDER_WIDTH,
@@ -48,21 +46,21 @@ class Area(OSDWindow, TimerManager):
 		return True
 
 
-	def compute_position(self):
+	def compute_position(self) -> tuple[int, int]:
 		# Overrides compute_position as Area is requested with exact position
 		# on X screen.
 		return self.position
 
 
-	def show(self):
+	def show(self) -> None:
 		OSDWindow.show(self)
 		self.realize()
 		self.resize(*self.size)
 		self.make_hole(self.BORDER_WIDTH)
 
 
-	def update(self, x, y, width, height):
-		""" Updates area size and position """
+	def update(self, x: int, y: int, width: int, height: int) -> None:
+		"""Update area size and position."""
 		self.position = x, y
 		self.size = max(1, width), max(1, height) # Size can't be <1 or GTK will crash
 		self.move(*self.position)
@@ -70,9 +68,9 @@ class Area(OSDWindow, TimerManager):
 		self.make_hole(self.BORDER_WIDTH)
 
 
-	def make_hole(self, border_width):
-		"""
-		Uses shape extension to create hole in window...
+	def make_hole(self, border_width: int) -> None:
+		"""Use shape extension to create a hole in the window...
+
 		Area needs only border, rest should be transparent.
 		"""
 		width, height = self.size

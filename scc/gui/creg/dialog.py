@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-"""
-SC-Controller - Controller Registration
+"""SC-Controller - Controller Registration.
 
 Dialog that asks a lot of question to create configuration node in config file.
 Most "interesting" thing here may be that this works 100% independently from

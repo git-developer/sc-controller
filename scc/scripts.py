@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-"""
-SC-Controller - Scripts
+"""SC-Controller - Scripts.
 
 Contains code for most of what can be done using 'scc' script.
 Created so scc-* stuff doesn't polute /usr/bin.
@@ -242,7 +240,7 @@ def cmd_lock_inputs(argv0, argv, lock="Lock: "):
 				try:
 					print(" ".join(data[2:]), file=sys.stdout)
 					sys.stdout.flush()
-				except IOError:
+				except OSError:
 					# Output closed, bail out
 					return 0
 	finally:

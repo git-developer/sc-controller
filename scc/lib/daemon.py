@@ -90,7 +90,7 @@ class Daemon(object):
 				cmdline = open("/proc/%s/cmdline" % (pid,), "r").read().replace("\x00", " ").strip()
 				if sys.argv[0] in cmdline:
 					raise Exception("already running")
-			except IOError:
+			except OSError:
 				# No such process
 				pass
 			except:

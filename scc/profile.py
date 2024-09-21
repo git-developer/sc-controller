@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-"""
-SC-Controller - Profile
+"""SC-Controller - Profile.
 
 Handles mapping profile stored in json file
 """

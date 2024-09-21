@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-"""
-SC Controller - Steam Controller Driver
+"""SC Controller - Steam Controller Driver.
 
 Driver for Steam Controller over bluetooth (evdev)
 

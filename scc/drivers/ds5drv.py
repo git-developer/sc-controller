@@ -1099,7 +1099,7 @@ class DS5EvdevController(EvdevController):
                         new_state = new_state._replace(
                             **{axis: int(event.value * factor)}
                         )
-        except IOError:
+        except OSError:
             # Errors here are not even reported, evdev class handles important ones
             return
 
@@ -1140,7 +1140,7 @@ class DS5EvdevController(EvdevController):
                             buttons=b,
                             cpad_x=0, cpad_y=0
                             )
-        except IOError:
+        except OSError:
             # Errors here are not even reported, evdev class handles important ones
             return
 

@@ -2,19 +2,22 @@
 
 Common methods for OSD-related stuff
 """
-from scc.tools import set_logging_level
-
-from gi.repository import Gtk, Gdk, GLib, GObject, GdkX11
-from scc.constants import STICK_PAD_MIN, STICK_PAD_MAX
-from scc.osd.timermanager import TimerManager
-from scc.paths import get_share_path
-from scc.config import Config
+import argparse
+import logging
+import os
+import traceback
 
 import cairo
-import os
-import argparse
-import traceback
-import logging
+from gi.repository import Gdk, GLib, GObject, Gtk
+
+from scc.config import Config
+from scc.constants import STICK_PAD_MAX, STICK_PAD_MIN
+from scc.controller import Controller
+from scc.gui.daemon_manager import DaemonManager
+from scc.osd.timermanager import TimerManager
+from scc.paths import get_share_path
+from scc.tools import set_logging_level
+
 log = logging.getLogger("osd")
 
 
@@ -34,9 +37,9 @@ class OSDWindow(Gtk.Window):
 	"""
 
 	EPILOG = ""
-	css_provider = None			# Used by staticmethods
+	css_provider = None # Used by staticmethods
 
-	def __init__(self, wmclass, layer = None):
+	def __init__(self, wmclass, layer = None) -> None:
 		Gtk.Window.__init__(self)
 		OSDWindow._apply_css(Config())
 
@@ -76,7 +79,7 @@ class OSDWindow(Gtk.Window):
 
 
 	@staticmethod
-	def _apply_css(config):
+	def _apply_css(config: dict) -> None:
 		if OSDWindow.css_provider:
 			Gtk.StyleContext.remove_provider_for_screen(
 				Gdk.Screen.get_default(), OSDWindow.css_provider)
@@ -113,7 +116,7 @@ class OSDWindow(Gtk.Window):
 					Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
 
-	def _add_arguments(self):
+	def _add_arguments(self) -> None:
 		"""Should be overriden AND called by child class."""
 		self.argparser.add_argument('-x', type=int, metavar="pixels", default=20,
 			help="""horizontal position in pixels, from left side of screen.
@@ -127,11 +130,8 @@ class OSDWindow(Gtk.Window):
 			help="""display debug messages""")
 
 
-	def choose_controller(self, daemonmanager):
-		"""
-		Returns first available controller, or, if --controller argument
-		was specified, controller with matching ID.
-		"""
+	def choose_controller(self, daemonmanager: DaemonManager) -> Controller:
+		"""Return first available controller, or, if --controller argument was specified, controller with a matching ID."""
 		if self.args.controller:
 			self._controller = self.daemon.get_controller(self.args.controller)
 		elif self.daemon.has_controller():
@@ -139,13 +139,13 @@ class OSDWindow(Gtk.Window):
 		return self._controller
 
 
-	def get_controller(self):
-		""" Returns controller chosen by choose_controller """
+	def get_controller(self) -> Controller:
+		"""Return controller chosen by choose_controller."""
 		return self._controller
 
 
-	def parse_argumets(self, argv):
-		""" Returns True on success """
+	def parse_argumets(self, argv) -> bool:
+		"""Returns True on success."""
 		try:
 			self.args = self.argparser.parse_args(argv[1:])
 		except SystemExit:
@@ -173,10 +173,7 @@ class OSDWindow(Gtk.Window):
 
 
 	def get_active_screen_geometry(self):
-		"""
-		Returns geometry of active screen or None if active screen
-		cannot be determined.
-		"""
+		"""Return geometry of active screen or None if active screen cannot be determined."""
 		screen = self.get_window().get_screen()
 		active_window = screen.get_active_window()
 		if active_window:
@@ -187,7 +184,7 @@ class OSDWindow(Gtk.Window):
 
 
 	def compute_position(self):
-		""" Adjusts position for currently active screen (display) """
+		"""Adjust position for currently active screen (display)."""
 		x, y = self.position
 		width, height = self.get_window_size()
 		geometry = self.get_active_screen_geometry()
@@ -208,7 +205,7 @@ class OSDWindow(Gtk.Window):
 		return self.get_window().get_width(), self.get_window().get_height()
 
 
-	def show(self):
+	def show(self) -> None:
 		self.get_children()[0].show_all()
 		self.realize()
 		self.get_window().set_override_redirect(True)
@@ -238,32 +235,32 @@ class OSDWindow(Gtk.Window):
 		self.make_window_clicktrough()
 
 
-	def on_controller_lost(self, *a):
+	def on_controller_lost(self, *a) -> None:
 		log.error("Controller lost")
 		self.quit(2)
 
 
-	def on_daemon_died(self, *a):
+	def on_daemon_died(self, *a) -> None:
 		log.error("Daemon died")
 		self.quit(2)
 
 
-	def on_failed_to_lock(self, error):
+	def on_failed_to_lock(self, error: str) -> None:
 		log.error("Failed to lock input: %s", error)
 		self.quit(3)
 
 
-	def get_exit_code(self):
+	def get_exit_code(self) -> int:
 		return self.exit_code
 
 
-	def run(self):
+	def run(self) -> None:
 		self.mainloop = GLib.MainLoop()
 		self.show()
 		self.mainloop.run()
 
 
-	def quit(self, code=-1):
+	def quit(self, code: int = -1) -> None:
 		self.exit_code = code
 		if self.mainloop:
 			self.mainloop.quit()
@@ -272,8 +269,8 @@ class OSDWindow(Gtk.Window):
 
 
 class OSDCssMagic(dict):
-	"""
-	Basically, I reinvented templating.
+	"""Basically, I reinvented templating.
+
 	This is passed to string.format, allowing to use some simple expressions in
 	addition to normal %(placeholder)s.
 
@@ -283,11 +280,11 @@ class OSDCssMagic(dict):
 		%(background-10)s		- color, 10 values darker
 	"""
 
-	def __init__(self, dict_to_wrap):
+	def __init__(self, dict_to_wrap) -> None:
 		self._dict = dict_to_wrap
 
 
-	def __getitem__(self, a):
+	def __getitem__(self, a) -> str:
 		if "+" in a:
 			key, number = a.rsplit("+", 1)
 			rgba = parse_rgba(self[key])
@@ -314,25 +311,24 @@ class OSDCssMagic(dict):
 
 
 class StickController(GObject.GObject, TimerManager):
-	"""
-	Simple utility class that gets fed by with position and emits
-	'direction' signal that can be used as input for menu navigation.
+	"""Simple utility class that gets fed by with position and emits 'direction' signal that can be used as input for menu navigation.
 
 	Signals:
-	  direction(horisontal, vertical)
+		direction(horisontal, vertical)
 
-	  Both values are one of -1, 0, 1 for left/none/right.
+		Both values are one of -1, 0, 1 for left/none/right.
 	"""
+
 	__gsignals__ = {
-			"direction"			: (GObject.SignalFlags.RUN_FIRST, None, (int, int)),
+		"direction": (GObject.SignalFlags.RUN_FIRST, None, (int, int)),
 	}
 	REPEAT_DELAY = 0.2
 	DIRECTION_TO_XY = {
-		0 : (0, 0),
-		4 : (1, 0),
-		6 : (-1, 0),
-		2 : (0, 1),
-		8 : (0, -1),
+		0: (0, 0),
+		4: (1, 0),
+		6: (-1, 0),
+		2: (0, 1),
+		8: (0, -1),
 	}
 
 	def __init__(self):
@@ -367,9 +363,9 @@ class StickController(GObject.GObject, TimerManager):
 			self._move()
 
 
-def parse_rgba(col):
-	"""
-	Parses color specified by #RRGGBBAA string.
+def parse_rgba(col: str) -> Gdk.RGBA:
+	"""Parse color specified by a #RRGGBBAA string.
+
 	'#' and 'AA' is optional.
 	"""
 	# Because GTK can parse everything but theese :(

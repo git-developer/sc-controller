@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-"""
-SC-Controller - OSD Menu
+"""SC-Controller - OSD Menu.
 
 Display menu that user can navigate through and prints chosen item id to stdout
 """
@@ -176,7 +174,7 @@ class Menu(OSDWindow):
 			try:
 				self._menuid = self.args.items[0]
 				self.items = MenuData.from_profile(self.args.from_profile, self._menuid)
-			except IOError:
+			except OSError:
 				print('%s: error: profile file not found' % (sys.argv[0]), file=sys.stderr)
 				return False
 			except ValueError:

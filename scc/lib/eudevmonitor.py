@@ -225,7 +225,7 @@ class DeviceEvent(NamedTuple):
 	subsystem: str
 	devtype: str
 	syspath: str
-	devnum: str
+	devnum: int
 
 class Monitor:
 	"""Monitor object that receives device events.
@@ -307,11 +307,11 @@ class Monitor:
 		return self
 
 
-	fileno = get_fd				# python stuff likes this name better
-	start = enable_receiving	# I like this name better
+	fileno = get_fd          # python stuff likes this name better
+	start = enable_receiving # I like this name better
 
 
-	def receive_device(self) -> DeviceEvent:
+	def receive_device(self) -> DeviceEvent | None:
 		if not self._monitor_started:
 			self.enable_receiving()
 
@@ -348,7 +348,11 @@ if __name__ == "__main__":
 		print(i)
 
 	m = udev.monitor().match_subsystem("hidraw").start()
+	if m is None:
+		msg = "Expected to receive a Monitor device, not None."
+		raise RuntimeError(msg)
+
 	while True:
 		dev = m.receive_device()
-		if dev:
-			print(os.major(dev.devnum), os.minor(dev.devnum), dev)
+		if dev is not None:
+			print(f"{os.major(dev.devnum)} {os.minor(dev.devnum)} {dev}")

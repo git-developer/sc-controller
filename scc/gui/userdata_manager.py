@@ -1,21 +1,26 @@
-#!/usr/bin/env python3
-"""
-SC-Controller - Profile Manager
+"""SC-Controller - Profile Manager.
 
 Simple class that manages stuff related to creating, loading, listing (...) of
 user-editable data - that are profiles, menus and controller-icons.
 
 Main App class interits from this.
 """
-from gi.repository import Gtk, Gio, GLib
-from scc.paths import get_menuicons_path, get_default_menuicons_path
-from scc.paths import get_profiles_path, get_default_profiles_path
-from scc.paths import get_menus_path, get_default_menus_path
-from scc.profile import Profile
-from scc.gui.parser import GuiActionParser
-
-import os
 import logging
+import os
+
+from gi.repository import Gtk, Gio, GLib
+
+from scc.gui.parser import GuiActionParser
+from scc.paths import (
+	get_default_menuicons_path,
+	get_default_menus_path,
+	get_default_profiles_path,
+	get_menuicons_path,
+	get_menus_path,
+	get_profiles_path,
+)
+from scc.profile import Profile
+
 log = logging.getLogger("UDataManager")
 
 class UserDataManager(object):
@@ -23,17 +28,17 @@ class UserDataManager(object):
 	def __init__(self):
 		profiles_path = get_profiles_path()
 		if not os.path.exists(profiles_path):
-			log.info("Creting profile directory '%s'" % (profiles_path,))
+			log.info("Creating profile directory '%s'", profiles_path)
 			os.makedirs(profiles_path)
 		menus_path = get_menus_path()
 		if not os.path.exists(menus_path):
-			log.info("Creting menu directory '%s'" % (menus_path,))
+			log.info("Creating menu directory '%s'", menus_path)
 			os.makedirs(menus_path)
 
 
-	def load_profile(self, giofile):
-		"""
-		Loads profile from 'giofile' into 'profile' object
+	def load_profile(self, giofile: Gio.File):
+		"""Load profile from 'giofile' into 'profile' object.
+
 		Calls on_profiles_loaded when done
 		"""
 		# This may get asynchronous later, but that load runs under 1ms...
@@ -42,9 +47,9 @@ class UserDataManager(object):
 		self.on_profile_loaded(profile, giofile)
 
 
-	def save_profile(self, giofile, profile):
-		"""
-		Saves profile from 'profile' object into 'giofile'.
+	def save_profile(self, giofile: Gio.File, profile: Profile):
+		"""Save profile from 'profile' object into 'giofile'.
+
 		Calls on_profile_saved when done
 		"""
 		# 1st check, if file is not in /usr/share.
@@ -59,7 +64,7 @@ class UserDataManager(object):
 		self.on_profile_saved(giofile)
 
 
-	def _save_profile_local(self, giofile, profile):
+	def _save_profile_local(self, giofile: Gio.File, profile: Profile):
 		filename = os.path.split(giofile.get_path())[-1]
 		localpath = os.path.join(get_profiles_path(), filename)
 		giofile = Gio.File.new_for_path(localpath)
@@ -82,9 +87,7 @@ class UserDataManager(object):
 
 
 	def load_user_data(self, paths, pattern, category, callback):
-		"""
-		Loads data such as of profiles. Uses GLib to do it on background.
-		"""
+		"""Load data such as of profiles. Uses GLib to do it in the background."""
 		if category:
 			paths = [ os.path.join(p, category) for p in paths ]
 
@@ -98,13 +101,13 @@ class UserDataManager(object):
 				pattern,
 				Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
 				1, None, self._on_user_data_loaded,
-				data, i, callback
+				data, i, callback,
 			)
 
 
 	def _on_user_data_loaded(self, pdir, res, data, i, callback):
-		"""
-		Called when enumerate_children_async gets lists of files.
+		"""Called when enumerate_children_async gets lists of files.
+
 		Usually called twice for default (system) and user directory.
 		"""
 		try:
@@ -137,10 +140,7 @@ class UserDataManager(object):
 
 
 	def _sync_load(self, pdirs):
-		"""
-		Synchronous (= UI lagging) fallback method for those (hopefully) rare
-		cases when enumerate_children_finish returns nonsense.
-		"""
+		"""Synchronous (= UI lagging) fallback method for those (hopefully) rare cases when enumerate_children_finish returns nonsense."""
 		files = {}
 		for pdir in pdirs:
 			for name in os.listdir(pdir.get_path()):
@@ -160,9 +160,9 @@ class UserDataManager(object):
 		pass
 
 
-	def on_profile_saved(self, giofile): # Overriden in App
+	def on_profile_saved(self, giofile: Gio.File): # Overriden in App
 		pass
 
 
-	def on_profile_loaded(self, profile, giofile): # Overriden in App
+	def on_profile_loaded(self, profile: Profile, giofile: Gio.File): # Overriden in App
 		pass

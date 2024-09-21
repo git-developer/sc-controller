@@ -27,13 +27,18 @@ from scc.profile import Profile
 from scc.config import Config
 
 import scc.osd.menu_generators
-import os, sys, platform, re, json, urllib, logging
+import os
+import sys
+import platform
+import re
+import json
+import urllib
+import logging
+
 log = logging.getLogger("App")
 
 class App(Gtk.Application, UserDataManager, BindingEditor):
-	"""
-	Main application / window.
-	"""
+	"""Main application / window."""
 
 	HILIGHT_COLOR = "#FF00FF00"		# ARGB
 	OBSERVE_COLOR = "#FF60A0FF"		# ARGB
@@ -41,8 +46,8 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 	RELEASE_URL = "https://github.com/C0rn3j/sc-controller/releases/tag/v%s"
 	OSD_MODE_PROF_NAME = ".scc-osd.profile_editor"
 
-	def __init__(self, gladepath="/usr/share/scc",
-						imagepath="/usr/share/scc/images"):
+	def __init__(self, gladepath: str = "/usr/share/scc",
+						imagepath: str = "/usr/share/scc/images"):
 		Gtk.Application.__init__(self,
 				application_id="me.c0rn3j.scc",
 				flags=Gio.ApplicationFlags.HANDLES_COMMAND_LINE | Gio.ApplicationFlags.NON_UNIQUE )
@@ -54,11 +59,11 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 		# Setup DaemonManager
 		self.dm = DaemonManager()
 		self.dm.connect("alive", self.on_daemon_alive)
-		self.dm.connect('event', self.on_daemon_event_observer)
+		self.dm.connect("event", self.on_daemon_event_observer)
 		self.dm.connect("controller-count-changed", self.on_daemon_ccunt_changed)
 		self.dm.connect("dead", self.on_daemon_dead)
 		self.dm.connect("error", self.on_daemon_error)
-		self.dm.connect('reconfigured', self.on_daemon_reconfigured),
+		self.dm.connect("reconfigured", self.on_daemon_reconfigured),
 		self.dm.connect("version", self.on_daemon_version)
 		# Load custom stuff
 		load_custom_module(log, "gui")
@@ -104,8 +109,8 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 		ps = self.add_switcher(12, 12)
 		ps.set_allow_new(True)
 		ps.set_profile(self.load_profile_selection())
-		ps.connect('new-clicked', self.on_new_clicked)
-		ps.connect('save-clicked', self.on_save_clicked)
+		ps.connect("new-clicked", self.on_new_clicked)
+		ps.connect("save-clicked", self.on_save_clicked)
 
 		# Drag&drop target
 		self.builder.get_object("content").drag_dest_set(Gtk.DestDefaults.ALL, [
@@ -121,10 +126,10 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 
 		# Background
 		self.background = ControllerImage(self)
-		self.background.connect('hover', self.on_background_area_hover)
-		self.background.connect('leave', self.on_background_area_hover, None)
-		self.background.connect('click', self.on_background_area_click)
-		self.background.connect('button-press-event', self.on_background_button_press)
+		self.background.connect("hover", self.on_background_area_hover)
+		self.background.connect("leave", self.on_background_area_hover, None)
+		self.background.connect("click", self.on_background_area_click)
+		self.background.connect("button-press-event", self.on_background_button_press)
 		self.main_area.put(self.background, 0, 0)
 		self.main_area.put(vbc, 0, 0) # (self.IMAGE_SIZE[0] / 2) - 90, self.IMAGE_SIZE[1] - 100)
 
@@ -559,7 +564,7 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 
 
 	def on_btNewProfile_clicked(self, *a):
-		""" Called when new profile name is set and OK is clicked """
+		"""Called when new profile name is set and OK is clicked."""
 		txNewProfile = self.builder.get_object("txNewProfile")
 		rbNewProfile = self.builder.get_object("rbNewProfile")
 
@@ -574,8 +579,8 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 
 
 	def on_rbNewProfile_group_changed(self, *a):
-		"""
-		Called when user clicks 'Copy current profile' button.
+		"""Called when user clicks 'Copy current profile' button.
+
 		If profile name was not changed by user before clicking it,
 		it's automatically changed.
 		"""
@@ -593,10 +598,8 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 			self.recursing = False
 
 
-	def on_profile_modified(self, update_ui=True):
-		"""
-		Called when selected profile is modified in memory.
-		"""
+	def on_profile_modified(self, update_ui: bool = True):
+		"""Called when selected profile is modified in memory."""
 		if update_ui:
 			self.profile_switchers[0].set_profile_modified(True, self.current.is_template)
 
@@ -607,7 +610,7 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 		self.save_profile(self.current_file, self.current)
 
 
-	def on_profile_loaded(self, profile, giofile):
+	def on_profile_loaded(self, profile: Profile, giofile: Gio.File):
 		self.current = profile
 		self.current_file = giofile
 		self.recursing = True
@@ -620,7 +623,7 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 		self.recursing = False
 
 
-	def on_profile_selected(self, ps, name, giofile):
+	def on_profile_selected(self, ps, name, giofile: Gio.File):
 		if ps == self.profile_switchers[0]:
 			self.load_profile(giofile)
 		if ps.get_controller():
@@ -681,7 +684,7 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 		self.enable_test_mode()
 
 
-	def on_profile_saved(self, giofile, send=True):
+	def on_profile_saved(self, giofile: Gio.File, send: bool = True):
 		"""
 		Called when selected profile is saved to disk
 		"""
@@ -915,7 +918,7 @@ class App(Gtk.Application, UserDataManager, BindingEditor):
 		self.controller_count = count
 
 
-	def new_profile(self, profile, name):
+	def new_profile(self, profile: Profile, name: str):
 		filename = os.path.join(get_profiles_path(), name + ".sccprofile")
 		self.current_file = Gio.File.new_for_path(filename)
 		self.save_profile(self.current_file, profile)

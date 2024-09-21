@@ -17,7 +17,11 @@ indent-style = 'tab'
 [lint]
 select = ['ALL']
 ignore = [
-	'W191', # We use tabs for indents, disabling this atrocious PEP 8 recommendation
-	'D206', # ^
-	'ERA001' # Test for commented out code, but it has way too many false positives, so disable
+	'W191',   # We use tabs for indents, disabling this atrocious PEP 8 recommendation
+	'D206',   # ^
+	'D401',   # non-imperative-mood - Wants docstrings in imperative language but it's really not foolproof, disable
+	'ERA001', # Test for commented out code, but it has way too many false positives, so disable
+	'FBT001', # boolean-type-hint-positional-argument     - Allow positional booleans in functions, it's not really that much of an issue
+	'FBT002', # boolean-default-value-positional-argument - ^
+	'FBT003', # boolean-positional-value-in-call          - ^
 ]
