@@ -8,8 +8,9 @@ from __future__ import annotations
 from ctypes.util import find_library
 from typing import TYPE_CHECKING
 
+from ioctl_opt import IOR
+
 from scc.lib.eudevmonitor import Eudev, Monitor
-from scc.lib.ioctl_opt import IOR
 
 if TYPE_CHECKING:
 	from scc.sccdaemon import SCCDaemon
