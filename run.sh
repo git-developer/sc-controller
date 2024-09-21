@@ -62,6 +62,10 @@ function testDeps() {
 		echo -e "${Red}python3-gi not found, install it. ${Yellow}The package may be named python-gi on your distribution!${NoColor}"
 		exit 1
 	fi
+	if ! python -c "import importlib.util; exit(0 if importlib.util.find_spec('cairo') is not None else 1)"; then
+		echo -e "${Red}python3-gi-cairo not found, install it. ${Yellow}The package may be named python3-gobject or python-gobject on your distribution!${NoColor}"
+		exit 1
+	fi
 	# https://stackoverflow.com/a/48006925/8962143
 	#import gi
 	#gi.require_version("Gtk", "3.0")
