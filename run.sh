@@ -116,6 +116,9 @@ export PATH="${SCRIPTS}":"${PATH}"
 export PYTHONPATH=".":"${PYTHONPATH-}"
 export SCC_SHARED="$(pwd)"
 
-# Execute
-#python3 'scripts/scc-daemon' debug &
-python3 'scripts/sc-controller' $@
+# Start either the daemon in debug mode if first parameter is 'debug', or the regular sc-controller app
+if [[ ${1-} == 'daemon' ]]; then
+	python3 'scripts/scc-daemon' debug
+else
+	python3 'scripts/sc-controller' $@
+fi
