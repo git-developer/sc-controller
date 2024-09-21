@@ -57,19 +57,19 @@ class KeysOnly(IntEnum):
 	"""Keys enum contains all keys and button from linux/uinput.h (KEY_* BTN_*)."""
 
 	#locals().update({i: CHEAD[i] for i in CHEAD if i.startswith("KEY_")})
-KeysOnly = IntEnum("Keys", {i: CHEAD[i] for i in CHEAD.keys() if (i.startswith("KEY_"))})
+KeysOnly = IntEnum("KeysOnly", {i: CHEAD[i] for i in CHEAD.keys() if (i.startswith("KEY_"))})
 
 class Axes(IntEnum):
 	"""Axes enum contains all axes from linux/uinput.h (ABS_*)."""
 
 	#locals().update({i: CHEAD[i] for i in CHEAD if i.startswith("ABS_")})
-Axes = IntEnum("Keys", {i: CHEAD[i] for i in CHEAD.keys() if (i.startswith("ABS_"))})
+Axes = IntEnum("Axes", {i: CHEAD[i] for i in CHEAD.keys() if (i.startswith("ABS_"))})
 
 class Rels(IntEnum):
 	"""Rels enum contains all rels from linux/uinput.h (REL_*)."""
 
 	#locals().update({i: CHEAD[i] for i in CHEAD if i.startswith("REL_")})
-Rels = IntEnum("Keys", {i: CHEAD[i] for i in CHEAD.keys() if (i.startswith("REL_"))})
+Rels = IntEnum("Rels", {i: CHEAD[i] for i in CHEAD.keys() if (i.startswith("REL_"))})
 
 # Scan codes for each keys (taken from a logitech keyboard)
 Scans = {
