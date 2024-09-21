@@ -54,11 +54,11 @@ function testDeps() {
 		echo -e "${Red}python3-libusb1 not found, install it. ${Yellow}The package may be named python-libusb1 on your distribution!${NoColor}"
 		exit 1
 	fi
-	if ! python -c "import pkgutil; exit(0 if pkgutil.find_loader('setuptools') else 1)"; then
+	if ! python -c "import importlib.util; exit(0 if importlib.util.find_spec('setuptools') else 1)"; then
 		echo -e "${Red}python3-setuptools not found, install it. ${Yellow}The package may be named python-setuptools on your distribution!${NoColor}"
 		exit 1
 	fi
-	if ! python -c "import pkgutil; exit(0 if pkgutil.find_loader('gi') else 1)"; then
+	if ! python -c "import importlib.util; exit(0 if importlib.util.find_spec('gi') else 1)"; then
 		echo -e "${Red}python3-gi not found, install it. ${Yellow}The package may be named python-gi on your distribution!${NoColor}"
 		exit 1
 	fi
