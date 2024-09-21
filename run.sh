@@ -1,5 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
+
+Red='\033[0;31m'
+Green='\033[0;32m'
+Yellow='\033[0;33m'
+Purple='\033[0;35m'
+NoColor='\033[0m'
+
 C_MODULES=(uinput hiddrv sc_by_bt remotepad cemuhook)
 C_VERSION_uinput=9
 C_VERSION_hiddrv=5
@@ -18,36 +25,75 @@ function rebuild_c_modules() {
 	LIB=$( python3 -c 'import platform; import sysconfig; soabi = sysconfig.get_config_var("SOABI").split("-")[0:2]; print(f"lib.linux-{platform.machine()}-{soabi[0]}-{soabi[1]}")' )
 	# .cpython-312-x86_64-linux-gnu.so
 	EXT_SUFFIX=$( python3 -c 'import sysconfig ; print(sysconfig.get_config_var("EXT_SUFFIX"))' )
-	for cmod in ${C_MODULES[@]}; do
-		if [[ -e build/${LIB}/lib${cmod}${EXT_SUFFIX} ]]; then
-			rm "build/${LIB}/lib${cmod}${EXT_SUFFIX}"
+	for cmodRM in "${C_MODULES[@]}"; do
+		if [[ -e build/${LIB}/lib${cmodRM}${EXT_SUFFIX} ]]; then
+			rm "build/${LIB}/lib${cmodRM}${EXT_SUFFIX}"
 		fi
 	done
 
-	python3 setup.py build
+	# Force the build directory as it differs across different systems, setuptools on Debian bullseye with 3.9 happily builds withon the "cpython" part otherwise
+	python3 setup.py build --build-lib "build/${LIB}"
 	echo ""
 
-	for cmod in ${C_MODULES[@]}; do
-		if [[ ! -e lib${cmod}.so ]] ; then
-			ln -s "build/${LIB}/lib${cmod}${EXT_SUFFIX}" "./lib${cmod}.so"
-			echo "Symlinked ./lib${cmod}.so '->' build/${LIB}/lib${cmod}${EXT_SUFFIX}"
+	for cmodLN in "${C_MODULES[@]}"; do
+		if [[ ! -e lib${cmodLN}.so ]] ; then
+			ln -sf "build/${LIB}/lib${cmodLN}${EXT_SUFFIX}" "./lib${cmodLN}.so"
+			echo -e "${Yellow}Symlinked ./lib${cmodLN}.so '->' build/${LIB}/lib${cmodLN}${EXT_SUFFIX}${NoColor}"
 		fi
 	done
 	echo ""
 }
 
+function testDeps() {
+	# Tests if dependencies are present on the system before attempting to build
+	if ! command -v python3-config >/dev/null; then
+		echo -e "${Red}python3-config not found, install it. ${Yellow}The package may be named python3-dev / python-dev on your distribution!${NoColor}"
+		exit 1
+	fi
+	if ! python -c "import importlib.util; exit(0 if importlib.util.find_spec('usb1') is not None else 1)"; then
+		echo -e "${Red}python3-libusb1 not found, install it. ${Yellow}The package may be named python-libusb1 on your distribution!${NoColor}"
+		exit 1
+	fi
+	if ! python -c "import pkgutil; exit(0 if pkgutil.find_loader('setuptools') else 1)"; then
+		echo -e "${Red}python3-setuptools not found, install it. ${Yellow}The package may be named python-setuptools on your distribution!${NoColor}"
+		exit 1
+	fi
+	if ! python -c "import pkgutil; exit(0 if pkgutil.find_loader('gi') else 1)"; then
+		echo -e "${Red}python3-gi not found, install it. ${Yellow}The package may be named python-gi on your distribution!${NoColor}"
+		exit 1
+	fi
+	# https://stackoverflow.com/a/48006925/8962143
+	#import gi
+	#gi.require_version("Gtk", "3.0")
+	#from gi.repository import Gtk
+	# + Another gi.require_version('Rsvg', '2.0') -> Rsvg -> gir1.2-rsvg-2.0 on Debian
+#	if ! python -c "import importlib.util; exit(0 if (lambda: (__import__('gi').require_version('Gtk', '3.0') or __import__('gi').repository.Gtk)) is not None else 1)"; then
+#		echo -e "${Red}gi.Gtk not found, install it. ${Yellow}The package may be named gtk3 or gir1.2-gtk-3.0 on your distribution!${NoColor}"
+#		exit 1
+#	fi
+	if ! command -v x86_64-linux-gnu-gcc >/dev/null; then
+		echo -e "${Red}x86_64-linux-gnu-gcc not found, install it. ${Yellow}The package is usually named gcc!${NoColor}"
+		exit 1
+	fi
+}
+
+testDeps
 
 # Ensure correct cwd
 cd "$(dirname "$0")"
 
 # Check if c modules are compiled and actual
-for cmod in ${C_MODULES[@]}; do
+for cmod in "${C_MODULES[@]}"; do
 	expected_version=\$C_VERSION_${cmod}
 	if ! reported_version=$(PYTHONPATH="." python3 -c 'import os, ctypes; lib=ctypes.CDLL("./'lib${cmod}'.so"); print(lib.'${cmod}'_module_version())'); then
-		echo "Failed to check module version for ${cmod}, this is normal"
+		echo -e "${Purple}Failed to check module version for ${Yellow}${cmod}${Purple}, rebuilding modules. If this message only shows once, this is normal!${NoColor}"
 	fi
-	if [[ "$reported_version" != "${expected_version}" ]] ; then
+	if [[ "${reported_version}" != "${expected_version}" ]] ; then
 		rebuild_c_modules "${cmod}"
+		if ! reported_version=$(PYTHONPATH="." python3 -c 'import os, ctypes; lib=ctypes.CDLL("./'lib${cmod}'.so"); print(lib.'${cmod}'_module_version())'); then
+			echo -e "${Red}Failed building ${Yellow}${cmod}${Red}, fatal error, exiting!${NoColor}"
+			exit 1
+		fi
 	fi
 done
 
