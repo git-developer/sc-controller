@@ -20,8 +20,8 @@ RUN <<EOR
     return_code="${1}"
     file="${2}"
     if [ "${return_code}" = 139 ] && echo "${file}" | grep -q -P -- '-(noble|trixie|bookworm)-'; then
-       log "Ignoring failure ${return_code} for ${file}" \
-           "which is currently known to cause a segmentation fault"
+      log "Ignoring failure ${return_code} for ${file}" \
+          "which is currently known to cause a segmentation fault"
     else
       return "${return_code}"
     fi
@@ -49,8 +49,8 @@ RUN <<EOR
       rm -rf squashfs-root/
       "${file}" --appimage-extract >/dev/null
       (
-       cd squashfs-root/runtime/compat
-       ../../AppRun dependency-check || handle_failure "$?" "${file}"
+        cd squashfs-root/runtime/compat
+        { ../../AppRun dependency-check && ../../AppRun daemon --help; } || handle_failure "$?" "${file}"
       )
       rm -f "${file}"
     done
