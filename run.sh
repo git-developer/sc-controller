@@ -84,7 +84,8 @@ cd "$(dirname "$0")"
 
 # Check if c modules are compiled and actual
 for cmod in "${C_MODULES[@]}"; do
-	expected_version=\$C_VERSION_${cmod}
+	expected_version_str="C_VERSION_${cmod}"
+	expected_version=$(eval echo "\$${expected_version_str}")
 	if ! reported_version=$(PYTHONPATH="." python3 -c 'import os, ctypes; lib=ctypes.CDLL("./'lib${cmod}'.so"); print(lib.'${cmod}'_module_version())'); then
 		echo -e "${Purple}Failed to check module version for ${Yellow}${cmod}${Purple}, rebuilding modules. If this message only shows once, this is normal!${NoColor}"
 	fi
