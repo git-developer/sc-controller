@@ -66,6 +66,14 @@ function testDeps() {
 		echo -e "${Red}python3-gi-cairo not found, install it. ${Yellow}The package may be named python3-gobject or python-gobject on your distribution!${NoColor}"
 		exit 1
 	fi
+	if ! python -c "import importlib.util; exit(0 if importlib.util.find_spec('ioctl_opt') is not None else 1)"; then
+		echo -e "${Red}python3-ioctl-opt not found, install it. ${Yellow}The package may be named or python-ioctl-opt on your distribution, ioctl-opt on PyPi!${NoColor}"
+		exit 1
+	fi
+	if ! python -c "import importlib.util; exit(0 if importlib.util.find_spec('evdev') is not None else 1)"; then
+		echo -e "${Red}python3-evdev not found, install it. ${Yellow}The package may be named or python-evdev on your distribution!${NoColor}"
+		exit 1
+	fi
 	# https://stackoverflow.com/a/48006925/8962143
 	#import gi
 	#gi.require_version("Gtk", "3.0")
@@ -109,4 +117,5 @@ export PYTHONPATH=".":"${PYTHONPATH-}"
 export SCC_SHARED="$(pwd)"
 
 # Execute
+#python3 'scripts/scc-daemon' debug &
 python3 'scripts/sc-controller' $@
