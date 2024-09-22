@@ -70,7 +70,7 @@ class GyroActionComponent(AEComponent):
 		self._recursing = False
 
 
-	def set_action(self, mode, action):
+	def set_action(self, mode: int, action) -> None:
 		if self.handles(mode, action):
 			if isinstance(action, NoAction):
 				self.select_gyro_output("none")
@@ -101,6 +101,8 @@ class GyroActionComponent(AEComponent):
 					self.select_yaw_roll(YAW)
 				else:
 					self.select_yaw_roll(ROLL)
+			if isinstance(action, SensitivityModifier):
+				self.editor.set_sensitivity(*action.speeds)
 			elif isinstance(action, GyroAction):
 				ap = action.parameters
 				if len(ap) == 2:
