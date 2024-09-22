@@ -22,12 +22,41 @@ COPY . /work
 WORKDIR /work
 ARG TARGET=/build/usr
 ARG DAEMON_VERSION
+ARG GIT_DESCRIPTION
 
 # Build and install
 RUN <<EOR
   set -eu
 
-  -z "${DAEMON_VERSION-}" || sed -i -E "s/^ *DAEMON_VERSION *= *.+/DAEMON_VERSION = \"${DAEMON_VERSION}\"/" scc/constants.py
+  ##
+  # Converts the output of `git describe` to a valid python version (PEP 440)
+  #
+  # Examples:
+  # - v0.4.9.2                 -> 0.4.9.2
+  # - ver0.4.8.11-3-123-g030686f -> 0.4.8.11.3.123.dev3172463
+  #
+  # References:
+  # - https://packaging.python.org/en/latest/specifications/version-specifiers/#version-specifiers
+  ##
+  convert_git_description_to_python_version() {
+    description="${1}"
+
+    version="$(printf %s "${description%-g*}" | tr -c -s [0-9.] .)"
+    version="${version#.}"
+    version="${version%.}"
+    hash="$(printf %d "0x${description##*-g}")"
+    if [ "${hash}" != "${description}" ]; then
+      version="${version}.dev${hash}"
+    fi
+    echo "${version}"
+  }
+  if [ -z "${DAEMON_VERSION-}" ] && [ "${GIT_DESCRIPTION-}" ]; then
+    DAEMON_VERSION="$(convert_git_description_to_python_version "${GIT_DESCRIPTION}")"
+  fi
+  if [ "${DAEMON_VERSION-}" ]; then
+    sed -i -E "s/^ *DAEMON_VERSION *= *.+/DAEMON_VERSION = \"${DAEMON_VERSION}\"/" scc/constants.py
+  fi
+
   python setup.py build --executable "/usr/bin/env python3"
   python setup.py install --single-version-externally-managed --home "${TARGET}" --record /dev/null
 
