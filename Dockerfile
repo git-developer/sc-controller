@@ -21,11 +21,13 @@ EOR
 COPY . /work
 WORKDIR /work
 ARG TARGET=/build/usr
+ARG DAEMON_VERSION
 
 # Build and install
 RUN <<EOR
   set -eu
 
+  -z "${DAEMON_VERSION-}" || sed -i -E "s/^ *DAEMON_VERSION *= *.+/DAEMON_VERSION = \"${DAEMON_VERSION}\"/" scc/constants.py
   python setup.py build --executable "/usr/bin/env python3"
   python setup.py install --single-version-externally-managed --home "${TARGET}" --record /dev/null
 
