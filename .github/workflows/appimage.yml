@@ -186,5 +186,5 @@ jobs:
       - name: Upload artifacts to GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          draft: !startsWith(github.ref, 'refs/tags/')
+          draft: {{ !startsWith(github.ref, 'refs/tags/') }}
           files: assets/*
