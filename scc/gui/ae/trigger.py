@@ -1,27 +1,36 @@
-#!/usr/bin/env python3
-"""
-SC-Controller - Action Editor - Trigger-as-button Component
+"""SC-Controller - Action Editor - Trigger-as-button Component.
 
 Assigns one or two emulated buttons to trigger
 """
+import logging
+
+from scc.actions import (
+	Action,
+	AxisAction,
+	ButtonAction,
+	HipfireAction,
+	MouseAction,
+	MultiAction,
+	NoAction,
+	TriggerAction,
+)
+from scc.constants import (
+	HIPFIRE_EXCLUSIVE,
+	HIPFIRE_NORMAL,
+	HIPFIRE_SENSIBLE,
+	TRIGGER_CLICK,
+	TRIGGER_HALF,
+	TRIGGER_MAX,
+	TRIGGER_MIN,
+)
+from scc.gui.ae import AEComponent, describe_action
+from scc.gui.binding_editor import BindingEditor
+from scc.gui.simple_chooser import SimpleChooser
 from scc.tools import _
 
-from gi.repository import Gtk, Gdk, GLib
-from scc.constants import TRIGGER_MIN, TRIGGER_HALF, TRIGGER_CLICK, TRIGGER_MAX
-from scc.constants import HIPFIRE_NORMAL, HIPFIRE_SENSIBLE, HIPFIRE_EXCLUSIVE
-from scc.actions import TriggerAction, ButtonAction, AxisAction, MouseAction, HipfireAction
-from scc.actions import Action, NoAction, MultiAction
-from scc.gui.ae import AEComponent, describe_action
-from scc.gui.area_to_action import action_to_area
-from scc.gui.simple_chooser import SimpleChooser
-from scc.gui.binding_editor import BindingEditor
-from scc.modifiers import FeedbackModifier
-from scc.gui.parser import InvalidAction
-
-import os, logging
 log = logging.getLogger("AE.TriggerAB")
 
-__all__ = [ 'TriggerComponent' ]
+__all__ = [ "TriggerComponent" ]
 
 
 class TriggerComponent(AEComponent, BindingEditor):
@@ -47,8 +56,8 @@ class TriggerComponent(AEComponent, BindingEditor):
 
 	@staticmethod
 	def _split(action):
-		"""
-		Splits passed action so it can be displayed in UI.
+		"""Split passed action so it can be displayed in UI.
+
 		Returns (sucess, half, full, analog), with three actions
 		for each UI element.
 		Note that each returned action may be TriggerAction.
@@ -110,8 +119,8 @@ class TriggerComponent(AEComponent, BindingEditor):
 
 	@staticmethod
 	def _strip_trigger(action):
-		"""
-		If passed action is TriggerAction, returns its child action.
+		"""If passed action is TriggerAction, returns its child action.
+
 		Returns passed action otherwise.
 		"""
 		if isinstance(action, TriggerAction):
@@ -120,8 +129,8 @@ class TriggerComponent(AEComponent, BindingEditor):
 
 	@staticmethod
 	def _strip_hipfire(action):
-		"""
-		If passed action is HipfireAction, returns its childs action.
+		"""If passed action is HipfireAction, returns its childs action.
+
 		Returns passed action otherwise.
 		"""
 		if isinstance(action, HipfireAction):
@@ -244,7 +253,7 @@ class TriggerComponent(AEComponent, BindingEditor):
 
 
 	def on_btAnalog_clicked(self, *a):
-		""" 'Analog Output' handler """
+		"""'Analog Output' handler."""
 		b = SimpleChooser(self.app, "axis", lambda action: self.on_action_chosen("analog", action) )
 		b.set_title(_("Select Analog Axis"))
 		b.display_action(Action.AC_STICK, AxisAction(self.analog))

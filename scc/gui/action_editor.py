@@ -1,39 +1,49 @@
-#!/usr/bin/env python3
-"""
-SC-Controller - Action Editor
+"""SC-Controller - Action Editor.
 
 Also doubles as Menu Item Editor in some cases
 """
-from scc.tools import _
+from __future__ import annotations
+import importlib
+import logging
+import math
+import os
+import types
 
 from gi.repository import Gtk, Gdk, GLib
-from scc.actions import Action, XYAction, NoAction, RingAction, TriggerAction
-from scc.special_actions import OSDAction, GesturesAction, MenuAction
-from scc.modifiers import SmoothModifier, NameModifier, BallModifier
-from scc.modifiers import Modifier, ClickModifier, ModeModifier
-from scc.modifiers import SensitivityModifier, FeedbackModifier
-from scc.modifiers import DeadzoneModifier, RotateInputModifier
-from scc.constants import HapticPos, SCButtons
-from scc.constants import CUT, ROUND, LINEAR, MINIMUM
+
+from scc.actions import Action, NoAction, RingAction, TriggerAction, XYAction
+from scc.constants import CUT, LINEAR, MINIMUM, ROUND, HapticPos, SCButtons
 from scc.controller import HapticData
-from scc.profile import Profile
-from scc.macros import Macro
-from scc.tools import nameof
-from scc.gui.controller_widget import PRESSABLE, TRIGGERS, PADS
-from scc.gui.controller_widget import STICKS, GYROS, BUTTONS
-from scc.gui.modeshift_editor import ModeshiftEditor
-from scc.gui.parser import InvalidAction, GuiActionParser
-from scc.gui.simple_chooser import SimpleChooser
-from scc.gui.macro_editor import MacroEditor
-from scc.gui.ring_editor import RingEditor
-from scc.gui.dwsnc import headerbar
 from scc.gui.ae import AEComponent
+from scc.gui.controller_widget import BUTTONS, GYROS, PADS, PRESSABLE, STICKS, TRIGGERS
+from scc.gui.dwsnc import headerbar
 from scc.gui.editor import Editor
-import os, logging, math, importlib, types
+from scc.gui.macro_editor import MacroEditor
+from scc.gui.modeshift_editor import ModeshiftEditor
+from scc.gui.parser import GuiActionParser, InvalidAction
+from scc.gui.ring_editor import RingEditor
+from scc.gui.simple_chooser import SimpleChooser
+from scc.macros import Macro
+from scc.modifiers import (
+	BallModifier,
+	ClickModifier,
+	DeadzoneModifier,
+	FeedbackModifier,
+	ModeModifier,
+	Modifier,
+	NameModifier,
+	RotateInputModifier,
+	SensitivityModifier,
+	SmoothModifier,
+)
+from scc.profile import Profile
+from scc.special_actions import GesturesAction, MenuAction, OSDAction
+from scc.tools import _, nameof
+
 log = logging.getLogger("ActionEditor")
 
 
-COMPONENTS = (								# List of known modules (components) in scc.gui.ae package
+COMPONENTS = ( # List of known modules (components) in scc.gui.ae package
 	'axis',
 	'axis_action',
 	'buttons',
@@ -50,10 +60,10 @@ COMPONENTS = (								# List of known modules (components) in scc.gui.ae package
 	'osk_action',
 	'osk_buttons',
 )
-XYZ = "XYZ"									# Sensitivity settings keys
-AFP = ("Amplitude", "Frequency", "Period")	# Feedback settings keys
-SMT = ("Level", "Weight", "Filter")			# Smoothing setting keys
-DZN = ("Lower", "Upper")					# Deadzone settings key
+XYZ = "XYZ"                                # Sensitivity settings keys
+AFP = ("Amplitude", "Frequency", "Period") # Feedback settings keys
+SMT = ("Level", "Weight", "Filter")        # Smoothing setting keys
+DZN = ("Lower", "Upper")                   # Deadzone settings key
 FEEDBACK_SIDES = [ HapticPos.LEFT, HapticPos.RIGHT, HapticPos.BOTH ]
 DEADZONE_MODES = [ CUT, ROUND, LINEAR, MINIMUM ]
 
@@ -68,43 +78,43 @@ class ActionEditor(Editor):
 		# Specified which modifiers are compatibile with which editor mode.
 		# That way, stuff like Rotation settings is not shown when editor
 		# is used to edit menu actions.
-		Action.AC_BUTTON	: Action.MOD_OSD | Action.MOD_FEEDBACK,
-		Action.AC_TRIGGER	: Action.MOD_OSD | Action.MOD_SENSITIVITY | Action.MOD_FEEDBACK | Action.MOD_DEADZONE,
-		Action.AC_STICK		: Action.MOD_OSD | Action.MOD_CLICK | Action.MOD_DEADZONE | Action.MOD_ROTATE | Action.MOD_SENSITIVITY | Action.MOD_FEEDBACK | Action.MOD_SMOOTH,
-		Action.AC_PAD		: Action.MOD_OSD | Action.MOD_CLICK | Action.MOD_DEADZONE | Action.MOD_ROTATE | Action.MOD_SENSITIVITY | Action.MOD_FEEDBACK | Action.MOD_SMOOTH | Action.MOD_BALL,
-		Action.AC_GYRO		: Action.MOD_OSD | Action.MOD_SENSITIVITY | Action.MOD_SENS_Z | Action.MOD_DEADZONE | Action.MOD_FEEDBACK,
-		Action.AC_OSK		: 0,
-		Action.AC_MENU		: Action.MOD_OSD,
-		AEC_MENUITEM		: 0,
+		Action.AC_BUTTON:  Action.MOD_OSD | Action.MOD_FEEDBACK,
+		Action.AC_TRIGGER: Action.MOD_OSD | Action.MOD_SENSITIVITY | Action.MOD_FEEDBACK | Action.MOD_DEADZONE,
+		Action.AC_STICK:   Action.MOD_OSD | Action.MOD_CLICK | Action.MOD_DEADZONE | Action.MOD_ROTATE | Action.MOD_SENSITIVITY | Action.MOD_FEEDBACK | Action.MOD_SMOOTH,
+		Action.AC_PAD:     Action.MOD_OSD | Action.MOD_CLICK | Action.MOD_DEADZONE | Action.MOD_ROTATE | Action.MOD_SENSITIVITY | Action.MOD_FEEDBACK | Action.MOD_SMOOTH | Action.MOD_BALL,
+		Action.AC_GYRO:    Action.MOD_OSD | Action.MOD_SENSITIVITY | Action.MOD_SENS_Z | Action.MOD_DEADZONE | Action.MOD_FEEDBACK,
+		Action.AC_OSK:     0,
+		Action.AC_MENU:    Action.MOD_OSD,
+		AEC_MENUITEM:      0,
 	}
 
 
-	def __init__(self, app, callback):
+	def __init__(self, app, callback) -> None:
 		Editor.__init__(self)
 		self.app = app
 		self.id = None
-		self.components = []			# List of available components
-		self.loaded_components = {}		# by class name
-		self.c_buttons = {} 			# Component-to-button dict
-		self.sens_widgets = []			# Sensitivity sliders, labels and 'clear' buttons
-		self.feedback_widgets = []		# Feedback settings sliders, labels and 'clear' buttons, plus default value as last item
-		self.smoothing_widgets = []		# Smoothing settings sliders, labels and 'clear' buttons, plus default value as last item
-		self.deadzone_widgets = []		# Deadzone settings sliders, labels and 'clear' buttons, plus default value as last item
-		self.sens = [1.0] * 3			# Sensitivity slider values
-		self.sens_defaults = [1.0] * 3	# Clear button clears to this
-		self.feedback = [0.0] * 3		# Feedback slider values, set later
-		self.deadzone = [0] * 2			# Deadzone slider values, set later
-		self.deadzone_mode = None		# None for 'disabled'
-		self.feedback_position = None	# None for 'disabled'
-		self.smoothing = None			# None for 'disabled'
-		self.friction = -1				# -1 for 'disabled'
-		self.click = False				# Click modifier value. None for disabled
-		self.rotation_angle = 0			# RotateInputModifier angle
-		self.osd = False				# 'OSD enabled' value.
+		self.components = []                 # List of available components
+		self.loaded_components = {}          # by class name
+		self.c_buttons = {}                  # Component-to-button dict
+		self.sens_widgets = []               # Sensitivity sliders, labels and 'clear' buttons
+		self.feedback_widgets = []           # Feedback settings sliders, labels and 'clear' buttons, plus default value as last item
+		self.smoothing_widgets = []          # Smoothing settings sliders, labels and 'clear' buttons, plus default value as last item
+		self.deadzone_widgets = []           # Deadzone settings sliders, labels and 'clear' buttons, plus default value as last item
+		self.sens = [1.0, 1.0, 1.0]          # Sensitivity slider values
+		self.sens_defaults = [1.0, 1.0, 1.0] # Clear button clears to this
+		self.feedback = [0.0, 0.0, 0.0]      # Feedback slider values, set later
+		self.deadzone = [0, 0]               # Deadzone slider values, set later
+		self.deadzone_mode = None            # None for 'disabled'
+		self.feedback_position = None        # None for 'disabled'
+		self.smoothing = None                # None for 'disabled'
+		self.friction = -1                   # -1 for 'disabled'
+		self.click = False                   # Click modifier value. None for disabled
+		self.rotation_angle = 0              # RotateInputModifier angle
+		self.osd = False                     # 'OSD enabled' value.
 		self.first_page_allowed = False
 		self.setup_widgets()
 		self.load_components()
-		self.ac_callback = callback		# This is different callback than ButtonChooser uses
+		self.ac_callback = callback    # This is different callback than ButtonChooser uses
 		Editor.install_error_css()
 		self._action = NoAction()
 		self._replaced_action = None
@@ -140,7 +150,7 @@ class ActionEditor(Editor):
 				self.builder.get_object("lblSmooth%s" % (key,)),
 				self.builder.get_object("sclSmooth%s" % (key,)),
 				self.builder.get_object("btClearSmooth%s" % (key,)),
-				self.builder.get_object("sclSmooth%s" % (key,)).get_value()
+				self.builder.get_object("sclSmooth%s" % (key,)).get_value(),
 			))
 		for key in DZN:
 			i = DZN.index(key)
@@ -149,7 +159,7 @@ class ActionEditor(Editor):
 				self.builder.get_object("lblDZ%s" % (key,)),
 				self.builder.get_object("sclDZ%s" % (key,)),
 				self.builder.get_object("btClearDZ%s" % (key,)),
-				self.deadzone[i]	# default value
+				self.deadzone[i], # default value
 			))
 
 		if self.app.osd_mode:
@@ -164,9 +174,9 @@ class ActionEditor(Editor):
 		self._selected_component = None
 
 
-	def load_component(self, class_name):
-		"""
-		Loads and adds new component to editor.
+	def load_component(self, class_name: str):
+		"""Loads and adds new component to editor.
+
 		Returns component instance.
 		"""
 		if class_name in self.loaded_components:
@@ -196,9 +206,7 @@ class ActionEditor(Editor):
 
 
 	def set_osd_enabled(self, value):
-		"""
-		Sets value of OSD modifier checkbox, without firing any more events.
-		"""
+		"""Sets value of OSD modifier checkbox, without firing any more events."""
 		self._recursing = True
 		self.osd = value
 		self.builder.get_object("cbOSD").set_active(value)
@@ -215,7 +223,7 @@ class ActionEditor(Editor):
 
 
 	def get_id(self):
-		""" Returns ID of input that is being edited """
+		"""Returns ID of input that is being edited."""
 		return self.id
 
 
@@ -253,9 +261,7 @@ class ActionEditor(Editor):
 			log.warning("Activated unknown link: %s", link)
 
 	def on_action_type_changed(self, clicked_button):
-		"""
-		Called when user clicks on one of Action Type buttons.
-		"""
+		"""Called when user clicks on one of Action Type buttons."""
 		# Prevent recurson
 		if self._recursing : return
 		self._recursing = True
@@ -287,9 +293,9 @@ class ActionEditor(Editor):
 		stActionModes.show_all()
 
 
-	def force_page(self, component, remove_rest=False):
-		"""
-		Forces action editor to display page with specified component.
+	def force_page(self, component, remove_rest: bool = False):
+		"""Force action editor to display page with the specified component.
+
 		If 'remove_rest' is True, removes all other pages.
 
 		Returns 'component'
@@ -321,18 +327,18 @@ class ActionEditor(Editor):
 
 
 	def get_name(self):
-		""" Returns action name as set in editor entry """
+		"""Returns action name as set in editor entry."""
 		entName = self.builder.get_object("entName")
 		return entName.get_text().strip(" \t")
 
 
 	def get_current_page(self):
-		""" Returns currently displayed page (component) """
+		"""Returns currently displayed page (component)."""
 		return self._selected_component
 
 
 	def _set_title(self):
-		""" Copies title from text entry into action instance """
+		"""Copies title from text entry into action instance."""
 		entName = self.builder.get_object("entName")
 		name = entName.get_text().strip(" \t\r\n")
 		if len(name) < 1:
@@ -425,8 +431,8 @@ class ActionEditor(Editor):
 
 
 	def hide_name(self):
-		"""
-		Hides (and clears) name field.
+		"""Hide (and clear) name field.
+
 		Used when displaying ActionEditor from MacroEditor
 		"""
 		self.builder.get_object("lblName").set_visible(False)
@@ -435,7 +441,7 @@ class ActionEditor(Editor):
 
 
 	def hide_clear(self):
-		""" Hides clear buttton """
+		"""Hide clear buttton."""
 		self.builder.get_object("btClear").set_visible(False)
 
 
@@ -528,9 +534,7 @@ class ActionEditor(Editor):
 
 
 	def update_modifiers(self, *a):
-		"""
-		Called when sensitivity, feedback or other modifier setting changes.
-		"""
+		"""Called when sensitivity, feedback or other modifier setting changes."""
 		if self._recursing : return
 		cbRequireClick = self.builder.get_object("cbRequireClick")
 		cbFeedbackSide = self.builder.get_object("cbFeedbackSide")
@@ -558,7 +562,7 @@ class ActionEditor(Editor):
 			set_action = True
 
 		# Sensitivity
-		for i in range(0, len(self.sens)):
+		for i in range(len(self.sens)):
 			target = self.sens_widgets[i][0].get_value()
 			if self.sens_widgets[i][3].get_active():
 				target = -target
@@ -575,12 +579,12 @@ class ActionEditor(Editor):
 			self.feedback_position = feedback_position
 			set_action = True
 
-		for i in range(0, len(self.feedback)):
+		for i in range(len(self.feedback)):
 			if self.feedback[i] != self.feedback_widgets[i][0].get_value():
 				self.feedback[i] = self.feedback_widgets[i][0].get_value()
 				set_action = True
 
-		for i in range(0, len(self.feedback)):
+		for i in range(len(self.feedback)):
 			if self.feedback[i] != self.feedback_widgets[i][0].get_value():
 				self.feedback[i] = self.feedback_widgets[i][0].get_value()
 				set_action = True
@@ -592,7 +596,7 @@ class ActionEditor(Editor):
 			self.deadzone_mode = mode
 			set_action = True
 
-		for i in range(0, len(self.deadzone)):
+		for i in range(len(self.deadzone)):
 			if self.deadzone[i] != self.deadzone_widgets[i][1].get_value():
 				self.deadzone[i] = self.deadzone_widgets[i][1].get_value()
 				set_action = True
@@ -632,12 +636,10 @@ class ActionEditor(Editor):
 			self._selected_component.modifier_updated()
 
 
-	def generate_modifiers(self, action, from_custom=False):
-		"""
-		Returns Action with all modifiers from UI applied.
-		"""
+	def generate_modifiers(self, action, from_custom: bool = False):
+		"""Return Action with all modifiers from UI applied."""
 		if not self._modifiers_enabled and not from_custom:
-			# Editing in custom aciton dialog, don't meddle with that
+			# Editing in custom action dialog, don't meddle with that
 			return action
 
 		if isinstance(action, ModeModifier):
@@ -651,8 +653,7 @@ class ActionEditor(Editor):
 
 		cm = action.get_compatible_modifiers()
 
-		if (cm & Action.MOD_BALL) != 0:
-			if self.friction >= 0:
+		if (cm & Action.MOD_BALL) != 0 and self.friction >= 0:
 				action = BallModifier(round(self.friction, 3), action)
 
 		if (cm & Action.MOD_SENSITIVITY) != 0:
@@ -707,12 +708,10 @@ class ActionEditor(Editor):
 		return action
 
 	@staticmethod
-	def is_editable_modifier(action):
-		"""
-		Returns True if provided action is instance of modifier that
-		ActionEditor can display and edit.
-		Returns False for everything else, even if it is instalce of Modifier
-		subclass.
+	def is_editable_modifier(action) -> bool:
+		"""Return True if provided action is instance of modifier that ActionEditor can display and edit.
+
+		Return False for everything else, even if it is instalce of Modifier subclass.
 		"""
 		if isinstance(action, (ClickModifier, SensitivityModifier,
 				DeadzoneModifier, FeedbackModifier, RotateInputModifier,
@@ -726,9 +725,7 @@ class ActionEditor(Editor):
 
 	@staticmethod
 	def strip_modifiers(action):
-		"""
-		Returns action stripped of all modifiers that are editable by editor.
-		"""
+		"""Return action stripped of all modifiers that are editable by editor."""
 		while action:
 			if ActionEditor.is_editable_modifier(action):
 				action = action.action
@@ -737,10 +734,10 @@ class ActionEditor(Editor):
 		return action
 
 
-	def load_modifiers(self, action, index=-1):
-		"""
-		Parses action for modifiers and updates UI accordingly.
-		Returns action without parsed modifiers.
+	def load_modifiers(self, action, index: int = -1):
+		"""Parse action for modifiers and update UI accordingly.
+
+		Return action without parsed modifiers.
 		"""
 		cbRequireClick = self.builder.get_object("cbRequireClick")
 		sclRotation = self.builder.get_object("sclRotation")
@@ -772,7 +769,7 @@ class ActionEditor(Editor):
 				action = action.action
 			if isinstance(action, SensitivityModifier):
 				if index < 0:
-					for i in range(0, len(self.sens)):
+					for i in range(len(self.sens)):
 						self.sens[i] = action.speeds[i]
 				else:
 					self.sens[index] = action.speeds[0]
@@ -846,26 +843,18 @@ class ActionEditor(Editor):
 		return action
 
 
-	def allow_first_page(self):
-		"""
-		Allows first page to be used
-		"""
+	def allow_first_page(self) -> None:
+		"""Allow the first page to be used."""
 		self.first_page_allowed = True
 
 
-	def reset_active_component(self):
-		"""
-		Forgets what component was selected so next call to set_action
-		selects new one.
-		"""
+	def reset_active_component(self) -> None:
+		"""Forget what component was selected so next call to set_action selects new one."""
 		self._selected_component = None
 
 
-	def set_action(self, action, from_custom=False):
-		"""
-		Updates Action field(s) on bottom and recolors apropriate image area,
-		if such area exists.
-		"""
+	def set_action(self, action, from_custom: bool = False) -> None:
+		"""Update Action field(s) on bottom and recolors apropriate image area, if such area exists."""
 		entAction = self.builder.get_object("entAction")
 		cbPreview = self.builder.get_object("cbPreview")
 		btOK = self.builder.get_object("btOK")
@@ -1004,11 +993,11 @@ class ActionEditor(Editor):
 		cbOSD.set_sensitive(cm & Action.MOD_OSD != 0)
 
 
-	def set_sensitivity(self, x, y=1.0, z=1.0):
-		""" Sets sensitivity for edited action """
+	def set_sensitivity(self, x: float, y: float = 1.0, z: float = 1.0):
+		"""Sets sensitivity for edited action."""
 		self._recursing = True
 		xyz = [ x, y, z ]
-		for i in range(0, len(self.sens)):
+		for i in range(len(self.sens)):
 			self.sens[i] = xyz[i]
 			self.sens_widgets[i][3].set_active(self.sens[i] < 0)
 			self.sens_widgets[i][0].set_value(abs(self.sens[i]))
@@ -1017,16 +1006,13 @@ class ActionEditor(Editor):
 		self._selected_component.modifier_updated()
 
 
-	def get_sensitivity(self):
+	def get_sensitivity(self) -> tuple[float, float, float]:
 		""" Returns sensitivity currently set in editor """
 		return tuple(self.sens)
 
 
-	def set_default_sensitivity(self, x, y=1.0, z=1.0):
-		"""
-		Sets default sensitivity values and, if sensitivity
-		is currently set to defaults, updates it to these values
-		"""
+	def set_default_sensitivity(self, x: float, y: float = 1.0, z: float = 1.0):
+		"""Sets default sensitivity values and, if sensitivity is currently set to defaults, updates it to these values."""
 		xyz = x, y, z
 		update = False
 		self._recursing = True
@@ -1096,8 +1082,8 @@ class ActionEditor(Editor):
 
 
 	def set_input(self, id, action, mode=None):
-		"""
-		Setups action editor for editing specified input.
+		"""Setups action editor for editing specified input.
+
 		Mode (buttton/axis/trigger...) is either provided or chosen based on id.
 		Also sets title, but that can be overriden by calling set_title after.
 		"""
@@ -1159,9 +1145,8 @@ class ActionEditor(Editor):
 			self.hide_ring()
 
 
-	def set_menu_item(self, item, title_for_name_label=None):
-		"""
-		Setups action editor in way that allows editing only action name.
+	def set_menu_item(self, item, title_for_name_label: bool | None = None):
+		"""Setups action editor in way that allows editing only action name.
 
 		In this mode, callback is called with editor instance instead of
 		generated action as 2nd argument.
@@ -1181,7 +1166,7 @@ class ActionEditor(Editor):
 			self.builder.get_object("lblName").set_label(title_for_name_label)
 
 
-	def set_modifiers_enabled(self, enabled):
+	def set_modifiers_enabled(self, enabled: bool) -> None:
 		exMore = self.builder.get_object("exMore")
 		rvMore = self.builder.get_object("rvMore")
 		if self._modifiers_enabled != enabled and not enabled:

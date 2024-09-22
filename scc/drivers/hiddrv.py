@@ -3,6 +3,7 @@
 Borrows bit of code and configuration from evdevdrv.
 """
 from __future__ import annotations
+
 import ctypes
 import json
 import logging
@@ -12,6 +13,9 @@ from enum import IntEnum
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+	from usb1 import USBDeviceHandle
+
+	from scc.device_monitor import DeviceMonitor
 	from scc.sccdaemon import SCCDaemon
 
 from scc.constants import STICK_PAD_MAX, STICK_PAD_MIN, ControllerFlags, SCButtons
@@ -49,9 +53,9 @@ SYS_DEVICES = "/sys/devices"
 BLACKLIST = [
 	# List of devices known to pretend to be HID compatible but breaking horribly with HID
 	# vendor, product
-	(0x045e, 0x0719),	# Xbox controller
-	(0x045e, 0x028e),	# Xbox wireless adapter
-	(0x0738, 0x4716),	# Mad Catz, Inc controller
+	(0x045e, 0x0719), # Xbox controller
+	(0x045e, 0x028e), # Xbox wireless adapter
+	(0x0738, 0x4716), # Mad Catz, Inc controller
 ]
 
 
@@ -64,28 +68,28 @@ class UnparsableDescriptor(HIDDrvError):
 
 class HIDControllerInput(ctypes.Structure):
 	_fields_ = [
-		('buttons', ctypes.c_uint32),
+		("buttons", ctypes.c_uint32),
 		# Note: Axis order is same as in AxisType enum
-		('lpad_x', ctypes.c_int32),
-		('lpad_y', ctypes.c_int32),
-		('rpad_x', ctypes.c_int32),
-		('rpad_y', ctypes.c_int32),
-		('stick_x', ctypes.c_int32),
-		('stick_y', ctypes.c_int32),
-		('ltrig', ctypes.c_int32),
-		('rtrig', ctypes.c_int32),
-		('accel_x', ctypes.c_int32),
-		('accel_y', ctypes.c_int32),
-		('accel_z', ctypes.c_int32),
-		('gpitch', ctypes.c_int32),
-		('groll', ctypes.c_int32),
-		('gyaw', ctypes.c_int32),
-		('q1', ctypes.c_int32),
-		('q2', ctypes.c_int32),
-		('q3', ctypes.c_int32),
-		('q4', ctypes.c_int32),
-		('cpad_x', ctypes.c_int32),
-		('cpad_y', ctypes.c_int32),
+		("lpad_x", ctypes.c_int32),
+		("lpad_y", ctypes.c_int32),
+		("rpad_x", ctypes.c_int32),
+		("rpad_y", ctypes.c_int32),
+		("stick_x", ctypes.c_int32),
+		("stick_y", ctypes.c_int32),
+		("ltrig", ctypes.c_int32),
+		("rtrig", ctypes.c_int32),
+		("accel_x", ctypes.c_int32),
+		("accel_y", ctypes.c_int32),
+		("accel_z", ctypes.c_int32),
+		("gpitch", ctypes.c_int32),
+		("groll", ctypes.c_int32),
+		("gyaw", ctypes.c_int32),
+		("q1", ctypes.c_int32),
+		("q2", ctypes.c_int32),
+		("q3", ctypes.c_int32),
+		("q4", ctypes.c_int32),
+		("cpad_x", ctypes.c_int32),
+		("cpad_y", ctypes.c_int32),
 	]
 
 
@@ -196,7 +200,7 @@ class HIDDecoder(ctypes.Structure):
 HIDDecoderPtr = ctypes.POINTER(HIDDecoder)
 
 
-_lib = find_library('libhiddrv')
+_lib = find_library("libhiddrv")
 _lib.decode.restype = bool
 _lib.decode.argtypes = [ HIDDecoderPtr, ctypes.c_char_p ]
 
@@ -207,7 +211,7 @@ class HIDController(USBDevice, Controller):
 			| ControllerFlags.HAS_DPAD
 			| ControllerFlags.NO_GRIPS )
 
-	def __init__(self, device, daemon: "SCCDaemon", handle, config_file, config, test_mode=False):
+	def __init__(self, device: USBDevice, daemon: SCCDaemon, handle: USBDeviceHandle, config_file: str, config: dict, test_mode: bool = False):
 		USBDevice.__init__(self, device, handle)
 		self._ready = False
 		self.daemon = daemon
@@ -225,7 +229,7 @@ class HIDController(USBDevice, Controller):
 								max_size = endpoint.getMaxPacketSize()
 
 		if id is None:
-			raise NotHIDDevice()
+			raise NotHIDDevice
 
 		log.debug("Endpoint: %s", id)
 
@@ -255,17 +259,17 @@ class HIDController(USBDevice, Controller):
 			self._ready = True
 
 
-	def _load_hid_descriptor(self, config, max_size, vid: int, pid: int, test_mode):
+	def _load_hid_descriptor(self, config: dict, max_size: int, vid: int, pid: int, test_mode) -> None:
 		hid_descriptor = HIDController.find_sys_devices_descriptor(vid, pid)
 		if hid_descriptor is None:
 			hid_descriptor = self.handle.getRawDescriptor(
 					LIBUSB_DT_REPORT, 0, 512)
-		open("report", "wb").write(bytes([x for x in hid_descriptor ]))
+		open("report", "wb").write(bytes(list(hid_descriptor)))
 		self._build_hid_decoder(hid_descriptor, config, max_size)
 		self._packet_size = self._decoder.packet_size
 
 
-	def _build_button_map(self, config):
+	def _build_button_map(self, config: dict):
 		"""Return button map readed from configuration, in format situable for HIDDecoder.buttons.button_map field.
 
 		Generates default if config is not available.
@@ -273,7 +277,7 @@ class HIDController(USBDevice, Controller):
 		if config:
 			# Last possible value is default "maps-to-nothing" mapping
 			buttons = [BUTTON_COUNT - 1] * BUTTON_COUNT
-			for keycode, value in config.get('buttons', {}).items():
+			for keycode, value in config.get("buttons", {}).items():
 				keycode = int(keycode) - FIRST_BUTTON
 				if keycode < 0 or keycode >= BUTTON_COUNT:
 					# Out of range
@@ -290,7 +294,7 @@ class HIDController(USBDevice, Controller):
 
 
 	@staticmethod
-	def button_to_bit(sc):
+	def button_to_bit(sc) -> int:
 		sc, bit = int(sc), 0
 		while sc and (sc & 1 == 0):
 			sc >>= 1
@@ -300,12 +304,12 @@ class HIDController(USBDevice, Controller):
 		return BUTTON_COUNT - 1
 
 
-	def _build_axis_maping(self, axis, config, mode = AxisMode.AXIS):
+	def _build_axis_maping(self, axis, config: dict, mode = AxisMode.AXIS):
 		"""Convert configuration mapping for _one_ axis to value situable for self._decoder.axes field."""
 		axis_config = config.get("axes", {}).get(str(int(axis)))
 		if axis_config:
 			try:
-				target = ( list([ x for (x, y) in HIDControllerInput._fields_ ])
+				target = ( [ x for (x, y) in HIDControllerInput._fields_ ]
 					.index(axis_config.get("axis")) - 1 )
 			except Exception:
 				# Maps to unknown axis
@@ -331,8 +335,8 @@ class HIDController(USBDevice, Controller):
 					data = AxisDataUnion(
 						hatswitch = HatswitchModeData(
 							button = button,
-							max = axis_config['max'],
-							min = axis_config['min']
+							max = axis_config["max"],
+							min = axis_config["min"]
 						)
 					)
 				)
@@ -342,7 +346,7 @@ class HIDController(USBDevice, Controller):
 		return None, None
 
 
-	def _build_hid_decoder(self, data, config, max_size):
+	def _build_hid_decoder(self, data, config: dict, max_size: int) -> None:
 		size, count, total, kind = 1, 0, 0, None
 		next_axis = AxisType.AXIS_LPAD_X
 		self._decoder = HIDDecoder()
@@ -444,12 +448,11 @@ class HIDController(USBDevice, Controller):
 		as some controllers are presenting descriptor that are completly
 		broken and kernel already deals with it.
 		"""
-		def recursive_search(pattern: str, path: str):
+		def recursive_search(pattern: str, path: str) -> str | None:
 			for name in os.listdir(path):
 				full_path = os.path.join(path, name)
-				if name == "report_descriptor":
-					if pattern in os.path.split(path)[-1].lower():
-						return full_path
+				if name == "report_descriptor" and pattern in os.path.split(path)[-1].lower():
+					return full_path
 				try:
 					if os.path.islink(full_path):
 						# Recursive stuff in /sys ftw...
@@ -490,11 +493,10 @@ class HIDController(USBDevice, Controller):
 
 
 	def _generate_id(self) -> str:
-		"""
-		ID is generated as 'hid0000:1111' where first number is vendor and
-		2nd product id. If two or more controllers with same vendor/product
-		IDs are added, ':X' is added, where 'X' starts as 1 and increases
-		as controllers with same ids are connected.
+		"""ID is generated as 'hid0000:1111' where first number is vendor and 2nd product id.
+
+		If two or more controllers with same vendor/product IDs are added,
+		':X' is added, where 'X' starts as 1 and increases as controllers with same ids are connected.
 		"""
 		magic_number = 1
 		vid, pid = self.device.getVendorID(), self.device.getProductID()
@@ -509,7 +511,7 @@ class HIDController(USBDevice, Controller):
 		return self._id
 
 
-	def get_gui_config_file(self):
+	def get_gui_config_file(self) -> str:
 		return self.config_file
 
 
@@ -518,7 +520,7 @@ class HIDController(USBDevice, Controller):
 		return "<HID %.4x%.4x>" % (vid, pid)
 
 
-	def test_input(self, endpoint, data):
+	def test_input(self, endpoint: int, data):
 		if not _lib.decode(ctypes.byref(self._decoder), data):
 			# Returns True if anything changed
 			return
@@ -544,7 +546,7 @@ class HIDController(USBDevice, Controller):
 				sys.stdout.flush()
 
 
-	def input(self, endpoint, data):
+	def input(self, endpoint: int, data):
 		if _lib.decode(ctypes.byref(self._decoder), data):
 			if self.mapper:
 				self.mapper.input(self,
@@ -576,7 +578,7 @@ class HIDController(USBDevice, Controller):
 
 class HIDDrv(object):
 
-	def __init__(self, daemon):
+	def __init__(self, daemon: SCCDaemon):
 		self.registered = set()
 		self.config_files = {}
 		self.configs = {}
@@ -584,20 +586,16 @@ class HIDDrv(object):
 		self.daemon = daemon
 
 
-	def hotplug_cb(self, device, handle):
+	def hotplug_cb(self, device: USBDevice, handle: USBDeviceHandle) -> HIDController | None:
 		vid, pid = device.getVendorID(), device.getProductID()
 		if (vid, pid) in self.configs:
-			controller = HIDController(device, self.daemon, handle,
-				self.config_files[vid, pid], self.configs[vid, pid])
-			return controller
+			return HIDController(device, self.daemon, handle, self.config_files[vid, pid], self.configs[vid, pid])
+
 		return None
 
 
-	def scan_files(self):
-		"""
-		Goes through ~/.config/scc/devices and enables hotplug callback for
-		every known HID device
-		"""
+	def scan_files(self) -> None:
+		"""Go through ~/.config/scc/devices and enable hotplug callback for every known HID device."""
 		path = os.path.join(get_config_path(), "devices")
 		if not os.path.exists(path):
 			# Nothing to do
@@ -634,14 +632,14 @@ class HIDDrv(object):
 			if (vid, pid) in self.configs:
 				del self.configs[vid, pid]
 
-def hiddrv_test(cls, args):
-	"""
-	Small input test used by GUI while setting up the device.
+def hiddrv_test(cls, args) -> None:
+	"""Small input test used by GUI while setting up the device.
+
 	Basically, if HID device works with this, it will work with daemon as well.
 	"""
-	from scc.poller import Poller
-	from scc.drivers.usb import _usb
 	from scc.device_monitor import create_device_monitor
+	from scc.drivers.usb import _usb
+	from scc.poller import Poller
 	from scc.scripts import InvalidArguments
 
 	try:
@@ -654,26 +652,27 @@ def hiddrv_test(cls, args):
 
 	class FakeDaemon(object):
 
-		def __init__(self):
+		def __init__(self) -> None:
 			self.poller = Poller()
 			self.dev_monitor = create_device_monitor(self)
 			self.exitcode = -1
 
-		def get_device_monitor(self):
+		def get_device_monitor(self) -> DeviceMonitor:
 			return self.dev_monitor
 
-		def add_error(self, id, error):
+		def add_error(self, id, error: str) -> None:
 			fake_daemon.exitcode = 2
 			log.error(error)
 
-		def remove_error(*a): pass
+		def remove_error(*a) -> None:
+			pass
 
-		def get_poller(self):
+		def get_poller(self) -> Poller:
 			return self.poller
 
 	fake_daemon = FakeDaemon()
 
-	def cb(device, handle):
+	def cb(device: USBDevice, handle: USBDeviceHandle):
 		try:
 			return cls(device, None, handle, None, None, test_mode=True)
 		except NotHIDDevice:
@@ -701,15 +700,15 @@ def hiddrv_test(cls, args):
 
 	return fake_daemon.exitcode
 
-def init(daemon, config: dict) -> bool:
-	""" Called from scc-daemon """
+def init(daemon: SCCDaemon, config: dict) -> bool:
+	"""Called from scc-daemon."""
 	d = HIDDrv(daemon)
 	daemon.add_on_rescan(d.scan_files)
 	return True
 
 
 if __name__ == "__main__":
-	""" Called when executed as script """
+	"""Called when executed as script."""
 	from scc.tools import init_logging, set_logging_level
 	init_logging()
 	set_logging_level(True, True)

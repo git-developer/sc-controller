@@ -52,7 +52,7 @@ class BindingDisplay(OSDWindow):
 		self.c.set_name("osd-keyboard-container")
 
 
-	def on_profile_changed(self, daemon, filename):
+	def on_profile_changed(self, daemon: DaemonManager, filename: str):
 		profile = Profile(TalkingActionParser()).load(filename)
 		Generator(SVGEditor(self.background), profile)
 

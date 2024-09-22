@@ -18,6 +18,8 @@ from typing import TYPE_CHECKING
 import usb1
 
 if TYPE_CHECKING:
+	from usb1 import USBDeviceHandle
+
 	from scc.sccdaemon import SCCDaemon
 
 log = logging.getLogger("USB")
@@ -25,7 +27,7 @@ log = logging.getLogger("USB")
 class USBDevice(object):
 	"""Base class for all handled usb devices."""
 
-	def __init__(self, device, handle):
+	def __init__(self, device: USBDevice, handle: USBDeviceHandle) -> None:
 		self.device = device
 		self.handle = handle
 		self._claimed = []
@@ -79,10 +81,7 @@ class USBDevice(object):
 
 
 	def overwrite_control(self, index, data):
-		"""
-		Similar to send_control, but this one checks and overwrites
-		already scheduled controll for same device/index.
-		"""
+		"""Similar to send_control, but this one checks and overwrites already scheduled controll for same device/index."""
 		for x in self._cmsg:
 			x_index, x_data, x_timeout = x[-3:]
 			# First 3 bytes are for PacketType, size and ConfigType
@@ -93,8 +92,8 @@ class USBDevice(object):
 
 
 	def make_request(self, index, callback, data, size=64):
-		"""
-		Schedules synchronous request that requires response.
+		"""Schedule a synchronous request that requires response.
+
 		Request is done ASAP and provided callback is called with received data.
 		"""
 		self._rmsg.append((
@@ -108,7 +107,7 @@ class USBDevice(object):
 
 
 	def flush(self):
-		""" Flushes all prepared control messages to the device """
+		"""Flushes all prepared control messages to the device."""
 		while len(self._cmsg):
 			msg = self._cmsg.pop()
 			self.handle.controlWrite(*msg)
@@ -126,8 +125,8 @@ class USBDevice(object):
 
 
 	def force_restart(self):
-		"""
-		Restarts device, closes handle and tries to re-grab it again.
+		"""Restart device, close handle and try to re-grab it again.
+
 		Don't use unless absolutelly necessary.
 		"""
 		tp = self.device.getVendorID(), self.device.getProductID()
@@ -164,7 +163,7 @@ class USBDevice(object):
 
 
 	def unclaim(self):
-		""" Unclaims all claimed interfaces """
+		"""Unclaim all claimed interfaces."""
 		for number in self._claimed:
 			try:
 				self.handle.releaseInterface(number)
@@ -176,7 +175,7 @@ class USBDevice(object):
 
 
 	def close(self):
-		""" Called after device is disconnected """
+		"""Called after device is disconnected."""
 		try:
 			self.unclaim()
 		except Exception:

@@ -1,24 +1,20 @@
-#!/usr/bin/env python3
-"""
-SC-Controller - Action Editor - Gyro -> Joystick or Mouse component
-"""
-from scc.tools import _
-
-from scc.actions import Action, NoAction, MouseAction, MultiAction, RangeOP
-from scc.actions import GyroAction, GyroAbsAction, MouseAbsAction
-from scc.special_actions import CemuHookAction
-from scc.modifiers import ModeModifier, SensitivityModifier
-from scc.uinput import Axes, Rels
-from scc.constants import SCButtons, STICK, YAW, ROLL
-from scc.gui.parser import GuiActionParser
-from scc.gui.ae import AEComponent
-from scc.tools import nameof
-
-import logging, re
+"""SC-Controller - Action Editor - Gyro -> Joystick or Mouse component."""
 import itertools
+import logging
+import re
+
+from scc.actions import Action, GyroAbsAction, GyroAction, MouseAbsAction, MouseAction, MultiAction, NoAction, RangeOP
+from scc.constants import ROLL, STICK, YAW, SCButtons
+from scc.gui.ae import AEComponent
+from scc.gui.parser import GuiActionParser
+from scc.modifiers import ModeModifier, SensitivityModifier
+from scc.special_actions import CemuHookAction
+from scc.tools import _, nameof
+from scc.uinput import Axes, Rels
+
 log = logging.getLogger("AE.GyroAction")
 
-__all__ = [ 'GyroActionComponent' ]
+__all__ = [ "GyroActionComponent" ]
 TRIGGERS = ( nameof(SCButtons.LT), nameof(SCButtons.RT) )
 
 
@@ -64,8 +60,9 @@ class GyroActionComponent(AEComponent):
 		self.parser = GuiActionParser()
 
 
-	def load(self):
-		if self.loaded : return
+	def load(self) -> None:
+		if self.loaded:
+			return
 		AEComponent.load(self)
 		self._recursing = True
 		cbGyroButton = self.builder.get_object("cbGyroButton")
@@ -127,7 +124,7 @@ class GyroActionComponent(AEComponent):
 			self.modifier_updated()
 
 
-	def modifier_updated(self):
+	def modifier_updated(self) -> None:
 		cbInvertY = self.builder.get_object("cbInvertY")
 		sens = self.editor.get_sensitivity()
 		inverted = len(sens) >= 2 and sens[1] < 0
@@ -140,7 +137,8 @@ class GyroActionComponent(AEComponent):
 
 
 	def cbInvertY_toggled_cb(self, cb, *a):
-		if self._recursing: return
+		if self._recursing:
+			return
 		sens = list(self.editor.get_sensitivity())
 		# Ensure that editor accepts Y sensitivity
 		if len(sens) >= 2:
