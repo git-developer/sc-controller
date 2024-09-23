@@ -44,9 +44,9 @@ RUN <<EOR
     version="$(printf %s "${description%-g*}" | tr -c -s [0-9.] .)"
     version="${version#.}"
     version="${version%.}"
-    hash="$(printf %d "0x${description##*-g}")"
+    hash="${description##*-g}"
     if [ "${hash}" != "${description}" ]; then
-      version="${version}.dev${hash}"
+      version="${version}.dev$(printf %d "0x${hash}")"
     fi
     echo "${version}"
   }
