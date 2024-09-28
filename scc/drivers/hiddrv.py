@@ -632,7 +632,7 @@ class HIDDrv(object):
 			if (vid, pid) in self.configs:
 				del self.configs[vid, pid]
 
-def hiddrv_test(cls, args) -> None:
+def hiddrv_test(cls, args) -> int:
 	"""Small input test used by GUI while setting up the device.
 
 	Basically, if HID device works with this, it will work with daemon as well.

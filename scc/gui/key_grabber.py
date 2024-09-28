@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-"""
-SC-Controller - Action Editor
+"""SC-Controller - Action Editor.
 
 Allows to edit button or trigger action.
 """

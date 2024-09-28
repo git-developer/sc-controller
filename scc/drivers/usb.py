@@ -201,7 +201,7 @@ class USBDriver(object):
 		self._changed = 0
 
 
-	def set_daemon(self, daemon: SCCDaemon):
+	def set_daemon(self, daemon: SCCDaemon) -> None:
 		self.daemon = daemon
 
 

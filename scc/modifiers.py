@@ -836,7 +836,7 @@ class ModeModifier(Modifier):
 		self.old_action = None
 		self.shell_commands = {}
 		self.shell_timeout = 0.5
-		self.timeout = DoubleclickModifier.DEAFAULT_TIMEOUT
+		self.timeout = DoubleclickModifier.DEFAULT_TIMEOUT
 
 		# ShellCommandAction cannot be imported normally, it would create
 		# import cycle of hell
@@ -949,7 +949,7 @@ class ModeModifier(Modifier):
 		return "\n".join([ x.describe(context) for x in l ])
 
 
-	def to_string(self, multiline=False, pad=0):
+	def to_string(self, multiline: bool = False, pad=0):
 		if multiline:
 			rv = [ (" " * pad) + "mode(" ]
 			for check in self.mods:
@@ -1139,7 +1139,7 @@ class ModeModifier(Modifier):
 
 class DoubleclickModifier(Modifier, HapticEnabledAction):
 	COMMAND = "doubleclick"
-	DEAFAULT_TIMEOUT = 0.2
+	DEFAULT_TIMEOUT = 0.2
 	TIMEOUT_KEY = "time"
 	PROFILE_KEY_PRIORITY = 3
 
@@ -1150,7 +1150,7 @@ class DoubleclickModifier(Modifier, HapticEnabledAction):
 		self.normalaction = normalaction or NoAction()
 		self.holdaction = NoAction()
 		self.actions = ( self.action, self.normalaction, self.holdaction )
-		self.timeout = time or DoubleclickModifier.DEAFAULT_TIMEOUT
+		self.timeout = time or DoubleclickModifier.DEFAULT_TIMEOUT
 		self.waiting_task = None
 		self.pressed = False
 		self.active = None
@@ -1214,7 +1214,7 @@ class DoubleclickModifier(Modifier, HapticEnabledAction):
 
 	def to_string(self, multiline=False, pad=0):
 		timeout = ""
-		if DoubleclickModifier.DEAFAULT_TIMEOUT != self.timeout:
+		if DoubleclickModifier.DEFAULT_TIMEOUT != self.timeout:
 			timeout = ", %s" % (self.timeout)
 		if self.action and self.normalaction and self.holdaction:
 			return "doubleclick(%s, hold(%s, %s)%s)" % (
@@ -1354,7 +1354,7 @@ class SensitivityModifier(Modifier):
 	PROFILE_KEYS = ("sensitivity",)
 	PROFILE_KEY_PRIORITY = -5
 
-	def _mod_init(self, *speeds):
+	def _mod_init(self, *speeds) -> None:
 		self.speeds = []
 		for s in speeds:
 			if type(s) in (int, float):
@@ -1392,11 +1392,12 @@ class SensitivityModifier(Modifier):
 
 
 	def describe(self, context):
-		if self.name: return self.name
+		if self.name:
+			return self.name
 		return self.action.describe(context)
 
 
-	def to_string(self, multiline=False, pad=0):
+	def to_string(self, multiline: bool = False, pad=0) -> str:
 		speeds = [] + self.speeds
 		while len(speeds) > 1 and speeds[-1] == 1.0:
 			speeds = speeds[0:-1]
