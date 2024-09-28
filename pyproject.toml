@@ -1,20 +1,21 @@
+[tool.ruff]
 # Target non-EOL releases at minimum, or later if needed
 # https://devguide.python.org/versions/
 target-version = "py38"
 # Project uses 80 sporadically, so just do soft 80 and hard break at 120
 line-length = 120
 
-[lint.flake8-quotes]
+[tool.ruff.lint.flake8-quotes]
 # Existing codebase was already mostly doublequoted
 inline-quotes = 'double'
 
 
-[format]
+[tool.ruff.format]
 # Existing codebase was already mostly doublequoted
 quote-style = 'double'
 indent-style = 'tab'
 
-[lint]
+[tool.ruff.lint]
 select = ['ALL']
 ignore = [
 	'W191',   # We use tabs for indents, disabling this atrocious PEP 8 recommendation
