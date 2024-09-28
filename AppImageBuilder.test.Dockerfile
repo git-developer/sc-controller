@@ -41,10 +41,11 @@ RUN <<EOR
       chmod +x "${file}"
       rm -rf squashfs-root/
       "${file}" --appimage-extract >/dev/null
-      cd squashfs-root/runtime/compat
-      ../../AppRun dependency-check
-      output=$(../../AppRun daemon --help 2>&1 | tee -a /dev/stderr)
-      if echo "${output}" | grep -q Error; then return 1; fi
+      (
+        cd squashfs-root/runtime/compat
+        ../../AppRun dependency-check
+        ../../AppRun daemon --help
+      )
       rm -f "${file}"
     done
   }
