@@ -34,11 +34,11 @@ data_files = [
 ]
 
 extensions = [
-	Extension("libuinput",                                     sources=["scc/uinput.c"]),
-	Extension("libcemuhook",  define_macros=[("PYTHON", "1")], sources=["scc/cemuhook_server.c"], libraries=["z"]),
-	Extension("libhiddrv",                                     sources=["scc/drivers/hiddrv.c"]),
-	Extension("libsc_by_bt",                                   sources=["scc/drivers/sc_by_bt.c"]),
-	Extension("libremotepad",                                  sources=["scc/drivers/remotepad_controller.c"]),
+	Extension("libuinput",    sources=["scc/uinput.c"]),
+	Extension("libcemuhook",  sources=["scc/cemuhook_server.c"], libraries=["z"], define_macros=[("PYTHON", "1")]),
+	Extension("libhiddrv",    sources=["scc/drivers/hiddrv.c"]),
+	Extension("libsc_by_bt",  sources=["scc/drivers/sc_by_bt.c"]),
+	Extension("libremotepad", sources=["scc/drivers/remotepad_controller.c"]),
 ]
 
 setup(
