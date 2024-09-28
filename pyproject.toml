@@ -25,6 +25,7 @@ requires-python = ">=3.8"
 [tool.setuptools]
 packages = [
 	"scc",
+	"scc.bin",
 	"scc.drivers",
 	"scc.lib",
 	"scc.x11",
@@ -38,18 +39,18 @@ packages = [
 
 # https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#creating-executable-scripts
 [project.gui-scripts]
-sc-controller         = "scc.scripts:main"
+sc-controller         = "scc.bin.sc_controller:main"
 
 [project.scripts]
-scc-daemon            = "scc.scripts.scc_daemon:main"
-scc                   = "scc.scripts.scc:main"
-scc-osd-dialog        = "scc.scripts.scc_osd_dialog:main"
-scc-osd-keyboard      = "scc.scripts.scc_osd_keyboard:main"
-scc-osd-launcher      = "scc.scripts.scc_osd_launcher:main"
-scc-osd-menu          = "scc.scripts.scc_osd_menu:main"
-scc-osd-message       = "scc.scripts.scc_osd_message:main"
-scc-osd-radial-menu   = "scc.scripts.scc_osd_radial_menu:main"
-scc-osd-show-bindings = "scc.scripts.scc_osd_show_bindings:main"
+scc-daemon            = "scc.bin.scc_daemon:main"
+#scc                   = "scc.bin.scc:main"
+scc-osd-dialog        = "scc.bin.scc_osd_dialog:main"
+scc-osd-keyboard      = "scc.bin.scc_osd_keyboard:main"
+scc-osd-launcher      = "scc.bin.scc_osd_launcher:main"
+scc-osd-menu          = "scc.bin.scc_osd_menu:main"
+scc-osd-message       = "scc.bin.scc_osd_message:main"
+scc-osd-radial-menu   = "scc.bin.scc_osd_radial_menu:main"
+scc-osd-show-bindings = "scc.bin.scc_osd_show_bindings:main"
 
 [tool.ruff]
 # Target non-EOL releases at minimum, or later if needed

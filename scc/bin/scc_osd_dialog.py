@@ -12,11 +12,11 @@ def main():
 	gi.require_version('Gtk', '3.0')
 	gi.require_version('Rsvg', '2.0')
 	gi.require_version('GdkX11', '3.0')
-	
+
 	from scc.tools import init_logging
 	from scc.paths import get_share_path
 	init_logging()
-	
+
 	from scc.osd.dialog import Dialog
 	m = Dialog()
 	if not m.parse_argumets(sys.argv):
