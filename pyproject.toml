@@ -38,18 +38,18 @@ packages = [
 
 # https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#creating-executable-scripts
 [project.gui-scripts]
-sc-controller         = "scripts.sc_controller:main_function"
+sc-controller         = "scc.scripts:main"
 
 [project.scripts]
-scc-daemon            = "scripts.scc_daemon:main_function"
-scc                   = "scripts.scc:main_function"
-scc-osd-dialog        = "scripts.scc_osd_dialog:main_function"
-scc-osd-keyboard      = "scripts.scc_osd_keyboard:main_function"
-scc-osd-launcher      = "scripts.scc_osd_launcher:main_function"
-scc-osd-menu          = "scripts.scc_osd_menu:main_function"
-scc-osd-message       = "scripts.scc_osd_message:main_function"
-scc-osd-radial-menu   = "scripts.scc_osd_radial_menu:main_function"
-scc-osd-show-bindings = "scripts.scc_osd_show_bindings:main_function"
+scc-daemon            = "scc.scripts.scc_daemon:main"
+scc                   = "scc.scripts.scc:main"
+scc-osd-dialog        = "scc.scripts.scc_osd_dialog:main"
+scc-osd-keyboard      = "scc.scripts.scc_osd_keyboard:main"
+scc-osd-launcher      = "scc.scripts.scc_osd_launcher:main"
+scc-osd-menu          = "scc.scripts.scc_osd_menu:main"
+scc-osd-message       = "scc.scripts.scc_osd_message:main"
+scc-osd-radial-menu   = "scc.scripts.scc_osd_radial_menu:main"
+scc-osd-show-bindings = "scc.scripts.scc_osd_show_bindings:main"
 
 [tool.ruff]
 # Target non-EOL releases at minimum, or later if needed
