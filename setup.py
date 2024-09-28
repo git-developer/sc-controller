@@ -3,8 +3,6 @@ import glob
 
 from setuptools import Extension, setup
 
-from scc.constants import DAEMON_VERSION
-
 data_files = [
 				("share/scc/glade", glob.glob("glade/*.glade")),
 				("share/scc/glade/ae", glob.glob("glade/ae/*.glade")),
@@ -35,43 +33,15 @@ data_files = [
 	) for x in glob.glob("images/menu-icons/*")
 ]
 
-
-packages = [
-	# Required
-	"scc", "scc.drivers", "scc.lib",
-	# Useful
-	"scc.x11", "scc.osd", "scc.foreign",
-	# GUI
-	"scc.gui", "scc.gui.ae", "scc.gui.importexport", "scc.gui.creg",
+extensions = [
+	Extension("libuinput",                                     sources=["scc/uinput.c"]),
+	Extension("libcemuhook",  define_macros=[("PYTHON", "1")], sources=["scc/cemuhook_server.c"], libraries=["z"]),
+	Extension("libhiddrv",                                     sources=["scc/drivers/hiddrv.c"]),
+	Extension("libsc_by_bt",                                   sources=["scc/drivers/sc_by_bt.c"]),
+	Extension("libremotepad",                                  sources=["scc/drivers/remotepad_controller.c"]),
 ]
 
-if __name__ == "__main__":
-	setup(name = "sccontroller",
-			version = DAEMON_VERSION,
-			description = "Standalone controller maping tool",
-			author = "C0rn3j",
-			packages = packages,
-			data_files = data_files,
-			scripts = [
-				"scripts/scc-daemon",
-				"scripts/sc-controller",
-				"scripts/scc",
-				"scripts/scc-osd-dialog",
-				"scripts/scc-osd-keyboard",
-				"scripts/scc-osd-launcher",
-				"scripts/scc-osd-menu",
-				"scripts/scc-osd-message",
-				"scripts/scc-osd-radial-menu",
-				"scripts/scc-osd-show-bindings",
-			],
-			license = "GPL-2.0-only",
-			platforms = ["Linux"],
-			ext_modules = [
-				Extension("libuinput", sources = ["scc/uinput.c"]),
-				Extension("libcemuhook", define_macros = [("PYTHON", 1)],
-							sources = ["scc/cemuhook_server.c"], libraries = ["z"]),
-				Extension("libhiddrv", sources = ["scc/drivers/hiddrv.c"]),
-				Extension("libsc_by_bt", sources = ["scc/drivers/sc_by_bt.c"]),
-				Extension("libremotepad", sources = ["scc/drivers/remotepad_controller.c"]),
-			],
-	)
+setup(
+	ext_modules=extensions,
+	data_files = data_files,
+)

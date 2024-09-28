@@ -1,3 +1,49 @@
+[build-system]
+requires = ["setuptools>=60", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sccontroller"
+version = "0.4.9.3" # Replace with DAEMON_VERSION or vice versa?
+description = "User-mode driver, mapper and GTK3 based GUI for Steam Controller, DS4 and similar controllers."
+authors = [{name = "C0rn3j", email = "martin@rys.rs"}]
+license = {text = "GPL-2.0-only"}
+keywords = ["controller", "mapping", "tools"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+    "Operating System :: POSIX :: Linux"
+]
+requires-python = ">=3.8"
+#platforms = ["Linux"]
+
+[tool.setuptools]
+packages = [
+	"scc",
+	"scc.drivers",
+	"scc.lib",
+	"scc.x11",
+	"scc.osd",
+	"scc.foreign",
+	"scc.gui",
+	"scc.gui.ae",
+	"scc.gui.importexport",
+	"scc.gui.creg"
+]
+
+# https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#creating-executable-scripts
+[project.scripts]
+scc-daemon            = "scripts.scc_daemon"
+sc-controller         = "scripts.sc_controller"
+scc                   = "scripts.scc"
+scc-osd-dialog        = "scripts.scc_osd_dialog"
+scc-osd-keyboard      = "scripts.scc_osd_keyboard"
+scc-osd-launcher      = "scripts.scc_osd_launcher"
+scc-osd-menu          = "scripts.scc_osd_menu"
+scc-osd-message       = "scripts.scc_osd_message"
+scc-osd-radial-menu   = "scripts.scc_osd_radial_menu"
+scc-osd-show-bindings = "scripts.scc_osd_show_bindings"
+
 [tool.ruff]
 # Target non-EOL releases at minimum, or later if needed
 # https://devguide.python.org/versions/
