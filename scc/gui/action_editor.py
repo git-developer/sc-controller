@@ -263,7 +263,8 @@ class ActionEditor(Editor):
 	def on_action_type_changed(self, clicked_button):
 		"""Called when user clicks on one of Action Type buttons."""
 		# Prevent recurson
-		if self._recursing : return
+		if self._recursing:
+			return
 		self._recursing = True
 		# Don't allow user to deactivate buttons - I'm using them as
 		# radio button and you can't 'uncheck' radiobutton by clicking on it
@@ -535,7 +536,8 @@ class ActionEditor(Editor):
 
 	def update_modifiers(self, *a):
 		"""Called when sensitivity, feedback or other modifier setting changes."""
-		if self._recursing : return
+		if self._recursing:
+			return
 		cbRequireClick = self.builder.get_object("cbRequireClick")
 		cbFeedbackSide = self.builder.get_object("cbFeedbackSide")
 		cbFeedback = self.builder.get_object("cbFeedback")
@@ -617,15 +619,13 @@ class ActionEditor(Editor):
 
 
 		# Rest
-		if self.click is not None:
-			if cbRequireClick.get_active() != self.click:
-				self.click = cbRequireClick.get_active()
-				set_action = True
+		if self.click is not None and cbRequireClick.get_active() != self.click:
+			self.click = cbRequireClick.get_active()
+			set_action = True
 
-		if self.osd is not None:
-			if cbOSD.get_active() != self.osd:
-				self.osd = cbOSD.get_active()
-				set_action = True
+		if self.osd is not None and cbOSD.get_active() != self.osd:
+			self.osd = cbOSD.get_active()
+			set_action = True
 
 		if self.rotation_angle != sclRotation.get_value():
 			self.rotation_angle = sclRotation.get_value()
@@ -717,10 +717,7 @@ class ActionEditor(Editor):
 				DeadzoneModifier, FeedbackModifier, RotateInputModifier,
 				SmoothModifier, BallModifier)):
 			return True
-		if isinstance(action, OSDAction):
-			if action.action is not None:
-				return True
-		return False
+		return bool(isinstance(action, OSDAction) and action.action is not None)
 
 
 	@staticmethod
@@ -782,7 +779,7 @@ class ActionEditor(Editor):
 		cbRequireClick.set_active(self.click)
 		cbOSD.set_active(self.osd)
 		sclRotation.set_value(self.rotation_angle)
-		for i in range(0, len(self.sens)):
+		for i in range(len(self.sens)):
 			self.sens_widgets[i][3].set_active(self.sens[i] < 0)
 			self.sens_widgets[i][0].set_value(abs(self.sens[i]))
 		# Feedback
@@ -792,7 +789,7 @@ class ActionEditor(Editor):
 			cbFeedback = self.builder.get_object("cbFeedback")
 			cbFeedbackSide.set_active(FEEDBACK_SIDES.index(self.feedback_position))
 			cbFeedback.set_active(True)
-			for i in range(0, len(self.feedback)):
+			for i in range(len(self.feedback)):
 				self.feedback_widgets[i][0].set_value(self.feedback[i])
 		for grp in self.feedback_widgets:
 			for w in grp[0:-1]:
@@ -804,7 +801,7 @@ class ActionEditor(Editor):
 		cbSmoothing = self.builder.get_object("cbSmoothing")
 		if self.smoothing:
 			cbSmoothing.set_active(True)
-			for i in range(0, len(self.smoothing_widgets)):
+			for i in range(len(self.smoothing_widgets)):
 				self.smoothing_widgets[i][1].set_value(self.smoothing[i])
 		for grp in self.smoothing_widgets:
 			for w in grp[0:-1]:
@@ -829,7 +826,7 @@ class ActionEditor(Editor):
 			cbDeadzone = self.builder.get_object("cbDeadzone")
 			cbDeadzone.set_active(True)
 			cbDeadzoneMode.set_active(DEADZONE_MODES.index(self.deadzone_mode))
-			for i in range(0, len(self.deadzone)):
+			for i in range(len(self.deadzone)):
 				self.deadzone_widgets[i][1].set_value(self.deadzone[i])
 
 		for grp in self.deadzone_widgets:
@@ -993,7 +990,7 @@ class ActionEditor(Editor):
 		cbOSD.set_sensitive(cm & Action.MOD_OSD != 0)
 
 
-	def set_sensitivity(self, x: float, y: float = 1.0, z: float = 1.0):
+	def set_sensitivity(self, x: float, y: float = 1.0, z: float = 1.0) -> None:
 		"""Sets sensitivity for edited action."""
 		self._recursing = True
 		xyz = [ x, y, z ]
@@ -1006,9 +1003,10 @@ class ActionEditor(Editor):
 		self._selected_component.modifier_updated()
 
 
-	def get_sensitivity(self) -> tuple[float, float, float]:
-		""" Returns sensitivity currently set in editor """
-		return tuple(self.sens)
+	def get_sensitivity(self) -> list[float]:
+		"""Returns sensitivity currently set in editor."""
+		print(f"CURRENT SENS: {self.sens}")
+		return self.sens
 
 
 	def set_default_sensitivity(self, x: float, y: float = 1.0, z: float = 1.0):
