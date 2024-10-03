@@ -17,8 +17,8 @@ jobs:
         target:
           - platform: linux/amd64
             arch: amd64
-          #- platform: linux/arm64
-          #  arch: arm64
+          - platform: linux/arm64
+            arch: arm64
         base:
           - os: ubuntu
             codename: focal
