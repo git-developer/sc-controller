@@ -14,16 +14,22 @@ RUN <<EOR
 		linux-headers-generic \
 		python3-dev \
 		python3-setuptools \
-		python-is-python3 \
-		python3-build \
-		python3-poetry \
-		python3-installer
+		python-is-python3
+	for dep in build poetry installer; do
+		package="python3-${dep}"
+		if apt-cache search --names-only "^${package}$" | grep -q .; then
+			apt-get install -y --no-install-recommends "${package}"
+		else
+			apt-get install -y --no-install-recommends python3-pip
+			pip install "${dep}"
+		fi
+	done
 	apt-get clean && rm -rf /var/lib/apt/lists/*
 EOR
 # Prepare working directory and target
 COPY . /work
 WORKDIR /work
-ARG TARGET=/build/usr
+ARG TARGET=/build
 
 # Build and install
 RUN <<EOR
@@ -41,13 +47,15 @@ RUN <<EOR
 	find "${TARGET}" -type f -path "*/site-packages/*${suffix}" \
 		| while read -r path; do ln -sfr "${path}" "${path%${suffix}}.so"; done
 
+	share="${TARGET}/usr/share"
+
 	# Put AppStream metadata to required location according to https://wiki.debian.org/AppStream/Guidelines
-	metainfo=/build/usr/share/metainfo
+	metainfo="${share}/metainfo"
 	mkdir -p "${metainfo}"
 	cp -a scripts/sc-controller.appdata.xml "${metainfo}"
 
 	# Convert icon to png format (required for icons in .desktop file)
-	iconpath="${TARGET}/share/icons/hicolor/512x512/apps"
+	iconpath="${share}/icons/hicolor/512x512/apps"
 	mkdir -p "${iconpath}"
 	rsvg-convert --background-color none -o "${iconpath}/sc-controller.png" images/sc-controller.svg
 EOR
