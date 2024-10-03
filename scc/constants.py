@@ -26,7 +26,7 @@ from enum import IntEnum
 If SC-Controller is updated while daemon is running, DAEMON_VERSION send by
 daemon will differ one one expected by UI and daemon will be forcefully restarted.
 """
-DAEMON_VERSION = "0.4.9.2"
+DAEMON_VERSION = "0.4.9.4"
 
 HPERIOD  = 0.02
 LPERIOD  = 0.5
