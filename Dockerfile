@@ -16,9 +16,10 @@ RUN <<EOR
 		python3-setuptools \
 		python3-venv \
 		python-is-python3
+	build_version="$(apt-cache madison python3-build | cut -d '|' -f2 | tr -d ' ')"
 	for dep in build; do
 		package="python3-${dep}"
-		if apt-cache search --names-only "^${package}$" | grep -q .; then
+		if [ '0.7.0-2' != "${build_version}" ] && apt-cache search --names-only "^${package}$" | grep -q .; then
 			apt-get install -y --no-install-recommends "${package}"
 		else
 			apt-get install -y --no-install-recommends python3-pip
