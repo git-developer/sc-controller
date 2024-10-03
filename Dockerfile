@@ -16,7 +16,7 @@ RUN <<EOR
 		python3-setuptools \
 		python3-venv \
 		python-is-python3
-	for dep in build poetry installer; do
+	for dep in build; do
 		package="python3-${dep}"
 		if apt-cache search --names-only "^${package}$" | grep -q .; then
 			apt-get install -y --no-install-recommends "${package}"
@@ -38,6 +38,7 @@ RUN <<EOR
 	python -m build --wheel
 	python -m venv .env
 	.env/bin/pip install --prefix "${TARGET}/usr" dist/*.whl
+	find "${TARGET}/usr/bin" -type f | xargs sed -i 's:work/.env:usr:'
 
 	# Provide input-event-codes.h as fallback for runtime systems without linux headers
 	cp -a \
