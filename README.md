@@ -60,6 +60,12 @@ Windows:
   - `python3 setup.py build`
   - `python3 setup.py install`
 
+### Docker
+A test build with Docker can be created using the following way:
+
+```bash
+docker build -o build-output --build-arg BASE_CODENAME=noble .
+```
 
 ## Running with non distro-specific package
   - Download and extract [latest release](https://github.com/C0rn3j/sc-controller/releases/latest)
