@@ -14,6 +14,7 @@ RUN <<EOR
 		linux-headers-generic \
 		python3-dev \
 		python3-setuptools \
+		python3-venv \
 		python-is-python3
 	for dep in build poetry installer; do
 		package="python3-${dep}"
@@ -35,7 +36,8 @@ ARG TARGET=/build
 RUN <<EOR
 	set -eu
 	python -m build --wheel
-	python -m installer --destdir="${TARGET}" dist/*.whl
+	python -m venv .env
+	.env/bin/pip install --prefix "${TARGET}/usr" dist/*.whl
 
 	# Provide input-event-codes.h as fallback for runtime systems without linux headers
 	cp -a \
