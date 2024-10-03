@@ -7,6 +7,12 @@ FROM $BASE_OS:$BASE_CODENAME AS build-stage
 RUN <<EOR
 	set -eu
 
+	# Workaround for outstanding fix of https://bugs.launchpad.net/ubuntu/+source/python-build/+bug/1992108
+	if grep -q ^UBUNTU_CODENAME=jammy /etc/os-release; then
+		echo >>/etc/apt/sources.list.d/jammy-proposed.list 'deb http://archive.ubuntu.com/ubuntu/ jammy-proposed universe'
+		echo >>/etc/apt/sources.list.d/jammy-proposed.list 'deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ jammy-proposed universe'
+	fi
+
 	apt-get update
 	apt-get install -y --no-install-recommends \
 		gcc \
@@ -14,16 +20,19 @@ RUN <<EOR
 		linux-headers-generic \
 		python3-dev \
 		python3-setuptools \
+		python3-venv \
 		python-is-python3
-	for dep in build poetry installer; do
-		package="python3-${dep}"
-		if apt-cache search --names-only "^${package}$" | grep -q .; then
-			apt-get install -y --no-install-recommends "${package}"
-		else
-			apt-get install -y --no-install-recommends python3-pip
-			pip install "${dep}"
-		fi
-	done
+
+	# Workaround for Focal lacking an apt package for python3-build
+	dep=build
+	package="python3-${dep}"
+	if apt-cache search --names-only "^${package}$" | grep -q .; then
+		apt-get install -y --no-install-recommends "${package}"
+	else
+		apt-get install -y --no-install-recommends python3-pip
+		pip install "${dep}"
+	fi
+
 	apt-get clean && rm -rf /var/lib/apt/lists/*
 EOR
 # Prepare working directory and target
@@ -35,7 +44,10 @@ ARG TARGET=/build
 RUN <<EOR
 	set -eu
 	python -m build --wheel
-	python -m installer --destdir="${TARGET}" dist/*.whl
+	python -m venv .env
+	.env/bin/pip install --prefix "${TARGET}/usr" dist/*.whl
+	# fix shebangs of scripts from '#!/work/.env/bin/python'
+	find "${TARGET}/usr/bin" -type f | xargs sed -i 's:work/.env:usr:'
 
 	# Provide input-event-codes.h as fallback for runtime systems without linux headers
 	cp -a \
