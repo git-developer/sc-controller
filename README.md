@@ -44,7 +44,7 @@ Windows:
 
 ### Dependencies
   - Python 3.8+
-  - GTK 3.22+
+  - GTK 3.24+
   - [PyGObject](https://live.gnome.org/PyGObject)
   - [python-gi-cairo](https://packages.debian.org/sid/python-gi-cairo) and [gir1.2-rsvg-2.0](https://packages.debian.org/sid/gir1.2-rsvg-2.0) on Debian-based distributions (included in PyGObject elsewhere)
   - [setuptools](https://pypi.python.org/pypi/setuptools)

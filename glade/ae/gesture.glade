@@ -1,126 +1,143 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.20.4 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
-  <requires lib="gtk+" version="3.10"/>
+  <requires lib="gtk+" version="3.24"/>
   <object class="GtkAdjustment" id="adjPrecision">
     <property name="upper">1</property>
     <property name="value">1</property>
-    <property name="step_increment">0.10000000000000001</property>
-    <property name="page_increment">0.10000000000000001</property>
+    <property name="step-increment">0.10</property>
+    <property name="page-increment">0.10</property>
   </object>
   <object class="GtkImage" id="imgApply">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <property name="stock">gtk-apply</property>
   </object>
   <object class="GtkImage" id="imgChangeGesture">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <property name="stock">gtk-edit</property>
   </object>
+  <!-- n-columns=3 n-rows=3 -->
   <object class="GtkGrid" id="gesture_editor">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <child>
       <object class="GtkEntry" id="txGesture">
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="margin_right">10</property>
+        <property name="can-focus">True</property>
+        <property name="margin-right">10</property>
         <property name="hexpand">True</property>
         <property name="editable">False</property>
       </object>
       <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">0</property>
+        <property name="left-attach">0</property>
+        <property name="top-attach">0</property>
       </packing>
     </child>
     <child>
       <object class="GtkButton" id="btChangeGesture">
         <property name="label" translatable="yes">_Change</property>
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="receives_default">True</property>
+        <property name="can-focus">True</property>
+        <property name="receives-default">True</property>
         <property name="image">imgChangeGesture</property>
-        <property name="use_underline">True</property>
+        <property name="use-underline">True</property>
         <signal name="clicked" handler="on_btChangeGesture_clicked" swapped="no"/>
       </object>
       <packing>
-        <property name="left_attach">1</property>
-        <property name="top_attach">0</property>
+        <property name="left-attach">1</property>
+        <property name="top-attach">0</property>
       </packing>
     </child>
     <child>
       <object class="GtkCheckButton" id="cbIgnoreStroke">
         <property name="label" translatable="yes">Ignore Stroke _Length</property>
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="receives_default">False</property>
-        <property name="margin_top">5</property>
-        <property name="use_underline">True</property>
-        <property name="draw_indicator">True</property>
+        <property name="can-focus">True</property>
+        <property name="receives-default">False</property>
+        <property name="margin-top">5</property>
+        <property name="use-underline">True</property>
+        <property name="draw-indicator">True</property>
         <signal name="toggled" handler="on_cbIgnoreStroke_toggled" swapped="no"/>
       </object>
       <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">1</property>
+        <property name="left-attach">0</property>
+        <property name="top-attach">1</property>
         <property name="width">2</property>
       </packing>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
     </child>
   </object>
   <object class="GtkImage" id="imgStartOver">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <property name="stock">gtk-refresh</property>
   </object>
   <object class="GtkWindow" id="gesture_grabber">
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <property name="role">gesture_grabber</property>
     <property name="resizable">False</property>
     <property name="modal">True</property>
-    <property name="window_position">center-on-parent</property>
-    <property name="type_hint">dialog</property>
-    <property name="skip_taskbar_hint">True</property>
-    <property name="skip_pager_hint">True</property>
-    <property name="urgency_hint">True</property>
+    <property name="window-position">center-on-parent</property>
+    <property name="type-hint">dialog</property>
+    <property name="skip-taskbar-hint">True</property>
+    <property name="skip-pager-hint">True</property>
+    <property name="urgency-hint">True</property>
     <child>
+      <!-- n-columns=3 n-rows=3 -->
       <object class="GtkGrid" id="grid2">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_left">10</property>
-        <property name="margin_right">10</property>
-        <property name="margin_bottom">10</property>
+        <property name="can-focus">False</property>
+        <property name="margin-left">10</property>
+        <property name="margin-right">10</property>
+        <property name="margin-bottom">10</property>
         <property name="hexpand">True</property>
         <property name="vexpand">True</property>
         <child>
           <object class="GtkEntry" id="txGestureGrab">
-            <property name="width_request">400</property>
+            <property name="width-request">400</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="margin_left">20</property>
-            <property name="margin_right">20</property>
-            <property name="margin_top">20</property>
-            <property name="margin_bottom">20</property>
+            <property name="can-focus">True</property>
+            <property name="margin-left">20</property>
+            <property name="margin-right">20</property>
+            <property name="margin-top">20</property>
+            <property name="margin-bottom">20</property>
             <property name="hexpand">True</property>
             <property name="editable">False</property>
           </object>
           <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
+            <property name="left-attach">0</property>
+            <property name="top-attach">0</property>
             <property name="width">2</property>
           </packing>
         </child>
         <child>
           <object class="GtkRevealer" id="rvGestureGrab">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <child>
               <object class="GtkBox" id="box4">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <child>
                   <object class="GtkLabel" id="lblGestureStatus">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                     <property name="hexpand">True</property>
                     <property name="xalign">0</property>
                   </object>
@@ -134,10 +151,10 @@
                   <object class="GtkButton" id="btnStartGestureOver">
                     <property name="label" translatable="yes">Start _Over (Y)</property>
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
                     <property name="image">imgStartOver</property>
-                    <property name="use_underline">True</property>
+                    <property name="use-underline">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -149,11 +166,11 @@
                   <object class="GtkButton" id="btnConfirmGesutre">
                     <property name="label" translatable="yes">_Use (A)</property>
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="margin_left">10</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="margin-left">10</property>
                     <property name="image">imgApply</property>
-                    <property name="use_underline">True</property>
+                    <property name="use-underline">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -165,30 +182,45 @@
             </child>
           </object>
           <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">1</property>
+            <property name="left-attach">0</property>
+            <property name="top-attach">1</property>
             <property name="width">2</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </object>
     </child>
     <child type="titlebar">
       <object class="GtkHeaderBar" id="hb1">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="show_close_button">True</property>
-        <child>
-          <placeholder/>
-        </child>
+        <property name="can-focus">False</property>
+        <property name="show-close-button">True</property>
         <child type="title">
           <object class="GtkLabel" id="lblGestureGrabberTitle">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <property name="label" translatable="yes">Draw gesture on LEFT pad...</property>
             <attributes>
               <attribute name="weight" value="bold"/>
             </attributes>
           </object>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </object>
     </child>
@@ -205,17 +237,17 @@
   </object>
   <object class="GtkBox" id="gesture">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <property name="orientation">vertical</property>
     <child>
       <object class="GtkBox" id="vbPrecision">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_bottom">5</property>
+        <property name="can-focus">False</property>
+        <property name="margin-bottom">5</property>
         <child>
           <object class="GtkLabel" id="lblPrecision">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <property name="label" translatable="yes">Matching Precision</property>
             <attributes>
               <attribute name="weight" value="bold"/>
@@ -230,12 +262,12 @@
         <child>
           <object class="GtkScale" id="sclPrecision">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="margin_left">10</property>
-            <property name="margin_right">10</property>
+            <property name="can-focus">True</property>
+            <property name="margin-left">10</property>
+            <property name="margin-right">10</property>
             <property name="adjustment">adjPrecision</property>
-            <property name="round_digits">2</property>
-            <property name="value_pos">right</property>
+            <property name="round-digits">2</property>
+            <property name="value-pos">right</property>
             <signal name="format-value" handler="on_sclPrecision_format_value" swapped="no"/>
             <signal name="value-changed" handler="on_sclPrecision_value_changed" swapped="no"/>
           </object>
@@ -248,13 +280,13 @@
         <child>
           <object class="GtkButton" id="btClearTolerance">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
             <signal name="clicked" handler="on_btClearTolerance_clicked" swapped="no"/>
             <child>
               <object class="GtkImage" id="imgBtClearTolerance">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <property name="stock">gtk-clear</property>
               </object>
             </child>
@@ -274,12 +306,12 @@
     </child>
     <child>
       <object class="GtkLabel" id="lblGestureMessage">
-        <property name="can_focus">False</property>
-        <property name="no_show_all">True</property>
-        <property name="margin_left">10</property>
-        <property name="margin_right">10</property>
-        <property name="margin_top">10</property>
-        <property name="margin_bottom">10</property>
+        <property name="can-focus">False</property>
+        <property name="no-show-all">True</property>
+        <property name="margin-left">10</property>
+        <property name="margin-right">10</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
         <property name="label" translatable="yes">message</property>
         <property name="xalign">0</property>
         <attributes>
@@ -295,12 +327,12 @@
     <child>
       <object class="GtkScrolledWindow" id="scGestures">
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="shadow_type">in</property>
+        <property name="can-focus">True</property>
+        <property name="shadow-type">in</property>
         <child>
           <object class="GtkTreeView" id="tvGestures">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
+            <property name="can-focus">True</property>
             <property name="model">lstGestures</property>
             <signal name="cursor-changed" handler="on_tvGestures_cursor_changed" swapped="no"/>
             <signal name="row-activated" handler="on_btEditAction_clicked" swapped="no"/>
@@ -341,16 +373,16 @@
     <child>
       <object class="GtkToolbar" id="tbGestures">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <child>
           <object class="GtkToolButton" id="btEditAction">
             <property name="visible">True</property>
             <property name="sensitive">False</property>
-            <property name="can_focus">False</property>
-            <property name="is_important">True</property>
+            <property name="can-focus">False</property>
+            <property name="is-important">True</property>
             <property name="label" translatable="yes">Edit</property>
-            <property name="use_underline">True</property>
-            <property name="stock_id">gtk-edit</property>
+            <property name="use-underline">True</property>
+            <property name="stock-id">gtk-edit</property>
             <signal name="clicked" handler="on_btEditAction_clicked" swapped="no"/>
           </object>
           <packing>
@@ -361,7 +393,7 @@
         <child>
           <object class="GtkSeparatorToolItem" id="separator45">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <property name="draw">False</property>
           </object>
           <packing>
@@ -373,10 +405,10 @@
           <object class="GtkToolButton" id="btRemove">
             <property name="visible">True</property>
             <property name="sensitive">False</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <property name="label" translatable="yes">_Remove</property>
-            <property name="use_underline">True</property>
-            <property name="stock_id">gtk-remove</property>
+            <property name="use-underline">True</property>
+            <property name="stock-id">gtk-remove</property>
             <signal name="clicked" handler="on_btRemove_clicked" swapped="no"/>
           </object>
           <packing>
@@ -387,10 +419,10 @@
         <child>
           <object class="GtkToolButton" id="btAdd">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <property name="label" translatable="yes">_Add</property>
-            <property name="use_underline">True</property>
-            <property name="stock_id">gtk-add</property>
+            <property name="use-underline">True</property>
+            <property name="stock-id">gtk-add</property>
             <signal name="clicked" handler="on_btAdd_clicked" swapped="no"/>
           </object>
           <packing>
