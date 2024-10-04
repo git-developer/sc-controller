@@ -48,7 +48,6 @@ class ImportVdf(object):
 		This is done in thread, with crazy hope that it will NOT crash GTK in the process.
 		"""
 		p = os.path.join(os.path.expanduser(self.STEAMPATH), "userdata")
-		i = 0
 		if os.path.exists(p):
 			for user in os.listdir(p):
 				profilelist = os.path.join(p, user, self.PROFILE_LIST)
@@ -56,13 +55,13 @@ class ImportVdf(object):
 					self._lock.acquire()
 					log.debug("Loading profile list from '%s'", profilelist)
 					try:
-						i = self._parse_profile_list(i, profilelist, user)
+						self._parse_profile_list(profilelist, user)
 					except Exception as e:
 						log.exception(e)
 					self._lock.release()
 		GLib.idle_add(self._load_finished)
 
-	def _parse_profile_list(self, i, filename: str, userid: str) -> None | int:
+	def _parse_profile_list(self, filename: str, userid: str) -> None | int:
 		"""Parse localconfig.vdf and load game and profile IDs. That is later decoded into name of game and profile name.
 
 		Called from _load_profiles, in thread. Exceptions are catched and logged from there.
