@@ -172,7 +172,6 @@ AppDir:
       - usr/lib/*/gdk-pixbuf-2.0/*/loaders/libpixbufloader-??[!g]*.so # only png & svg are required
       - usr/lib/*/glib-2.0
       - usr/lib/python*/cgi.py
-      - usr/lib/python*/email
       - usr/lib/python*/test
       - usr/lib/python*/unittest
       - usr/share/doc
