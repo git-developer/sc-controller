@@ -64,6 +64,7 @@ jobs:
       - name: Compile in docker
         uses: docker/build-push-action@v5
         with:
+          context: .
           platforms: ${{ matrix.target.platform }}
           outputs: build
           build-args: |
