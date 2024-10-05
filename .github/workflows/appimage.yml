@@ -79,7 +79,7 @@ jobs:
             rm build/.build-metadata.env
           fi
           APPIMAGE_SOURCE=build
-          APPIMAGE_VERSION="${GITHUB_REF_SLUG}-${{ matrix.base.codename }}"
+          APPIMAGE_VERSION="${VERSION}-${{ matrix.base.codename }}"
           APPIMAGE_APT_ARCH="${TARGETARCH}"
           APPIMAGE_APT_DISTRO="${{ matrix.base.codename }}"
           APPIMAGE_APT_PUBKEY="${{ matrix.base.pubkey }}"
