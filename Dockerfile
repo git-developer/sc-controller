@@ -48,21 +48,21 @@ RUN <<EOR
 
 	##
 	# Converts the output of `git describe` to a valid python version (PEP 440),
-	# e.g. `v0.4.9.2` to `0.4.9.2` or `ver0.4.8.11-3-123-g030686f` to `0.4.8.11.3.123.dev3172463`
+	# e.g. `v0.4.9.2` to `0.4.9.2` or `ver0.4.8.11-3-123-g030686f` to `0.4.8.11.3.123+g030686f`
 	##
-	convert_git_description_to_python_version() {
+	convert_git_description_to_pep440() {
 		description="${1}"
 		hash="${description##*-g}"
 		version="$(printf %s "${description%-g*}" | tr -c -s [0-9.] .)"
 		version="${version#.}"
 		version="${version%.}"
 		if [ "${hash}" != "${description}" ]; then
-			version="${version}.dev$(printf %d "0x${hash}")"
+			version="${version}+g${hash}"
 		fi
 		printf '%s\n' "${version}"
 	}
 	if [ -z "${DAEMON_VERSION-}" ] && [ "${GIT_DESCRIPTION-}" ]; then
-		DAEMON_VERSION="$(convert_git_description_to_python_version "${GIT_DESCRIPTION}")"
+		DAEMON_VERSION="$(convert_git_description_to_pep440 "${GIT_DESCRIPTION}")"
 	fi
 	if [ "${DAEMON_VERSION-}" ]; then
 		sed -i -E "s/^ *DAEMON_VERSION *= *.+/DAEMON_VERSION = \"${DAEMON_VERSION}\"/" scc/constants.py
