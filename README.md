@@ -44,7 +44,7 @@ Windows:
 
 ### Dependencies
   - Python 3.8+
-  - GTK 3.22+
+  - GTK 3.24+
   - [PyGObject](https://live.gnome.org/PyGObject)
   - [python-gi-cairo](https://packages.debian.org/sid/python-gi-cairo) and [gir1.2-rsvg-2.0](https://packages.debian.org/sid/gir1.2-rsvg-2.0) on Debian-based distributions (included in PyGObject elsewhere)
   - [setuptools](https://pypi.python.org/pypi/setuptools)
@@ -60,6 +60,12 @@ Windows:
   - `python3 setup.py build`
   - `python3 setup.py install`
 
+### Docker
+A test build with Docker can be created using the following way:
+
+```bash
+docker build -o build-output --build-arg BASE_CODENAME=noble .
+```
 
 ## Running with non distro-specific package
   - Download and extract [latest release](https://github.com/C0rn3j/sc-controller/releases/latest)

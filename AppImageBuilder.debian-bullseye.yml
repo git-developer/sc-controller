@@ -76,6 +76,13 @@ AppDir:
       pip install --target "${TARGET_APPDIR}/usr/lib/python3/dist-packages/" vdf
     fi
 
+    # python3-usb1 expects 'libusb-1.0.so', see https://github.com/vpelletier/python-libusb1/issues/78
+    find "${TARGET_APPDIR}" -name 'libusb-1.0.so.[0-9]' | while read -r file; do
+      path="$(dirname "${file}")"
+      link="${file%.[0-9]}"
+      [ -e "${link}" ] || ln -sr "${file}" "${link}"
+    done
+
   apt:
     arch:
       - "{{APPIMAGE_APT_ARCH}}"
@@ -93,6 +100,7 @@ AppDir:
       - libbluetooth3
       - libgtk-3-0
       - librsvg2-common
+      - python-is-python3
       - python3-evdev
       - python3-gi-cairo
       - python3-pylibacl
@@ -104,8 +112,6 @@ AppDir:
 
     exclude:
       # coreutils
-      - libacl*         # filesystem
-      - libattr*        # filesystem
       - libgmp*         # arithmetics
 
       # gir1.2-rsvg-2.0

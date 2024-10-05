@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.20.4 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
-  <requires lib="gtk+" version="3.10"/>
+  <requires lib="gtk+" version="3.24"/>
   <object class="GtkAdjustment" id="adjSoftLevel">
     <property name="lower">0.01</property>
     <property name="upper">1</property>
     <property name="value">0.69999999999999996</property>
-    <property name="step_increment">0.01</property>
-    <property name="page_increment">0.01</property>
+    <property name="step-increment">0.01</property>
+    <property name="page-increment">0.01</property>
   </object>
   <object class="GtkListStore" id="lstGyroButton">
     <columns>
@@ -92,19 +92,20 @@
       </row>
     </data>
   </object>
+  <!-- n-columns=3 n-rows=6 -->
   <object class="GtkGrid" id="gyro_action">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="margin_left">25</property>
-    <property name="margin_right">30</property>
-    <property name="row_spacing">3</property>
-    <property name="column_spacing">10</property>
+    <property name="can-focus">False</property>
+    <property name="margin-left">25</property>
+    <property name="margin-right">30</property>
+    <property name="row-spacing">3</property>
+    <property name="column-spacing">10</property>
     <child>
       <object class="GtkLabel" id="lblYawRoll">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_left">5</property>
-        <property name="margin_right">20</property>
+        <property name="can-focus">False</property>
+        <property name="margin-left">5</property>
+        <property name="margin-right">20</property>
         <property name="label" translatable="yes">X Axis Controlled by</property>
         <property name="xalign">0</property>
         <attributes>
@@ -112,14 +113,14 @@
         </attributes>
       </object>
       <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">1</property>
+        <property name="left-attach">0</property>
+        <property name="top-attach">1</property>
       </packing>
     </child>
     <child>
       <object class="GtkComboBox" id="cbMode">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <property name="hexpand">True</property>
         <property name="model">lstOutputMode</property>
         <property name="active">1</property>
@@ -132,16 +133,16 @@
         </child>
       </object>
       <packing>
-        <property name="left_attach">1</property>
-        <property name="top_attach">0</property>
+        <property name="left-attach">1</property>
+        <property name="top-attach">0</property>
       </packing>
     </child>
     <child>
       <object class="GtkLabel" id="label5">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_left">5</property>
-        <property name="margin_right">20</property>
+        <property name="can-focus">False</property>
+        <property name="margin-left">5</property>
+        <property name="margin-right">20</property>
         <property name="label" translatable="yes">Output Mode</property>
         <property name="xalign">0</property>
         <attributes>
@@ -149,14 +150,14 @@
         </attributes>
       </object>
       <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">0</property>
+        <property name="left-attach">0</property>
+        <property name="top-attach">0</property>
       </packing>
     </child>
     <child>
       <object class="GtkComboBox" id="cbYawRoll">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <property name="hexpand">True</property>
         <property name="model">lstYawRoll</property>
         <property name="active">0</property>
@@ -169,15 +170,15 @@
         </child>
       </object>
       <packing>
-        <property name="left_attach">1</property>
-        <property name="top_attach">1</property>
+        <property name="left-attach">1</property>
+        <property name="top-attach">1</property>
       </packing>
     </child>
     <child>
       <object class="GtkComboBox" id="cbGyroButton">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_top">20</property>
+        <property name="can-focus">False</property>
+        <property name="margin-top">20</property>
         <property name="hexpand">True</property>
         <property name="model">lstGyroButton</property>
         <property name="active">1</property>
@@ -190,16 +191,16 @@
         </child>
       </object>
       <packing>
-        <property name="left_attach">1</property>
-        <property name="top_attach">3</property>
+        <property name="left-attach">1</property>
+        <property name="top-attach">3</property>
       </packing>
     </child>
     <child>
       <object class="GtkLabel" id="lblGyroEnable">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_left">5</property>
-        <property name="margin_top">20</property>
+        <property name="can-focus">False</property>
+        <property name="margin-left">5</property>
+        <property name="margin-top">20</property>
         <property name="label" translatable="yes">Gyro Enable Button</property>
         <property name="xalign">0</property>
         <attributes>
@@ -207,21 +208,21 @@
         </attributes>
       </object>
       <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">3</property>
+        <property name="left-attach">0</property>
+        <property name="top-attach">3</property>
       </packing>
     </child>
     <child>
       <object class="GtkCheckButton" id="cbInvertY">
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="receives_default">False</property>
-        <property name="draw_indicator">True</property>
+        <property name="can-focus">True</property>
+        <property name="receives-default">False</property>
+        <property name="draw-indicator">True</property>
         <signal name="toggled" handler="cbInvertY_toggled_cb" swapped="no"/>
         <child>
           <object class="GtkLabel" id="label3">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <property name="label" translatable="yes">Invert Y Axis</property>
             <property name="xalign">0</property>
             <attributes>
@@ -231,22 +232,22 @@
         </child>
       </object>
       <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">2</property>
+        <property name="left-attach">0</property>
+        <property name="top-attach">2</property>
         <property name="width">2</property>
       </packing>
     </child>
     <child>
       <object class="GtkCheckButton" id="cbInvertGyro">
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="receives_default">False</property>
-        <property name="draw_indicator">True</property>
+        <property name="can-focus">True</property>
+        <property name="receives-default">False</property>
+        <property name="draw-indicator">True</property>
         <signal name="toggled" handler="on_cbInvertGyro_toggled" swapped="no"/>
         <child>
           <object class="GtkLabel" id="label4">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <property name="label" translatable="yes">Button disables Gyro</property>
             <property name="xalign">0</property>
             <attributes>
@@ -256,26 +257,26 @@
         </child>
       </object>
       <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">5</property>
+        <property name="left-attach">0</property>
+        <property name="top-attach">5</property>
         <property name="width">2</property>
       </packing>
     </child>
     <child>
       <object class="GtkRevealer" id="rvSoftLevel">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_top">5</property>
-        <property name="margin_bottom">10</property>
+        <property name="can-focus">False</property>
+        <property name="margin-top">5</property>
+        <property name="margin-bottom">10</property>
         <child>
           <object class="GtkBox" id="vbSoftLevel">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <child>
               <object class="GtkLabel" id="lblSoftLevel">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_left">20</property>
+                <property name="can-focus">False</property>
+                <property name="margin-left">20</property>
                 <property name="label" translatable="yes">Trigger Pull Level</property>
               </object>
               <packing>
@@ -287,12 +288,12 @@
             <child>
               <object class="GtkScale" id="sclSoftLevel">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="margin_left">5</property>
-                <property name="margin_right">20</property>
+                <property name="can-focus">True</property>
+                <property name="margin-left">5</property>
+                <property name="margin-right">20</property>
                 <property name="adjustment">adjSoftLevel</property>
-                <property name="round_digits">2</property>
-                <property name="value_pos">right</property>
+                <property name="round-digits">2</property>
+                <property name="value-pos">right</property>
                 <signal name="format-value" handler="on_sclSoftLevel_format_value" swapped="no"/>
                 <signal name="value-changed" handler="send" swapped="no"/>
               </object>
@@ -306,10 +307,28 @@
         </child>
       </object>
       <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">4</property>
+        <property name="left-attach">0</property>
+        <property name="top-attach">4</property>
         <property name="width">2</property>
       </packing>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
     </child>
   </object>
 </interface>

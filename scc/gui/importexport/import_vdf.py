@@ -1,28 +1,28 @@
-#!/usr/bin/env python3
-"""
-SC-Controller - Global Settings
+"""SC-Controller - Global Settings.
 
 Currently setups only one thing...
 """
-from scc.tools import _
+from __future__ import annotations
+import collections
+import logging
+import os
+import threading
+from io import StringIO
 
 from gi.repository import Gdk, GObject, GLib
-from scc.gui.editor import Editor, ComboSetter
-from scc.tools import get_profiles_path
+
 from scc.foreign.vdf import VDFProfile
 from scc.foreign.vdffz import VDFFZProfile
 from scc.lib.vdf import parse_vdf
+from scc.tools import _, get_profiles_path
 
-from io import StringIO
-
-import re, sys, os, collections, threading, logging
 log = logging.getLogger("IE.ImportVdf")
 
 class ImportVdf(object):
 	PROFILE_LIST = "config/localconfig.vdf"
-	STEAMPATH = '~/.steam/steam/'
+	STEAMPATH = "~/.steam/steam/"
 
-	def __init__(self):
+	def __init__(self) -> None:
 		self._profile = None
 		self._lstVdfProfiles = self.builder.get_object("tvVdfProfiles").get_model()
 		self._q_games    = collections.deque()
@@ -33,7 +33,7 @@ class ImportVdf(object):
 		self.__profile_load_started = False
 		self._on_preload_finished = None
 
-	def on_grVdfImport_activated(self, *a):
+	def on_grVdfImport_activated(self, *a) -> None:
 		if not self.__profile_load_started:
 			self.__profile_load_started = True
 			threading.Thread(target=self._load_profiles).start()
@@ -42,15 +42,12 @@ class ImportVdf(object):
 		self.on_tvVdfProfiles_cursor_changed()
 
 
-	def _load_profiles(self):
-		"""
-		Search for file containign list of profiles and reads it.
+	def _load_profiles(self) -> None:
+		"""Search for file containing list of profiles and read it.
 
-		This is done in thread, with crazy hope that it will NOT crash GTK
-		in the process.
+		This is done in thread, with crazy hope that it will NOT crash GTK in the process.
 		"""
 		p = os.path.join(os.path.expanduser(self.STEAMPATH), "userdata")
-		i = 0
 		if os.path.exists(p):
 			for user in os.listdir(p):
 				profilelist = os.path.join(p, user, self.PROFILE_LIST)
@@ -58,26 +55,25 @@ class ImportVdf(object):
 					self._lock.acquire()
 					log.debug("Loading profile list from '%s'", profilelist)
 					try:
-						i = self._parse_profile_list(i, profilelist, user)
+						self._parse_profile_list(profilelist, user)
 					except Exception as e:
 						log.exception(e)
 					self._lock.release()
 		GLib.idle_add(self._load_finished)
 
-	def _parse_profile_list(self, i, filename, userid):
-		"""
-		Parses localconfig.vdf and loads game and profile IDs. That is later
-		decoded into name of game and profile name.
+	def _parse_profile_list(self, filename: str, userid: str) -> None | int:
+		"""Parse localconfig.vdf and load game and profile IDs. That is later decoded into name of game and profile name.
 
-		Called from _load_profiles, in thread. Exceptions are catched and logged
-		from there.
+		Called from _load_profiles, in thread. Exceptions are catched and logged from there.
 		Calls GLib.idle_add to send loaded data into UI.
 		"""
 		# VDF file is a ISO-8859-1 encoded file. Not UTF-8
 		data = parse_vdf(open(filename, "r", encoding = "ISO-8859-1"))
 		# Sanity check
-		if "UserLocalConfigStore" not in data: return
-		if "controller_config" not in data["UserLocalConfigStore"]: return
+		if "UserLocalConfigStore" not in data:
+			return
+		if "controller_config" not in data["UserLocalConfigStore"]:
+			return
 
 		# Grab config - currently only grabs SC configs!
 		cc = data["UserLocalConfigStore"]["controller_config"][userid]["controller_steamcontroller_gordon"]["DEFAULT_FOR_TYPE"]
@@ -102,21 +98,20 @@ class ImportVdf(object):
 		GLib.idle_add(self.fill_list, listitems)
 		return i
 
-	def _check_for_app_manifest(self, gameid):
-		"""
-		Checks if an app manifest exists for a game.
-		It seems like a better idea to only worry about importing configs for games the user 			already has installed.
+	def _check_for_app_manifest(self, gameid: int) -> bool:
+		"""Check if an app manifest exists for a game.
+
+		It seems like a better idea to only worry about importing configs for games the user already has installed.
 		"""
 		sa_path = self._find_steamapps()
-		if gameid.isdigit():
-			filename = os.path.join(sa_path, "appmanifest_%s.acf" % (gameid))
-			if os.path.exists(filename):
-				return True
+		if sa_path is None:
+			return False
+		filename = os.path.join(sa_path, "appmanifest_%s.acf" % (gameid))
+		return os.path.exists(filename)
 
 
-	def _load_game_names(self):
-		"""
-		Loads names for game ids in q_games.
+	def _load_game_names(self) -> None:
+		"""Load names for game ids in q_games.
 
 		This is done in thread (not in same thread as _load_profiles),
 		because it involves searching for apropriate file and parsing it
@@ -124,10 +119,11 @@ class ImportVdf(object):
 
 		Calls GLib.idle_add to send loaded data into UI.
 		"""
-
 		sa_path = self._find_steamapps()
+		if sa_path is None:
+			return
 		while True:
-			self._s_games.acquire(True)	# Wait until something is added to the queue
+			self._s_games.acquire(True) # Wait until something is added to the queue
 			try:
 				index, gameid = self._q_games.popleft()
 			except IndexError:
@@ -152,9 +148,9 @@ class ImportVdf(object):
 
 
 	@staticmethod
-	def _find_legacy_bin(path):
-		"""
-		Searchs specified folder for any file ending in '_legacy.bin'
+	def _find_legacy_bin(path) -> str | None:
+		"""Search specified folder for any file ending in '_legacy.bin'.
+
 		and returns full path to first matching file.
 		Returns None if path doesn't point to directory or there is
 		no such file.
@@ -166,13 +162,15 @@ class ImportVdf(object):
 		return None
 
 
-	def _load_profile_names(self):
-		"""
-		Loads names for profiles ids in q_profiles.
+	def _load_profile_names(self) -> None:
+		"""Load names for profiles ids in q_profiles.
 
 		This is same as _load_game_names, but for profiles.
 		"""
-		content_path = os.path.join(self._find_steamapps(), "workshop/content")
+		steam_apps_dir = self._find_steamapps()
+		if steam_apps_dir is None:
+			return
+		content_path = os.path.join(steam_apps_dir, "workshop/content")
 		if not os.path.exists(content_path):
 			log.warning("Cannot find '%s'; Cannot import anything without it", content_path)
 			return
@@ -206,10 +204,8 @@ class ImportVdf(object):
 				GLib.idle_add(self._set_profile_name, index, name, None)
 			self._lock.release()
 
-
-
-	def _load_finished(self):
-		""" Called in main thread after _load_profiles is finished """
+	def _load_finished(self) -> None:
+		"""Called in main thread after _load_profiles is finished."""
 		self.builder.get_object("rvLoading").set_reveal_child(False)
 		self.loading = False
 		self._s_games.release()
@@ -219,10 +215,9 @@ class ImportVdf(object):
 			GLib.idle_add(cb, *data)
 			self._on_preload_finished = None
 
+	def _find_steamapps(self) -> str | None:
+		"""Return path to SteamApps folder or None if it cannot be found.
 
-	def _find_steamapps(self):
-		"""
-		Returns path to SteamApps folder or None if it cannot be found.
 		This is done because Steam apparently supports both SteamApps and
 		steamapps as name for this folder.
 		"""
@@ -234,20 +229,17 @@ class ImportVdf(object):
 		return None
 
 
-	def _set_game_name(self, index, name):
+	def _set_game_name(self, index, name: str) -> None:
 		self._lstVdfProfiles[index][1] = name
 
 
-	def _set_profile_name(self, index, name, filename):
+	def _set_profile_name(self, index, name: str, filename: str) -> None:
 		self._lstVdfProfiles[index][2] = name
 		self._lstVdfProfiles[index][3] = filename
 
 
-	def fill_list(self, items):
-		"""
-		Adds items to profile list. Has to run in main thread,
-		otherwise, GTK will crash.
-		"""
+	def fill_list(self, items) -> None:
+		"""Add items to profile list. Has to run in main thread, otherwise, GTK will crash."""
 		for i in items:
 			self._lstVdfProfiles.append(i)
 			self._q_games.append(( i[0], i[1] ))
@@ -256,9 +248,9 @@ class ImportVdf(object):
 			self._s_profiles.release()
 
 
-	def on_tvVdfProfiles_cursor_changed(self, *a):
-		"""
-		Called when user selects profile.
+	def on_tvVdfProfiles_cursor_changed(self, *a) -> None:
+		"""Called when user selects profile.
+
 		Check if file for that profile is known and if yes, enables next page.
 		"""
 		tvVdfProfiles = self.builder.get_object("tvVdfProfiles")
@@ -271,21 +263,21 @@ class ImportVdf(object):
 
 
 	@staticmethod
-	def gen_aset_name(base_name, set_name):
-		""" Generates name for profile converted from action set """
-		if set_name == 'default':
+	def gen_aset_name(base_name: str, set_name: str) -> str:
+		"""Generate name for profile converted from action set."""
+		if set_name == "default":
 			return base_name
-		return ("." + base_name + ":" + set_name.lower()).encode('utf-8')
+		return "." + base_name + ":" + set_name.lower()
 
 
-	def on_txName_changed(self, *a):
-		"""
-		Called when text in profile name field is changed.
+	def on_txName_changed(self, *a) -> None:
+		"""Called when text in profile name field is changed.
+
 		Basically enables 'Save' button if name is not empty string.
 		"""
-		txName			= self.builder.get_object("txName")
-		lblASetsNotice	= self.builder.get_object("lblASetsNotice")
-		lblASetList		= self.builder.get_object("lblASetList")
+		txName         = self.builder.get_object("txName")
+		lblASetsNotice = self.builder.get_object("lblASetsNotice")
+		lblASetList    = self.builder.get_object("lblASetList")
 
 		btNext = self.enable_next(True, self.vdf_import_confirmed)
 		btNext.set_label('Apply')
@@ -305,14 +297,12 @@ class ImportVdf(object):
 		btNext.set_sensitive(self.check_name(txName.get_text()))
 
 
-	def on_preload_finished(self, callback, *data):
-		"""
-		Schedules callback to be called after initial profile list is loaded
-		"""
+	def on_preload_finished(self, callback, *data) -> None:
+		"""Schedules callback to be called after initial profile list is loaded."""
 		self._on_preload_finished = (callback, data)
 
 
-	def set_vdf_file(self, filename):
+	def set_vdf_file(self, filename: str) -> None:
 		# TODO: Jump directly to page
 		tvVdfProfiles = self.builder.get_object("tvVdfProfiles")
 		iter = self._lstVdfProfiles.append(( -1, _("No game"), _("Dropped profile"), filename ))
@@ -321,7 +311,7 @@ class ImportVdf(object):
 		self.window.set_current_page(1)
 
 
-	def on_btDump_clicked(self, *a):
+	def on_btDump_clicked(self, *a) -> None:
 		tvError = self.builder.get_object("tvError")
 		swError = self.builder.get_object("swError")
 		btDump = self.builder.get_object("btDump")
@@ -341,7 +331,7 @@ class ImportVdf(object):
 		btDump.set_sensitive(False)
 
 
-	def import_vdf(self, filename=None):
+	def import_vdf(self, filename: str | None = None) -> None:
 		grVdfImportFinished = self.builder.get_object("grVdfImportFinished")
 		self.next_page(grVdfImportFinished)
 
@@ -418,7 +408,7 @@ class ImportVdf(object):
 			self.on_txName_changed()
 
 
-	def vdf_import_confirmed(self, *a):
+	def vdf_import_confirmed(self, *a) -> None:
 		name = self.builder.get_object("txName").get_text().strip()
 
 		if len(self._profile.action_sets) > 1:

@@ -236,7 +236,7 @@ class GyroActionComponent(AEComponent):
 
 
 	def on_sclSoftLevel_format_value(self, scale, value):
-		return  "%s%%" % (int(value * 100.0),)
+		return "%s%%" % (int(value * 100.0),)
 
 
 	def update(self, *a):
@@ -252,8 +252,9 @@ class GyroActionComponent(AEComponent):
 		self.editor.set_default_sensitivity(1, 1, 1)
 
 
-	def send(self, *a):
-		if self._recursing : return
+	def send(self, *a) -> None:
+		if self._recursing:
+			return
 
 		cbMode = self.builder.get_object("cbMode")
 		cbYawRoll = self.builder.get_object("cbYawRoll")
@@ -297,7 +298,7 @@ class GyroActionComponent(AEComponent):
 		self.editor.set_action(action)
 
 
-def is_gyro_enable(modemod):
+def is_gyro_enable(modemod) -> bool:
 	""" Returns True if ModeModifier instance is used to create "Gyro Enable Button" """
 	if isinstance(modemod, ModeModifier):
 		if len(modemod.mods) != 1:

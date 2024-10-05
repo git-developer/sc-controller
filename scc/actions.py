@@ -146,14 +146,15 @@ class Action(object):
 		""" Registers all actions from module """
 		for x in dir(module):
 			g = getattr(module, x)
-			if hasattr(g, 'COMMAND'):
+			if hasattr(g, "COMMAND"):
 				Action.register(g, prefix=prefix)
 
 
 	def encode(self):
-		""" Called from json encoder """
-		rv = { 'action' : self.to_string() }
-		if self.name: rv['name'] = self.name
+		"""Called from json encoder."""
+		rv = { "action" : self.to_string() }
+		if self.name:
+			rv["name"] = self.name
 		return rv
 
 
@@ -213,7 +214,7 @@ class Action(object):
 		return str(self)
 
 
-	def to_string(self, multiline=False, pad=0):
+	def to_string(self, multiline: bool = False, pad: int = 0):
 		"""Convert action back to string."""
 		return (" " * pad) + "{}({})".format(self.COMMAND, ", ".join([
 			x.to_string() if isinstance(x, Action) else f"{x.__class__.__name__}.{x.name}" if isinstance(x, IntEnum) else str(x)
@@ -1203,7 +1204,7 @@ class GyroAction(Action):
 		return Action.MOD_SENSITIVITY | Action.MOD_SENS_Z
 
 
-	def set_speed(self, x, y, z):
+	def set_speed(self, x: float, y: float, z: float):
 		self.speed = (x, y, z)
 
 
