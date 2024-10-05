@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sccontroller"
-version = "0.4.9.3" # Replace with DAEMON_VERSION or vice versa?
+version = "0.4.9.5" # Replace with DAEMON_VERSION or vice versa?
 description = "User-mode driver, mapper and GTK3 based GUI for Steam Controller, DS4 and similar controllers."
 authors = [{name = "C0rn3j", email = "martin@rys.rs"}]
 license = {text = "GPL-2.0-only"}

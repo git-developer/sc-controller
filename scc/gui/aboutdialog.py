@@ -22,20 +22,22 @@ class AboutDialog(Editor):
 		Editor.setup_widgets(self)
 
 		app_ver = "(unknown version)"
-		import pkg_resources
+		import importlib.metadata
+		import importlib.resources
 
 		import scc
-		sccontroller_module = pkg_resources.require("sccontroller")[0]
-		if sccontroller_module.location is not None:
-			if scc.__file__.startswith(sccontroller_module.location):
-				app_ver = "v" + sccontroller_module.version
+		sccontroller_version = importlib.metadata.version("sccontroller")
+		sccontroller_module = importlib.resources.files("scc")
+		if sccontroller_module is not None:
+			if scc.__file__.startswith(str(sccontroller_module)):
+				app_ver = "v" + sccontroller_version
+
 			else:
 				print(
 					"Could not get version, locations possibly could not match.",
 					f"scc.__file__:{scc.__file__}",
-					f"sccontroller_module.location: {sccontroller_module.location}",
-					f"sccontroller_module.version: {sccontroller_module.version}",
-					f"sccontroller_module: {sccontroller_module}")
+					f"sccontroller_module: {sccontroller_module}",
+					f"sccontroller_version: {sccontroller_version}")
 		# Display version in UI
 		self.builder.get_object("lblVersion").set_label(app_ver)
 

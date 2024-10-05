@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.19.0 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
-  <requires lib="gtk+" version="3.10"/>
+  <requires lib="gtk+" version="3.24"/>
   <object class="GtkTextBuffer" id="tbCustomAction">
     <signal name="changed" handler="on_tbCustomAction_changed" swapped="no"/>
   </object>
   <object class="GtkBox" id="custom">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <property name="orientation">vertical</property>
     <child>
       <object class="GtkLabel" id="label4">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <property name="label" translatable="yes">Custom Action</property>
-        <property name="max_width_chars">4</property>
+        <property name="max-width-chars">4</property>
         <property name="xalign">0</property>
         <attributes>
           <attribute name="weight" value="bold"/>
@@ -28,19 +28,19 @@
     </child>
     <child>
       <object class="GtkScrolledWindow" id="scrolledwindow1">
-        <property name="height_request">150</property>
+        <property name="height-request">150</property>
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="margin_top">5</property>
-        <property name="shadow_type">in</property>
+        <property name="can-focus">True</property>
+        <property name="margin-top">5</property>
+        <property name="shadow-type">in</property>
         <child>
           <object class="GtkTextView" id="txCustomAction">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="pixels_above_lines">5</property>
-            <property name="pixels_below_lines">5</property>
-            <property name="left_margin">5</property>
-            <property name="right_margin">5</property>
+            <property name="can-focus">True</property>
+            <property name="pixels-above-lines">5</property>
+            <property name="pixels-below-lines">5</property>
+            <property name="left-margin">5</property>
+            <property name="right-margin">5</property>
             <property name="buffer">tbCustomAction</property>
           </object>
         </child>

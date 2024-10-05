@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.20.0 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
-  <requires lib="gtk+" version="3.10"/>
+  <requires lib="gtk+" version="3.24"/>
   <object class="GtkListStore" id="lstActionType">
     <columns>
       <!-- column-name text -->
@@ -54,14 +54,14 @@
   </object>
   <object class="GtkBox" id="osk_action">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <property name="orientation">vertical</property>
     <child>
       <object class="GtkLabel" id="label5">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_top">10</property>
-        <property name="margin_bottom">10</property>
+        <property name="can-focus">False</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
         <property name="label" translatable="yes">Action</property>
         <property name="xalign">0</property>
         <attributes>
@@ -77,9 +77,9 @@
     <child>
       <object class="GtkComboBox" id="cbActionType">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_left">10</property>
-        <property name="margin_right">10</property>
+        <property name="can-focus">False</property>
+        <property name="margin-left">10</property>
+        <property name="margin-right">10</property>
         <property name="model">lstActionType</property>
         <property name="active">0</property>
         <signal name="changed" handler="on_cbActionType_changed" swapped="no"/>

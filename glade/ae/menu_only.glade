@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.20.4 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
-  <requires lib="gtk+" version="3.10"/>
+  <requires lib="gtk+" version="3.24"/>
   <object class="GtkListStore" id="lstMenu">
     <columns>
       <!-- column-name name -->
@@ -12,19 +12,20 @@
   </object>
   <object class="GtkBox" id="menu_only">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <property name="orientation">vertical</property>
     <child>
+      <!-- n-columns=3 n-rows=3 -->
       <object class="GtkGrid" id="grMenu">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_left">20</property>
-        <property name="margin_right">20</property>
+        <property name="can-focus">False</property>
+        <property name="margin-left">20</property>
+        <property name="margin-right">20</property>
         <child>
           <object class="GtkLabel" id="label4">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="margin_bottom">10</property>
+            <property name="can-focus">False</property>
+            <property name="margin-bottom">10</property>
             <property name="label" translatable="yes">Menu</property>
             <property name="xalign">0</property>
             <attributes>
@@ -32,17 +33,17 @@
             </attributes>
           </object>
           <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
+            <property name="left-attach">0</property>
+            <property name="top-attach">0</property>
             <property name="width">2</property>
           </packing>
         </child>
         <child>
           <object class="GtkComboBox" id="cbMenus">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="margin_left">20</property>
-            <property name="margin_right">10</property>
+            <property name="can-focus">False</property>
+            <property name="margin-left">20</property>
+            <property name="margin-right">10</property>
             <property name="hexpand">True</property>
             <property name="model">lstMenu</property>
             <signal name="button-press-event" handler="on_cbMenus_button_press_event" swapped="no"/>
@@ -55,8 +56,8 @@
             </child>
           </object>
           <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">1</property>
+            <property name="left-attach">0</property>
+            <property name="top-attach">1</property>
           </packing>
         </child>
         <child>
@@ -64,15 +65,30 @@
             <property name="label">gtk-edit</property>
             <property name="visible">True</property>
             <property name="sensitive">False</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <property name="use_stock">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="use-stock">True</property>
             <signal name="clicked" handler="on_btEditMenu_clicked" swapped="no"/>
           </object>
           <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">1</property>
+            <property name="left-attach">1</property>
+            <property name="top-attach">1</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </object>
       <packing>
@@ -84,40 +100,40 @@
   </object>
   <object class="GtkMenu" id="mnuMenu">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <child>
       <object class="GtkMenuItem" id="mnuMenuNew">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <property name="label" translatable="yes">_New Menu</property>
-        <property name="use_underline">True</property>
+        <property name="use-underline">True</property>
         <signal name="activate" handler="on_mnuMenuNew_activate" swapped="no"/>
       </object>
     </child>
     <child>
       <object class="GtkMenuItem" id="mnuMenuCopy">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <property name="label" translatable="yes">_Copy Menu</property>
-        <property name="use_underline">True</property>
+        <property name="use-underline">True</property>
         <signal name="activate" handler="on_mnuMenuCopy_activate" swapped="no"/>
       </object>
     </child>
     <child>
       <object class="GtkMenuItem" id="mnuMenuRename">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <property name="label" translatable="yes">_Rename Menu</property>
-        <property name="use_underline">True</property>
+        <property name="use-underline">True</property>
         <signal name="activate" handler="on_mnuMenuRename_activate" swapped="no"/>
       </object>
     </child>
     <child>
       <object class="GtkMenuItem" id="mnuMenuDelete">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <property name="label" translatable="yes">_Delete Menu</property>
-        <property name="use_underline">True</property>
+        <property name="use-underline">True</property>
         <signal name="activate" handler="on_mnuMenuDelete_activate" swapped="no"/>
       </object>
     </child>
