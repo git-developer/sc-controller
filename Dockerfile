@@ -16,6 +16,7 @@ RUN <<EOR
 	apt-get update
 	apt-get install -y --no-install-recommends \
 		gcc \
+		git \
 		librsvg2-bin \
 		linux-headers-generic \
 		python3-dev \
@@ -43,9 +44,11 @@ ARG TARGET=/build
 # Build and install
 RUN <<EOR
 	set -eu
+
 	python -m build --wheel
 	python -m venv .env
-	.env/bin/pip install --prefix "${TARGET}/usr" dist/*.whl
+	. .env/bin/activate
+	pip install --prefix "${TARGET}/usr" dist/*.whl
 	# fix shebangs of scripts from '#!/work/.env/bin/python'
 	find "${TARGET}/usr/bin" -type f | xargs sed -i 's:work/.env:usr:'
 
