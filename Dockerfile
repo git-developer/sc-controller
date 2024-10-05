@@ -50,8 +50,12 @@ RUN <<EOR
 	python -m venv .env
 	. .env/bin/activate
 	pip install --prefix "${TARGET}/usr" dist/*.whl
+
 	# fix shebangs of scripts from '#!/work/.env/bin/python'
 	find "${TARGET}/usr/bin" -type f | xargs sed -i 's:work/.env:usr:'
+
+	# save version
+	python -c "from scc._version import __version__; print('VERSION=' + __version__)" >>/build/.build-metadata.env
 
 	# Provide input-event-codes.h as fallback for runtime systems without linux headers
 	cp -a \
