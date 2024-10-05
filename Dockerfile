@@ -44,7 +44,6 @@ ARG TARGET=/build
 # Build and install
 RUN <<EOR
 	set -eu
-	ls -la
 
 	python -m build --wheel
 	python -m venv .env
