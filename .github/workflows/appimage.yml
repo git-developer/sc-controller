@@ -47,9 +47,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
       - uses: rlespinasse/github-slug-action@v4
-      - uses: proudust/gh-describe@v2
-        id:   ghd
 
       - name: Setup qemu for docker
         uses: docker/setup-qemu-action@v3
@@ -61,12 +61,12 @@ jobs:
       - name: Compile in docker
         uses: docker/build-push-action@v5
         with:
+          context: .
           platforms: ${{ matrix.target.platform }}
           outputs: build
           build-args: |
             BASE_OS=${{ matrix.base.os }}
             BASE_CODENAME=${{ matrix.base.codename }}
-            GIT_DESCRIPTION=${{ steps.ghd.outputs.describe }}
 
       - name: Prepare environment to build AppImage
         env:
