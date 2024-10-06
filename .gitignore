@@ -23,4 +23,3 @@ appimage/
 dist/
 sccontroller.egg-info/
 !.github
-scc/_version.py

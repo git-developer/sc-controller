@@ -21,13 +21,13 @@
 # THE SOFTWARE.
 
 from enum import IntEnum
-from scc._version import __version__
+from importlib.metadata import version
 
 """
 If SC-Controller is updated while daemon is running, DAEMON_VERSION send by
 daemon will differ one one expected by UI and daemon will be forcefully restarted.
 """
-DAEMON_VERSION = __version__
+DAEMON_VERSION = version("sccontroller")
 
 HPERIOD  = 0.02
 LPERIOD  = 0.5
