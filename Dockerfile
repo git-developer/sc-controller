@@ -56,6 +56,7 @@ RUN <<EOR
 	pip install --prefix "${TARGET}/usr" dist/*.whl
 
 	# Save version
+	PYTHONPATH=$(find "${TARGET}" -type d -name site-packages) \
 	python -c "from scc.constants import DAEMON_VERSION; print('VERSION=' + DAEMON_VERSION)" >>/build/.build-metadata.env
 
 	# Fix shebangs of scripts from '#!/work/.env/bin/python'
