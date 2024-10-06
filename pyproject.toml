@@ -53,7 +53,6 @@ packages = [
 ]
 
 [tool.setuptools_scm]
-version_file = "scc/_version.py"
 
 [tool.ruff]
 # Target non-EOL releases at minimum, or later if needed

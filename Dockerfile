@@ -19,9 +19,11 @@ RUN <<EOR
 		gcc \
 		git \
 		librsvg2-bin \
+		libxfixes3 \
 		linux-headers-generic \
 		python3-dev \
 		python3-setuptools \
+		python3-usb \
 		python3-venv \
 		python-is-python3
 
@@ -49,13 +51,15 @@ RUN <<EOR
 	python -m build --wheel
 	python -m venv .env
 	. .env/bin/activate
+	pip install libusb1 pytest toml vdf
+	python -m pytest tests
 	pip install --prefix "${TARGET}/usr" dist/*.whl
 
-	# fix shebangs of scripts from '#!/work/.env/bin/python'
+	# Fix shebangs of scripts from '#!/work/.env/bin/python'
 	find "${TARGET}/usr/bin" -type f | xargs sed -i 's:work/.env:usr:'
 
-	# save version
-	python -c "from scc._version import __version__; print('VERSION=' + __version__)" >>/build/.build-metadata.env
+	# Save version
+	python -c "from importlib.metadata import version; print('VERSION=' + version('sccontroller'))" >>/build/.build-metadata.env
 
 	# Provide input-event-codes.h as fallback for runtime systems without linux headers
 	cp -a \
