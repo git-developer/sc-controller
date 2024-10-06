@@ -32,11 +32,11 @@ jobs:
           #  codename: noble
           #  pubkey: 871920D1991BC93C
           #  recipe: AppImageBuilder.yml
-          #- os: debian
-          #  codename: bullseye
-          #  pubkey: 0E98404D386FA1D9
-          #  pubkey_security: 54404762BBB6E853
-          #  recipe: AppImageBuilder.debian-bullseye.yml
+          - os: debian
+            codename: bullseye
+            pubkey: 0E98404D386FA1D9
+            pubkey_security: 54404762BBB6E853
+            recipe: AppImageBuilder.debian-bullseye.yml
           #- os: debian
           #  codename: bookworm
           #  pubkey: 0E98404D386FA1D9
