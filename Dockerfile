@@ -53,9 +53,10 @@ RUN <<EOR
 	. .env/bin/activate
 	pip install libusb1 pytest toml vdf
 	python -m pytest tests
-	pip install --prefix "${TARGET}/usr" dist/*.whl
+	pip install --prefix "${TARGET}/usr" --no-warn-script-location dist/*.whl
 
 	# Save version
+	PYTHONPATH=$(find "${TARGET}" -type d -name site-packages) \
 	python -c "from scc.constants import DAEMON_VERSION; print('VERSION=' + DAEMON_VERSION)" >>/build/.build-metadata.env
 
 	# Fix shebangs of scripts from '#!/work/.env/bin/python'

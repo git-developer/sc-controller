@@ -48,7 +48,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 50
+          fetch-depth: 0
       - uses: rlespinasse/github-slug-action@v4
 
       - name: Setup qemu for docker
