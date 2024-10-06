@@ -55,11 +55,11 @@ RUN <<EOR
 	python -m pytest tests
 	pip install --prefix "${TARGET}/usr" dist/*.whl
 
+	# Save version
+	python -c "from scc.constants import DAEMON_VERSION; print('VERSION=' + DAEMON_VERSION)" >>/build/.build-metadata.env
+
 	# Fix shebangs of scripts from '#!/work/.env/bin/python'
 	find "${TARGET}/usr/bin" -type f | xargs sed -i 's:work/.env:usr:'
-
-	# Save version
-	python -c "from importlib.metadata import version; print('VERSION=' + version('sccontroller'))" >>/build/.build-metadata.env
 
 	# Provide input-event-codes.h as fallback for runtime systems without linux headers
 	cp -a \
