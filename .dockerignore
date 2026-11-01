@@ -2,5 +2,4 @@
 dist
 
 # Avoid clearing the cache on changes
-.git
 Dockerfile
