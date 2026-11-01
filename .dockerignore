@@ -1,2 +1,6 @@
 # In case we were about to copy dist files from existing local builds, remove them
 dist
+
+# Avoid clearing the cache on changes
+.git
+Dockerfile
