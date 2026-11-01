@@ -55,7 +55,7 @@ WORKDIR /work
 RUN <<EOR
 	set -eu
 
-	pip install --break-system-packages .
+	pip install --break-system-packages --root-user-action ignore .
   python -m pytest tests
 
   export DESKTOP=packaging/io.github.c0rn3j.sc-controller.desktop
