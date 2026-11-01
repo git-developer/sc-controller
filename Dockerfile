@@ -12,9 +12,10 @@ RUN <<EOR
 		git \
 		gobject-introspection \
 		gtk4 \
-    gtk4-layer-shell \
+		gtk4-layer-shell \
 		librsvg \
 		libxfixes \
+		linux-headers \
 		python \
 		python-build \
     python-cairo \
@@ -66,10 +67,11 @@ RUN <<EOR
   export MAIN_BIN=/usr/bin/scc
 
   quick-sharun.sh \
-       /usr/bin/sc-controller \
-       /usr/bin/scc* \
-       /usr/lib/python*/site-packages/usb1/*.py \
-       /usr/lib/librsvg-2.so
+    /usr/bin/sc-controller \
+    /usr/bin/scc* \
+    /usr/lib/python*/site-packages/usb1/*.py \
+    /usr/lib/librsvg-2.so \
+    /usr/include/linux/input-event-codes.h
 
   quick-sharun.sh --make-appimage
 EOR
