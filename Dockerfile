@@ -63,10 +63,11 @@ RUN <<EOR
   input_event_codes="$(find /usr/lib/python*/site-packages/scc -type f -name uinput.py -printf '%h\n' -quit)/input-event-codes.h"
   cp -a /usr/include/linux/input-event-codes.h "${input_event_codes}"
 
-  export DESKTOP=packaging/io.github.c0rn3j.sc-controller.desktop
-  export ICON=packaging/io.github.c0rn3j.sc-controller.svg
+  export APPNAME=sc-controller
+  export DESKTOP="packaging/io.github.c0rn3j.${APPNAME}.desktop"
+  export ICON="packaging/io.github.c0rn3j.${APPNAME}.svg"
 	export VERSION=$(python -c "from scc.constants import DAEMON_VERSION; print(DAEMON_VERSION)")
-  export UPINFO="gh-releases-zsync|${OWNER}|sc-controller|latest|sc-controller-*-${TARGETARCH}.AppImage.zsync"
+  export UPINFO="gh-releases-zsync|${OWNER}|${APPNAME}|latest|${APPNAME}-*-${TARGETARCH}.AppImage.zsync"
   export OUTNAME="$(echo "${APPNAME}-${VERSION}-anylinux-${TARGETARCH}" | tr '[:upper:]' '[:lower:]').AppImage"
   export OUTPATH=/appimage
   export DEPLOY_PYTHON=1
