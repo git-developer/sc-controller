@@ -4,14 +4,12 @@ FROM ghcr.io/pkgforge-dev/archlinux AS build-stage
 COPY . /work
 WORKDIR /work
 RUN <<EOR
-	set -eu
   ls -la | sort
   pacman -Syu --noconfirm git
-	set -x
-  echo >&2 '>>> GIT_FETCH:'
-  git fetch --tags
-  echo >&2 '>>> GIT_DESCRIBE:'
+  echo >&2 '>>> GIT_DESCRIBE 1:'
   git describe --dirty --tags --long --match 'v[0-9]*'
+  echo >&2 '>>> GIT_DESCRIBE 2:'
+  git describe --dirty --all --long --match 'v[0-9]*'
   exit 1
 EOR
 
