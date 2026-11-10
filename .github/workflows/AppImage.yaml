@@ -34,12 +34,11 @@ jobs:
 
       - name: Compile and build AppImage in Docker using the repo Dockerfile
         uses: docker/build-push-action@v7
-        env:
-          BUILDKIT_CONTEXT_KEEP_GIT_DIR: true
         with:
           platforms: ${{ matrix.platform }}
           outputs: build
           build-args: |
+            BUILDKIT_CONTEXT_KEEP_GIT_DIR=1
             OWNER=${{ env.GITHUB_REPOSITORY_OWNER_PART }}
 
       - name: Slugify platform
