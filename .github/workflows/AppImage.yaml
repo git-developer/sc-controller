@@ -21,9 +21,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          fetch-depth: 20
-          fetch-tags: true
           ref: ${{ github.ref }}
+          fetch-tags: true
 
       - name: Expose slug values
         uses: rlespinasse/github-slug-action@v5
@@ -38,7 +37,6 @@ jobs:
           platforms: ${{ matrix.platform }}
           outputs: build
           build-args: |
-            BUILDKIT_CONTEXT_KEEP_GIT_DIR=1
             OWNER=${{ env.GITHUB_REPOSITORY_OWNER_PART }}
 
       - name: Slugify platform

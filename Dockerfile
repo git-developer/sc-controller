@@ -6,16 +6,11 @@ WORKDIR /work
 RUN <<EOR
   ls -la | sort
   pacman -Syu --noconfirm git
-  git fetch --tags
-  git switch -c dockerbuild
   echo >&2 '>>> GIT_DESCRIBE 1:'
   git describe --dirty --tags --always --long --match 'v[0-9]*'
+  git fetch --tags
   echo >&2 '>>> GIT_DESCRIBE 2:'
   git describe --dirty --all --always --long --match 'v[0-9]*'
-
-  git pull
-  echo >&2 '>>> GIT_DESCRIBE 3:'
-  git describe --dirty --tags --long --match 'v[0-9]*'
 
   exit 1
 EOR
