@@ -56,6 +56,9 @@ WORKDIR /work
 RUN <<EOR
 	set -eu
 
+  git fetch --tags
+  echo >&2 'GIT_DESCRIBE:'
+  git describe --dirty --tags --long --match 'v[0-9]*'
 	pip install --break-system-packages --root-user-action ignore .
   python -m pytest tests
 
