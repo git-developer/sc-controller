@@ -4,8 +4,10 @@ FROM ghcr.io/pkgforge-dev/archlinux AS build-stage
 COPY . /work
 WORKDIR /work
 RUN <<EOR
-	set -eux
-  ls -la
+	set -eu
+  ls -la | sort
+  pacman -Syu --noconfirm git
+	set -x
   echo >&2 '>>> GIT_FETCH:'
   git fetch --tags
   echo >&2 '>>> GIT_DESCRIBE:'
