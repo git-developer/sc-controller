@@ -8,9 +8,9 @@ RUN <<EOR
   pacman -Syu --noconfirm git
   git fetch --tags
   echo >&2 '>>> GIT_DESCRIBE 1:'
-  git describe --dirty --tags --long --match 'v[0-9]*'
+  git describe --dirty --tags --always --long --match 'v[0-9]*'
   echo >&2 '>>> GIT_DESCRIBE 2:'
-  git describe --dirty --all --long --match 'v[0-9]*'
+  git describe --dirty --all --always --long --match 'v[0-9]*'
   exit 1
 EOR
 
