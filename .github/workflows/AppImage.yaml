@@ -34,6 +34,7 @@ jobs:
       - name: Compile and build AppImage in Docker using the repo Dockerfile
         uses: docker/build-push-action@v7
         with:
+          context: .
           platforms: ${{ matrix.platform }}
           outputs: build
           build-args: |
