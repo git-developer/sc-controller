@@ -7,6 +7,7 @@ RUN <<EOR
   ls -la | sort
   pacman -Syu --noconfirm git
   git fetch --tags
+  git switch -c dockerbuild
   echo >&2 '>>> GIT_DESCRIBE 1:'
   git describe --dirty --tags --always --long --match 'v[0-9]*'
   echo >&2 '>>> GIT_DESCRIBE 2:'
