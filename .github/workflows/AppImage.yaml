@@ -29,6 +29,9 @@ jobs:
       - name: Setup buildx for docker
         uses: docker/setup-buildx-action@v4
 
+      - name: DEBUG
+        run: ls -la
+
       - name: Compile and build AppImage in Docker using the repo Dockerfile
         uses: docker/build-push-action@v7
         with:

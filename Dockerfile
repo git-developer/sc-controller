@@ -1,6 +1,18 @@
 # syntax=docker/dockerfile:1
 FROM ghcr.io/pkgforge-dev/archlinux AS build-stage
 
+COPY . /work
+WORKDIR /work
+RUN <<EOR
+	set -eux
+  ls -la
+  echo >&2 '>>> GIT_FETCH:'
+  git fetch --tags
+  echo >&2 '>>> GIT_DESCRIBE:'
+  git describe --dirty --tags --long --match 'v[0-9]*'
+  exit 1
+EOR
+
 # Prepare Python build dependencies
 RUN <<EOR
 	set -eu
