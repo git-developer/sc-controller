@@ -21,7 +21,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          fetch-depth: 0
+          fetch-depth: 20
+          fetch-tags: true
+          ref: ${{ github.head_ref }}
 
       - name: Expose slug values
         uses: rlespinasse/github-slug-action@v5
