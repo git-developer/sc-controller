@@ -3,22 +3,22 @@ FROM ghcr.io/pkgforge-dev/archlinux AS build-stage
 
 # Prepare Python build dependencies
 RUN <<EOR
-	set -eu
+  set -eu
 
-	pacman -Syu --noconfirm \
-		base-devel \
-		bluez-libs \
-		cairo \
-		gettext \
-		git \
-		gobject-introspection \
-		gtk4 \
-		gtk4-layer-shell \
-		librsvg \
-		libxfixes \
-		linux-headers \
-		python \
-		python-build \
+  pacman -Syu --noconfirm \
+    base-devel \
+    bluez-libs \
+    cairo \
+    gettext \
+    git \
+    gobject-introspection \
+    gtk4 \
+    gtk4-layer-shell \
+    librsvg \
+    libxfixes \
+    linux-headers \
+    python \
+    python-build \
     python-cairo \
     python-evdev \
     python-gobject \
@@ -27,7 +27,7 @@ RUN <<EOR
     python-libusb1 \
     python-pip \
     python-pytest \
-		python-pyusb \
+    python-pyusb \
     python-vdf
 
   pacman -Scc
@@ -54,9 +54,9 @@ ARG OWNER=owner
 COPY . /work
 WORKDIR /work
 RUN <<EOR
-	set -eu
+  set -eu
 
-	pip install --break-system-packages --root-user-action ignore .
+  pip install --break-system-packages --root-user-action ignore .
   python -m pytest tests
 
   # Provide input-event-codes.h as fallback for runtime systems without linux headers
@@ -67,7 +67,7 @@ RUN <<EOR
   export APPNAME=sc-controller
   export DESKTOP="packaging/io.github.c0rn3j.${APPNAME}.desktop"
   export ICON="packaging/io.github.c0rn3j.${APPNAME}.svg"
-	export VERSION=$(python -c "from scc.constants import DAEMON_VERSION; print(DAEMON_VERSION)")
+  export VERSION=$(python -c "from scc.constants import DAEMON_VERSION; print(DAEMON_VERSION)")
   export UPINFO="gh-releases-zsync|${OWNER}|${APPNAME}|latest|${APPNAME}-*-${arch}.AppImage.zsync"
   export OUTNAME="$(echo "${APPNAME}-${VERSION}-anylinux-${arch}" | tr '[:upper:]' '[:lower:]').AppImage"
   export OUTPATH=/appimage
