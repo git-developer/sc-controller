@@ -21,6 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
+          fetch-tags: true
           fetch-depth: 20
 
       - name: Expose slug values
