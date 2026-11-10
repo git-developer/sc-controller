@@ -20,8 +20,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-        with:
+        with: # args are required for git-based version detection
+          ref: ${{ github.ref }}
           fetch-depth: 20
+          fetch-tags: true
 
       - name: Expose slug values
         uses: rlespinasse/github-slug-action@v5
@@ -32,6 +34,7 @@ jobs:
       - name: Compile and build AppImage in Docker using the repo Dockerfile
         uses: docker/build-push-action@v7
         with:
+          context: . # explicit path context is required for git-based version detection
           platforms: ${{ matrix.platform }}
           outputs: build
           build-args: |
