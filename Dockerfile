@@ -1,16 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM ghcr.io/pkgforge-dev/archlinux AS build-stage
 
-COPY . /work
-WORKDIR /work
-RUN <<EOR
-  pacman -Syu --noconfirm git
-  echo >&2 '>>> GIT_DESCRIBE 1:'
-  git describe --dirty --tags --long --match 'v[0-9]*'
-
-  exit 1
-EOR
-
 # Prepare Python build dependencies
 RUN <<EOR
 	set -eu
@@ -66,9 +56,6 @@ WORKDIR /work
 RUN <<EOR
 	set -eu
 
-  git fetch --tags
-  echo >&2 'GIT_DESCRIBE:'
-  git describe --dirty --tags --long --match 'v[0-9]*'
 	pip install --break-system-packages --root-user-action ignore .
   python -m pytest tests
 
