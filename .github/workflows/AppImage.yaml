@@ -37,6 +37,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           outputs: build
           build-args: |
+            BUILDKIT_CONTEXT_KEEP_GIT_DIR=1
             OWNER=${{ env.GITHUB_REPOSITORY_OWNER_PART }}
 
       - name: Slugify platform
