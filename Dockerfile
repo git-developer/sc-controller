@@ -74,6 +74,11 @@ RUN <<EOR
   export DEPLOY_PYTHON=1
   export MAIN_BIN=/usr/bin/scc
 
+git status
+git describe --dirty --tags --match 'v[0-9]*
+echo "VERSION: $VERSION"
+exit 1
+
   quick-sharun.sh \
     /usr/bin/sc-controller \
     /usr/bin/scc* \

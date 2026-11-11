@@ -83,6 +83,7 @@ packages = [
 
 [tool.setuptools_scm]
 version_file = "scc/_version.py"
+version_scheme = "guess-next-dev"
 fallback_version = "0.0.0+unknown"
 
 [tool.setuptools_scm.scm.git]
