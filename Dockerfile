@@ -75,7 +75,7 @@ RUN <<EOR
   export MAIN_BIN=/usr/bin/scc
 
 git status
-git describe --dirty --tags --match 'v[0-9]*
+git describe --dirty --tags --match 'v[0-9]*'
 echo "VERSION: $VERSION"
 exit 1
 
