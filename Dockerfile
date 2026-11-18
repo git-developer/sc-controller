@@ -34,16 +34,14 @@ RUN <<EOR
 EOR
 
 # Prepare AppImage Build dependencies
+ARG ANYLINUX_URL=https://github.com/pkgforge-dev/Anylinux-AppImages/raw/refs/heads/main/useful-tools
 RUN <<EOR
+  set -eu
   pacman -Syu --noconfirm patchelf xorg-server-xvfb
-  tools="https://raw.githubusercontent.com/pkgforge-dev/Anylinux-AppImages/refs/heads/main/useful-tools"
-  sharun="${tools}/quick-sharun.sh"
-  debloated="${tools}/get-debloated-pkgs.sh"
-  curl -fsSL "${sharun}" | install /dev/stdin /usr/local/bin/quick-sharun.sh
-  curl -fsSL "${debloated}" | install /dev/stdin /usr/local/bin/get-debloated-pkgs.sh
+  curl -fsSL "${ANYLINUX_URL}/quick-sharun.sh" | install /dev/stdin /usr/local/bin/quick-sharun.sh
 
   # Installs a debloated MESA, Vulkan, Qt, GTK, libicudata, and more
-  get-debloated-pkgs.sh --add-mesa --prefer-nano
+  curl -fsSL "${ANYLINUX_URL}/get-debloated-pkgs.sh" | sh -s -- --add-mesa --prefer-nano
 
   pacman -Scc
 EOR
@@ -73,11 +71,6 @@ RUN <<EOR
   export OUTPATH=/appimage
   export DEPLOY_PYTHON=1
   export MAIN_BIN=/usr/bin/scc
-
-git status
-git describe --dirty --tags --match 'v[0-9]*'
-echo "VERSION: $VERSION"
-exit 1
 
   quick-sharun.sh \
     /usr/bin/sc-controller \

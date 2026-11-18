@@ -77,7 +77,6 @@ class ControllerRegistration(Editor):
 
 	def setup_widgets(self):
 		Editor.setup_widgets(self)
-		self.builder.get_object("mnuStick").set_parent(self.window)
 		cursors = {}
 		for axis in self._axis_data:
 			if "trig" in axis.name:
@@ -701,7 +700,7 @@ class ControllerRegistration(Editor):
 			self.unhilight(self._hilighted_area)
 			self._hilighted_area = None
 
-	def on_area_click(self, trash, what):
+	def on_area_click(self, image: ControllerImage, what: str) -> None:
 		stDialog = self.builder.get_object("stDialog")
 		pages = list(stDialog.observe_children())
 		index = pages.index(stDialog.get_visible_child())
@@ -709,9 +708,12 @@ class ControllerRegistration(Editor):
 			if what in STICK_PAD_AREAS:
 				area_name, axes = STICK_PAD_AREAS[what]
 				mnuStick = self.builder.get_object("mnuStick")
-				mnuStick._what = "LSTICKPRESS" if what == "LSTICK" else what
+				mnuStick._what = what + "PRESS" if what in ("LSTICK", "RSTICK") else what
+				# DPAD does not have a press action
+				self.builder.get_object("mnuStickPress").set_sensitive(what != "DPAD")
 				mnuStick._axes = [self._axis_data[index] for index in axes]
-				mnuStick.popup()
+				x, y = image._click_position
+				self.app._popup_at(mnuStick, image, x, y)
 			elif what in TRIGGER_AREAS:
 				self._grabber = TriggerGrabber(self, self._axis_data[TRIGGER_AREAS[what]])
 			elif hasattr(SCButtons, what):
@@ -719,7 +721,9 @@ class ControllerRegistration(Editor):
 
 	def on_mnuStickPress_activate(self, *a):
 		mnuStick = self.builder.get_object("mnuStick")
-		self._grabber = InputGrabber(self, getattr(SCButtons, mnuStick._what), text=_("Press stick or button..."))
+		# DPAD does not have a press action
+		if mnuStick._what != "DPAD":
+			self._grabber = InputGrabber(self, getattr(SCButtons, mnuStick._what), text=_("Press stick or button..."))
 
 	def on_mnuStickmove_activate(self, *a):
 		mnuStick = self.builder.get_object("mnuStick")
@@ -737,11 +741,12 @@ class ControllerRegistration(Editor):
 		for fname in evdev.list_devices():
 			dev = evdev.InputDevice(fname)
 			is_gamepad = ControllerRegistration.does_he_looks_like_a_gamepad(dev)
-			# bustype 3 is BUS_USB, which is the type used for emulated
-			# gamepads. phys is blank for BUS_BLUETOOTH devices.
-			if dev.info.bustype == 3 and not dev.phys:
-				# Skipping over virtual devices so list doesn't show
-				# gamepads emulated by SCC
+			# Instead of BUS_VIRTUAL, we use BUS_USB for emulated controllers, which is also used for real hardware.
+			# phys is blank for BUS_BLUETOOTH devices, but also for some BUS_USB devices like the DualSense.
+			# Identify uinput output by device's sysfs location to counter the above.
+			syspath = os.path.realpath(os.path.join("/sys/class/input", os.path.basename(fname), "device"))
+			if dev.info.bustype == evdev.ecodes.BUS_USB and syspath.startswith("/sys/devices/virtual/input/"):
+				# Skipping over virtual devices so list doesn't show gamepads emulated by SCC
 				continue
 			if is_gamepad or cbShowAllDevices.get_active():
 				lstDevices.append((fname, dev.name, self._gamepad_icon if is_gamepad else self._other_icon))

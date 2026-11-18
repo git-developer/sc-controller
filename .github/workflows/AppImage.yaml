@@ -1,5 +1,9 @@
 name: Build and publish AppImages
 
+env:
+  # main at 2026-11-09
+  ANYLINUX_URL: https://github.com/pkgforge-dev/Anylinux-AppImages/raw/e089c046e2bd34309d5e450713f5ea448cb7df52/useful-tools
+
 on:
   release:
     types: [published]
@@ -21,6 +25,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with: # args are required for git-based version detection
+          ref: ${{ github.ref }}
           fetch-depth: 20
           fetch-tags: true
 
@@ -37,6 +42,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           outputs: build
           build-args: |
+            ANYLINUX_URL
             OWNER=${{ env.GITHUB_REPOSITORY_OWNER_PART }}
 
       - name: Slugify platform
@@ -82,7 +88,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           pattern: appimage-${{ steps.platform-slug.outputs.slug-url }}
-          path: appimages
+          path: assets
           merge-multiple: true
 
       - name: Test AppImage on Alpine
