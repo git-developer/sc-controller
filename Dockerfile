@@ -70,6 +70,7 @@ RUN <<EOR
   export OUTNAME="$(echo "${APPNAME}-${VERSION}-anylinux-${arch}" | tr '[:upper:]' '[:lower:]').AppImage"
   export OUTPATH=/appimage
   export DEPLOY_PYTHON=1
+  export USE_HOST_DRIVERS=1
   export MAIN_BIN=/usr/bin/scc
 
   quick-sharun.sh \
