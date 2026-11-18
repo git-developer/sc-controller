@@ -41,7 +41,7 @@ RUN <<EOR
   curl -fsSL "${ANYLINUX_URL}/quick-sharun.sh" | install /dev/stdin /usr/local/bin/quick-sharun.sh
 
   # Installs a debloated MESA, Vulkan, Qt, GTK, libicudata, and more
-  curl -fsSL "${ANYLINUX_URL}/get-debloated-pkgs.sh" | sh -s -- --add-mesa --prefer-nano
+  curl -fsSL "${ANYLINUX_URL}/get-debloated-pkgs.sh" | sh -s -- --add-common --add-mesa --prefer-nano
 
   pacman -Scc
 EOR
@@ -75,9 +75,8 @@ RUN <<EOR
   quick-sharun.sh \
     /usr/bin/sc-controller \
     /usr/bin/scc* \
-    /usr/lib/python*/site-packages/usb1/*.py \
-    /usr/lib/libbluetooth.so \
-    /usr/lib/librsvg-2.so \
+    /usr/lib/libbluetooth.so* \
+    /usr/lib/libgtk-4.so* \
     "${input_event_codes}"
 
   quick-sharun.sh --make-appimage
