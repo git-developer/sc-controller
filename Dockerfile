@@ -71,9 +71,9 @@ RUN <<EOR
   export OUTPATH=/appimage
   export DEPLOY_PYTHON=1
   export USE_HOST_DRIVERS=1
-  export MAIN_BIN=/usr/bin/scc
 
   quick-sharun.sh \
+    packaging/appimage-entrypoint \
     /usr/bin/sc-controller \
     /usr/bin/scc* \
     /usr/lib/libbluetooth.so* \
