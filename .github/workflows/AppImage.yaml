@@ -100,6 +100,7 @@ jobs:
             apk add coreutils
             find /appimage/ -type f -name '*.AppImage' | while read -r appimage; do
               chmod +x "${appimage}"
+              export ARG0_OVERRIDE=scc
               "${appimage}" dependency-check || exit 1
               timeout 5 "${appimage}" daemon --alone --foreground start
               rc="$?"

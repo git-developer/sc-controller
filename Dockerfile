@@ -73,12 +73,13 @@ RUN <<EOR
   export USE_HOST_DRIVERS=1
 
   quick-sharun.sh \
-    packaging/appimage-entrypoint \
     /usr/bin/sc-controller \
     /usr/bin/scc* \
     /usr/lib/libbluetooth.so* \
-    /usr/lib/libgtk-4.so* \
+    /usr/lib/libgtk4-layer-shell.so.* \
     "${input_event_codes}"
+
+  cp -a packaging/appimage.*.hook AppDir/bin/
 
   quick-sharun.sh --make-appimage
 EOR
