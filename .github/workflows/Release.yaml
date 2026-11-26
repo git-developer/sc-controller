@@ -9,18 +9,21 @@ jobs:
     uses: ./.github/workflows/Linux.yaml
 
   build-windows:
+    if: false
     uses: ./.github/workflows/Windows.yaml
 
   # Capacity issues often make this fail
   build-macos:
+    if: false
     uses: ./.github/workflows/macOS.yaml
 
   build-appimage:
     uses: ./.github/workflows/AppImage.yaml
 
   release:
-    if: github.repository == 'C0rn3j/sc-controller'
-    needs: [build-appimage, build-linux, build-windows] # , build-macos
+    needs: [build-appimage, build-linux] #, build-windows, build-macos
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
@@ -28,16 +31,32 @@ jobs:
         with:
           path: ~/artifacts
 
+      - name: Find release type
+        id: release_type
+        run: |
+          # https://packaging.python.org/en/latest/specifications/version-specifiers/#public-version-identifiers
+          # [N!]N(.N)*[{a|b|rc}N][.postN][.devN]
+          echo "${{ github.ref }}" | if grep -q -P '[0-9]+(a|b|rc)[0-9]+$'; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "${{ github.ref }}" | if grep -q -P '\.(post|dev)[0-9]+$'; then
+            echo "draft=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "draft=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish release and all builds
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           name: ${{ github.ref_name }}
           tag: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
+          draft: ${{ steps.release_type.outputs.draft }}
+          prerelease: ${{ steps.release_type.outputs.prerelease }}
           makeLatest: true
-          commit: ${{ github.sha }}
           omitBody: true
           allowUpdates: true
           omitNameDuringUpdate: true
