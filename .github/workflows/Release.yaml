@@ -9,19 +9,17 @@ jobs:
     uses: ./.github/workflows/Linux.yaml
 
   build-windows:
-    if: false
     uses: ./.github/workflows/Windows.yaml
 
   # Capacity issues often make this fail
   build-macos:
-    if: false
     uses: ./.github/workflows/macOS.yaml
 
   build-appimage:
     uses: ./.github/workflows/AppImage.yaml
 
   release:
-    needs: [build-appimage, build-linux] #, build-windows, build-macos
+    needs: [build-appimage, build-linux, build-windows] # , build-macos
     permissions:
       contents: write
     runs-on: ubuntu-latest
